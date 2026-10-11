@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>📦 Docker de Cero a Pro — jemjaf</title>
+<style>
+    :root {
+        --bg: #f3f4f1;
+        --surface: #ffffff;
+        --ink: #15181c;
+        --muted: #5c636b;
+        --line: #dfe2df;
+        --track: #e7e9e6;
+        --accent: #1e7a4d;
+        --accent-ink: #14502f;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+    }
+    a { color: var(--ink); }
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(243,244,241,0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+    }
+    .topbar .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+    }
+    .crumb { font-size: 0.85rem; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .crumb a:hover { color: var(--accent); }
+    .crumb .here { color: var(--ink); }
+    .overall { display: flex; align-items: center; gap: 12px; }
+    .overall .track { width: 220px; }
+    .pct { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 700; font-size: 1rem; color: var(--accent-ink); min-width: 3.2rem; text-align: right; }
+    .ocount { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 40px 24px 80px; max-width: 900px; margin: 0 auto; }
+    .lead { margin-bottom: 34px; }
+    .lead h1 {
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px 0;
+    }
+    .lead .sub { color: var(--muted); margin: 0 0 18px 0; }
+    .lead .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ghost {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+    }
+    .ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .module {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px 22px 14px;
+        margin-bottom: 18px;
+    }
+    .module-head { display: flex; align-items: baseline; gap: 12px; }
+    .mnum {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.85rem;
+        color: var(--accent-ink);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 2px 7px;
+        flex: none;
+    }
+    .mtitle { flex: 1; font-size: 1.12rem; margin: 0; letter-spacing: -0.005em; }
+    .mcount {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--muted);
+        flex: none;
+    }
+    .track {
+        height: 6px;
+        background: var(--track);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 14px 0 18px;
+    }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .lessons { list-style: none; margin: 0; padding: 0; }
+    .lesson { display: flex; align-items: flex-start; gap: 11px; padding: 7px 0; border-top: 1px solid var(--line); }
+    .lesson:first-child { border-top: none; }
+    .lesson input[type="checkbox"] {
+        width: 17px; height: 17px; margin: 3px 0 0 0; flex: none;
+        accent-color: var(--accent);
+        cursor: pointer;
+    }
+    .lesson .ltitle { text-decoration: none; }
+    .lesson .ltitle:hover { color: var(--accent-ink); text-decoration: underline; }
+    .lesson.is-done .ltitle { color: var(--muted); }
+    footer.foot { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; color: var(--muted); font-size: 0.8rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+    @media (max-width: 600px) {
+        .topbar .wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .overall .track { width: 150px; }
+    }
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="wrap">
+        <div class="crumb">
+            <a href="../index.html">jemjaf</a> <span>/</span> <span class="here">📦 Docker de Cero a Pro</span>
+        </div>
+        <div class="overall">
+            <div class="track" role="progressbar" aria-label="Progreso del curso"><div class="fill" data-overall-bar></div></div>
+            <span class="pct" data-overall-pct>0%</span>
+        </div>
+    </div>
+</div>
+<main>
+    <section class="lead">
+        <h1>📦 Docker de Cero a Pro</h1>
+        <p class="sub">Comunidad jemjaf · 14 módulos · 116 lecciones</p>
+        <div class="tools">
+            <button class="ghost" data-reset type="button">Reiniciar progreso de este curso</button>
+        </div>
+        <p class="ocount"><span data-overall-count>0 de 116 lecciones</span></p>
+    </section>
+    <section class="modules">
+        
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">01</span>
+                    <h2 class="mtitle">Lessons</h2>
+                    <span class="mcount" data-module-count="__root__">0/4</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="__root__"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0afdf2c55afb460aa4d38c241dc50c29" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="1-📍 [INICIO]/index.html">📍 [INICIO]</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="179da8d6e6d14eb0b3c1d048a58695bd" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎉 Bienvenida/index.html">🎉 Bienvenida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9698026da98c4bfbb22a02d4acf28cdb" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-📚 PDFs y Recursos/index.html">📚 PDFs y Recursos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="feb3da56b9dc40b39f40692f85b0e359" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-👋 Cierre/index.html">👋 Cierre</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">02</span>
+                    <h2 class="mtitle">🎬🔵 SESIONES COMPLETAS</h2>
+                    <span class="mcount" data-module-count="2-🎬🔵 SESIONES COMPLETAS">0/9</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="2-🎬🔵 SESIONES COMPLETAS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="680d584b92f442fd9bd6d2d8ea8117cf" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/1-🔵📦 [M0-M1-M2] Bienvenida - Fundamentos - Pilares/index.html">🔵📦 [M0-M1-M2] Bienvenida - Fundamentos - Pilares</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b5abfcdb0f2b4ce79d1e57d97951aa5e" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/2-🔵📦 [M3] Ciclo de Vida - Comandos/index.html">🔵📦 [M3] Ciclo de Vida - Comandos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f0995c3012e14c90848f006b113a8069" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/3-🔵📦 [M4] Dockerfile/index.html">🔵📦 [M4] Dockerfile</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="446fc3d49e734766b02478cdf0253c6a" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/4-🔵📦[M5-M6] Dockerfile Avanzado - Deploy en Render/index.html">🔵📦[M5-M6] Dockerfile Avanzado - Deploy en Render</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5593dc8cf7594055b335605063b203db" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/5-🔵📦 [M7] Networking en Docker/index.html">🔵📦 [M7] Networking en Docker</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1c83df7954284231a929c1be0710d045" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/6-🔵📦 [M8] Docker Compose/index.html">🔵📦 [M8] Docker Compose</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9476d55d207a4e2cb592c36ac2cdd621" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/7-🔵📦 [M9] Proyecto Final/index.html">🔵📦 [M9] Proyecto Final</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8818b91274284b2db01c665806facc8f" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/8-🔵📦 [M10] Proyecto Adicional/index.html">🔵📦 [M10] Proyecto Adicional</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5ebcc0f5597d46e491cb4bd13507017a" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/9-🔵📦 [LABS] Docker en KodeKloud/index.html">🔵📦 [LABS] Docker en KodeKloud</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">03</span>
+                    <h2 class="mtitle">🌟PROYECTOS DE LA COMUNIDAD</h2>
+                    <span class="mcount" data-module-count="3-🌟PROYECTOS DE LA COMUNIDAD">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="3-🌟PROYECTOS DE LA COMUNIDAD"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="256ecc15b248445ca3259a7d48a1cda2" data-module="3-🌟PROYECTOS DE LA COMUNIDAD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-🌟PROYECTOS DE LA COMUNIDAD/1-🐳 Proyectos de la comunidad/index.html">🐳 Proyectos de la comunidad</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">04</span>
+                    <h2 class="mtitle">M0 — SETUP</h2>
+                    <span class="mcount" data-module-count="4-M0 — SETUP">0/4</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="4-M0 — SETUP"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ff3d4c6c1bf94a8eac509359f0bd9d41" data-module="4-M0 — SETUP" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M0 — SETUP/1-0.1 📖 Introducción/index.html">0.1 📖 Introducción</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="05dd0f304448469d8ba89435b69cbdf9" data-module="4-M0 — SETUP" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M0 — SETUP/2-0.2 👨‍🏫 Presentación del instructor/index.html">0.2 👨‍🏫 Presentación del instructor</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="859972468468408d832630a992d5059a" data-module="4-M0 — SETUP" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M0 — SETUP/3-0.3 📋 Prerrequisitos del curso/index.html">0.3 📋 Prerrequisitos del curso</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6aea03171bc749b18b5c14cb63177668" data-module="4-M0 — SETUP" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M0 — SETUP/4-0.4 💻 Dónde realizar las prácticas/index.html">0.4 💻 Dónde realizar las prácticas</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">05</span>
+                    <h2 class="mtitle">M1 — FUNDAMENTOS DE DOCKER</h2>
+                    <span class="mcount" data-module-count="5-M1 — FUNDAMENTOS DE DOCKER">0/9</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="5-M1 — FUNDAMENTOS DE DOCKER"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="78c76ded16284971a9c74b863fded66d" data-module="5-M1 — FUNDAMENTOS DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — FUNDAMENTOS DE DOCKER/1-1.1 🚀 Tu primer contenedor/index.html">1.1 🚀 Tu primer contenedor</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="00e3461cd42247eba310eef4a67b0ab3" data-module="5-M1 — FUNDAMENTOS DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — FUNDAMENTOS DE DOCKER/2-1.2 💡 Lo que Docker resuelve/index.html">1.2 💡 Lo que Docker resuelve</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="022f3e62784f4ffb88509e843fd40e06" data-module="5-M1 — FUNDAMENTOS DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — FUNDAMENTOS DE DOCKER/3-1.3 🖥️ Máquinas virtuales (VMs)/index.html">1.3 🖥️ Máquinas virtuales (VMs)</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="453e95f0ff3b4b6290729e2f7967054d" data-module="5-M1 — FUNDAMENTOS DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — FUNDAMENTOS DE DOCKER/4-1.4 🐳 ¿Qué es Docker-/index.html">1.4 🐳 ¿Qué es Docker?</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8c1fce066b6347d389400858442db76d" data-module="5-M1 — FUNDAMENTOS DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — FUNDAMENTOS DE DOCKER/5-1.5 ⚙️ ¿Cómo funciona Docker-/index.html">1.5 ⚙️ ¿Cómo funciona Docker?</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="384c1ef665164fb1b1747a9bc150da28" data-module="5-M1 — FUNDAMENTOS DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — FUNDAMENTOS DE DOCKER/6-1.6 ⚖️ VMs vs. contenedores/index.html">1.6 ⚖️ VMs vs. contenedores</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f95c96b94b7f4bca9dd95969f87a1eb2" data-module="5-M1 — FUNDAMENTOS DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — FUNDAMENTOS DE DOCKER/7-1.7 🏗️ Arquitectura de Docker/index.html">1.7 🏗️ Arquitectura de Docker</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f76e2895af4e47529e5802d97498f239" data-module="5-M1 — FUNDAMENTOS DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — FUNDAMENTOS DE DOCKER/8-1.8 ⌨️ Comandos y flags esenciales/index.html">1.8 ⌨️ Comandos y flags esenciales</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2c20471c7ab3441ab589a8c3ae1461ba" data-module="5-M1 — FUNDAMENTOS DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — FUNDAMENTOS DE DOCKER/9-1.9 🖼️ Imágenes listas para usar/index.html">1.9 🖼️ Imágenes listas para usar</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">06</span>
+                    <h2 class="mtitle">M2 — PILARES DE DOCKER</h2>
+                    <span class="mcount" data-module-count="6-M2 — PILARES DE DOCKER">0/7</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="6-M2 — PILARES DE DOCKER"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="668e767103e44af2a329d3ccf1fc9c47" data-module="6-M2 — PILARES DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — PILARES DE DOCKER/1-2.1 📝 Dockerfile/index.html">2.1 📝 Dockerfile</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="49f96787c55e45c4953f8180ea1be86f" data-module="6-M2 — PILARES DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — PILARES DE DOCKER/2-2.2 🖼️ Docker Image/index.html">2.2 🖼️ Docker Image</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2557d9c0f9aa47aba5a239af0e03e89c" data-module="6-M2 — PILARES DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — PILARES DE DOCKER/3-2.3 📦 Contenedor/index.html">2.3 📦 Contenedor</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b2da9cd73c474499afd17f4090ea36bb" data-module="6-M2 — PILARES DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — PILARES DE DOCKER/4-2.4 🌐 Docker Registry/index.html">2.4 🌐 Docker Registry</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ef5b254219404bc9b761a5e185bd2d42" data-module="6-M2 — PILARES DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — PILARES DE DOCKER/5-2.5 🔐 Docker Hub — Autenticación/index.html">2.5 🔐 Docker Hub — Autenticación</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8b093d5033b74095ae64844f25bd9346" data-module="6-M2 — PILARES DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — PILARES DE DOCKER/6-2.6 🔄 Flujo completo/index.html">2.6 🔄 Flujo completo</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6a4b2ccbadf5402e85c726be64172bfb" data-module="6-M2 — PILARES DE DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — PILARES DE DOCKER/7-🌟 Docker vs. Podman/index.html">🌟 Docker vs. Podman</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">07</span>
+                    <h2 class="mtitle">M3 — COMANDOS Y CICLO DE VIDA</h2>
+                    <span class="mcount" data-module-count="7-M3 — COMANDOS Y CICLO DE VIDA">0/16</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="7-M3 — COMANDOS Y CICLO DE VIDA"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4c849949daaa44a594a2bc9251918d74" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/1-3.1 📋 docker ps — Listar contenedores/index.html">3.1 📋 docker ps — Listar contenedores</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e59b37eec90444ac8a913009a83a3715" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/2-3.2 ⬇️ docker pull e images — Descargar imágenes/index.html">3.2 ⬇️ docker pull e images — Descargar imágenes</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="417ae585d8f942b1b18a69159c333d48" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/3-3.3 🏷️ docker tag — Etiquetar imágenes/index.html">3.3 🏷️ docker tag — Etiquetar imágenes</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6d1c624ee57e4515a449c515e818e2df" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/4-3.4 ⬆️ docker push — Publicar imágenes/index.html">3.4 ⬆️ docker push — Publicar imágenes</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="15ac347a63f6404a8c925279a59155b3" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/5-3.5 🚀 docker run — Crear contenedores/index.html">3.5 🚀 docker run — Crear contenedores</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e1337093c2534531ad1cc09930dd29b2" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/6-3.6 🎛️ -d, --rm y --name — Ejecución y nombres/index.html">3.6 🎛️ -d, --rm y --name — Ejecución y nombres</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0461efb76d654de28142e85fc8df71c4" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/7-3.7 📡 Flag -p — Publicar puertos/index.html">3.7 📡 Flag -p — Publicar puertos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5d1591569e434a15b34f8646d374a05d" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/8-3.8 💾 Flag -v — Volúmenes y persistencia/index.html">3.8 💾 Flag -v — Volúmenes y persistencia</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="efd5b6189ea3424c8588900b48b7733d" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/9-3.9 🌱 -e y --env-file — Variables de entorno/index.html">3.9 🌱 -e y --env-file — Variables de entorno</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="098b0c8950b74509aaa373032bb6af64" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/10-3.10 ⏯️ stop, start y restart — Ciclo de vida/index.html">3.10 ⏯️ stop, start y restart — Ciclo de vida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9d1d3b6794884e5684382bcd185b7766" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/11-3.11 📊 docker stats — Monitorear recursos/index.html">3.11 📊 docker stats — Monitorear recursos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f2cdb883dfaf47d7a530053cd382b0ac" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/12-3.12 📜 docker logs — Ver registros/index.html">3.12 📜 docker logs — Ver registros</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e5449166c2bf4402a416901308382ad9" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/13-3.13 💻 docker exec — Comandos en el contenedor/index.html">3.13 💻 docker exec — Comandos en el contenedor</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4974a140ed9d479b85f7b6458c67fec8" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/14-3.14 🧹 Detener, eliminar y limpiar recursos/index.html">3.14 🧹 Detener, eliminar y limpiar recursos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="15d2ce03d15a466fb377a8a16c5fb977" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/15-🌟 Lab- Docker Basic Commands/index.html">🌟 Lab: Docker Basic Commands</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="392bf8e4f2b54c24ad1d246057ce2d70" data-module="7-M3 — COMANDOS Y CICLO DE VIDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — COMANDOS Y CICLO DE VIDA/16-🌟 Lab- Docker Run/index.html">🌟 Lab: Docker Run</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">08</span>
+                    <h2 class="mtitle">M4 — DOCKERFILE</h2>
+                    <span class="mcount" data-module-count="8-M4 — DOCKERFILE">0/22</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="8-M4 — DOCKERFILE"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ba79af6895254429815fca8af040245d" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/1-4.1 📝 Dockerfile/index.html">4.1 📝 Dockerfile</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0a0d3694712f409babc6e4fae79d89c6" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/2-4.2 📦 App a Dockerizar/index.html">4.2 📦 App a Dockerizar</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e2454df351cf4417ac7b59854d31a6bf" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/3-4.3 📄 Dockerfile Más Básico/index.html">4.3 📄 Dockerfile Más Básico</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a9cffca0ea944d8d8546eefb9c942347" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/4-4.4 🏗️ docker build/index.html">4.4 🏗️ docker build</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="78a26682e6134422893addb5e808b7cc" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/5-4.5 🚀 Primer build/index.html">4.5 🚀 Primer build</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2546e193e66e49b7ac2f168f4bbf27f8" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/6-4.6 🧱 Tipos de imágenes base/index.html">4.6 🧱 Tipos de imágenes base</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="03c81cf3eea5412381dca971c66d9773" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/7-4.7 📥 FROM — Imagen base/index.html">4.7 📥 FROM — Imagen base</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1e6859e58977488d9d9b55d457380aba" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/8-4.8 📂 WORKDIR — Directorio de trabajo/index.html">4.8 📂 WORKDIR — Directorio de trabajo</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0368e72804484cb1b0675662e553e68c" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/9-4.9 📄 COPY — Copiar archivos/index.html">4.9 📄 COPY — Copiar archivos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="934e8b655df3465fa27962cd0e895a9a" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/10-4.10 ➕ ADD — Copiar y extraer archivos/index.html">4.10 ➕ ADD — Copiar y extraer archivos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="25e0d3872749494db3487b96bd146542" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/11-4.11 ⚖️ COPY vs. ADD/index.html">4.11 ⚖️ COPY vs. ADD</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f659a71d7df6492ea4a683346040cbb9" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/12-4.12 ⚙️ RUN — Comandos durante el build/index.html">4.12 ⚙️ RUN — Comandos durante el build</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8e2ddb41bfed465a97d50b9c5fc86058" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/13-4.13 ▶️ CMD — Comando predeterminado/index.html">4.13 ▶️ CMD — Comando predeterminado</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4a45cb6872434f0db9bbaae37b756ecf" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/14-4.14 ⚖️ RUN vs. CMD/index.html">4.14 ⚖️ RUN vs. CMD</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2ca6ade17be74be9bd4933396889e090" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/15-4.15 🚪 ENTRYPOINT — Ejecutable principal/index.html">4.15 🚪 ENTRYPOINT — Ejecutable principal</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="93395707506c4f4697e5bd4b57715166" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/16-4.16 ⚖️ ENTRYPOINT vs. CMD/index.html">4.16 ⚖️ ENTRYPOINT vs. CMD</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3388b181bb66488e89304243a9c19065" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/17-4.17 🔌 EXPOSE — Documentar puertos/index.html">4.17 🔌 EXPOSE — Documentar puertos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f6e961c1004c4f8292696966bef01598" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/18-4.18 👤 USER — Usuario del contenedor/index.html">4.18 👤 USER — Usuario del contenedor</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="391da8b7acea475099a8e820dff4d578" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/19-4.19 🚫 .dockerignore — Excluir archivos/index.html">4.19 🚫 .dockerignore — Excluir archivos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bd0fd6c87c50486f9cc8aaa2908d91eb" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/20-4.20 ✅ Dockerfile completo/index.html">4.20 ✅ Dockerfile completo</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2c93ae979c274336bc116acee3522bd0" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/21-🌟 Lab- Docker Images/index.html">🌟 Lab: Docker Images</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ce72c48e75eb460690dd4395054a21f0" data-module="8-M4 — DOCKERFILE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — DOCKERFILE/22-🌟 Lab- CMD y ENTRYPOINT/index.html">🌟 Lab: CMD y ENTRYPOINT</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">09</span>
+                    <h2 class="mtitle">M5 — DOCKERFILE AVANZADO</h2>
+                    <span class="mcount" data-module-count="9-M5 — DOCKERFILE AVANZADO">0/9</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="9-M5 — DOCKERFILE AVANZADO"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="770a652810df44ffa36e1740dddf1ad1" data-module="9-M5 — DOCKERFILE AVANZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — DOCKERFILE AVANZADO/1-5.1 🌱 Variables de entorno/index.html">5.1 🌱 Variables de entorno</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="41202d4a047e44119b7660a9f2c191bc" data-module="9-M5 — DOCKERFILE AVANZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — DOCKERFILE AVANZADO/2-5.2 📝 Argumentos de construcción/index.html">5.2 📝 Argumentos de construcción</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e3aa0b51144b4a3ebcae0f606aefe9c7" data-module="9-M5 — DOCKERFILE AVANZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — DOCKERFILE AVANZADO/3-5.3 ⚖️ ENV vs. ARG/index.html">5.3 ⚖️ ENV vs. ARG</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="03281e095a0f44ddae0bd7bebf9412bb" data-module="9-M5 — DOCKERFILE AVANZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — DOCKERFILE AVANZADO/4-5.4 ❤️ HEALTHCHECK/index.html">5.4 ❤️ HEALTHCHECK</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c4fbe1c4080d4f608744687eb7bc2f01" data-module="9-M5 — DOCKERFILE AVANZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — DOCKERFILE AVANZADO/5-5.5 🛡️ Dockerfile robusto/index.html">5.5 🛡️ Dockerfile robusto</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6ba96c7833f04842878fe8ffd43677e9" data-module="9-M5 — DOCKERFILE AVANZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — DOCKERFILE AVANZADO/6-5.6 🏗️ Multi-stage build/index.html">5.6 🏗️ Multi-stage build</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8b5496ac14984fdea24c3ba811386134" data-module="9-M5 — DOCKERFILE AVANZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — DOCKERFILE AVANZADO/7-5.7 🐍 Multi-stage build con Flask/index.html">5.7 🐍 Multi-stage build con Flask</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="80b33c31f946411fa7fbdfc935f8da4b" data-module="9-M5 — DOCKERFILE AVANZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — DOCKERFILE AVANZADO/8-🌟 Multi-arquitectura y Buildx/index.html">🌟 Multi-arquitectura y Buildx</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="291be56ab2734a87b9c1e34f0ec12c88" data-module="9-M5 — DOCKERFILE AVANZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — DOCKERFILE AVANZADO/9-🌟 Lab- Environment Variables/index.html">🌟 Lab: Environment Variables</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">10</span>
+                    <h2 class="mtitle">M6 — DEPLOY EN RENDER</h2>
+                    <span class="mcount" data-module-count="10-M6 — DEPLOY EN RENDER">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="10-M6 — DEPLOY EN RENDER"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a82b728fddfe4dbf9e48525dfcb4cc31" data-module="10-M6 — DEPLOY EN RENDER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — DEPLOY EN RENDER/1-6.1 🌍 El patrón universal de deploy/index.html">6.1 🌍 El patrón universal de deploy</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="31fc2c573f2748d891cdfc45b4968c8d" data-module="10-M6 — DEPLOY EN RENDER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — DEPLOY EN RENDER/2-6.2 ☁️ Deploy desde Docker Hub/index.html">6.2 ☁️ Deploy desde Docker Hub</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1a696a6e6e2243f0bfb5926b2ea4b8c2" data-module="10-M6 — DEPLOY EN RENDER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — DEPLOY EN RENDER/3-6.3 🎯 Siguientes pasos/index.html">6.3 🎯 Siguientes pasos</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">11</span>
+                    <h2 class="mtitle">M7 — NETWORKING EN DOCKER</h2>
+                    <span class="mcount" data-module-count="11-M7 — NETWORKING EN DOCKER">0/9</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="11-M7 — NETWORKING EN DOCKER"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="af215c434c4c4e1095e3a5dfb3f0b2a3" data-module="11-M7 — NETWORKING EN DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — NETWORKING EN DOCKER/1-7.1 🌐 Docker Network — Redes de contenedores/index.html">7.1 🌐 Docker Network — Redes de contenedores</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f3344228d9984080b33f96a9ccec09cd" data-module="11-M7 — NETWORKING EN DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — NETWORKING EN DOCKER/2-7.2 🗄️ Setup de la base de datos/index.html">7.2 🗄️ Setup de la base de datos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a0aa231b7b28402c99016db7f67033f1" data-module="11-M7 — NETWORKING EN DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — NETWORKING EN DOCKER/3-🌟 Upgrade de la app/index.html">🌟 Upgrade de la app</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="719e44bbc37d415cbaaa4f00413097e6" data-module="11-M7 — NETWORKING EN DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — NETWORKING EN DOCKER/4-🌟 Setup de la App/index.html">🌟 Setup de la App</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bb8733af9efd4884ad4ef40872b87320" data-module="11-M7 — NETWORKING EN DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — NETWORKING EN DOCKER/5-🌟 Revisión de Conectividad/index.html">🌟 Revisión de Conectividad</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e286d166061f4f22b4511776dd5b08ea" data-module="11-M7 — NETWORKING EN DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — NETWORKING EN DOCKER/6-7.3 🗃️ phpMyAdmin — Administrar MySQL/index.html">7.3 🗃️ phpMyAdmin — Administrar MySQL</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="14524fb0ff234161926a097d630500f6" data-module="11-M7 — NETWORKING EN DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — NETWORKING EN DOCKER/7-7.4 🧹 Inspección y limpieza/index.html">7.4 🧹 Inspección y limpieza</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1fb5e3af06fb4498940a3c33e74112f8" data-module="11-M7 — NETWORKING EN DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — NETWORKING EN DOCKER/8-🌟 Lab- Docker Storage/index.html">🌟 Lab: Docker Storage</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ea8cdb2c40374b8d926480a82ee64d15" data-module="11-M7 — NETWORKING EN DOCKER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — NETWORKING EN DOCKER/9-🌟 Lab- Docker Networking/index.html">🌟 Lab: Docker Networking</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">12</span>
+                    <h2 class="mtitle">M8 — DOCKER COMPOSE</h2>
+                    <span class="mcount" data-module-count="12-M8 — DOCKER COMPOSE">0/15</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="12-M8 — DOCKER COMPOSE"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c4049b9a30f44ff3aceac1b0041e9b0b" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/1-8.1 💡 Lo que Compose resuelve/index.html">8.1 💡 Lo que Compose resuelve</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="80fd409dc64949afbd8595a1c3f859f7" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/2-8.2 📜 Docker Compose Legacy/index.html">8.2 📜 Docker Compose Legacy</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fafcf092c5f44ee9aa7f042c7af67471" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/3-8.3 📄 Anatomía de compose.yaml/index.html">8.3 📄 Anatomía de compose.yaml</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="15930498d1d342769d0fdc89ccb79f24" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/4-8.4 🐍 Ejemplo- Flask + PostgreSQL/index.html">8.4 🐍 Ejemplo: Flask + PostgreSQL</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="375e550dd845427c81b5f8e0385704f3" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/5-8.5 🚀 Deploy — Docker Compose/index.html">8.5 🚀 Deploy — Docker Compose</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4b14eeeb98534c97aae9e670118a4649" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/6-8.6 🌱 Variables de entorno/index.html">8.6 🌱 Variables de entorno</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="633cdf1bfaa842abba0382f77aab2da7" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/7-8.7 🏗️ Build desde Compose/index.html">8.7 🏗️ Build desde Compose</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4eab72fec0fb41b59f6bf5512545e954" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/8-8.8 🔄 Restart policies — Políticas de reinicio/index.html">8.8 🔄 Restart policies — Políticas de reinicio</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e838597c03b74d5db96a0a0b4f29e617" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/9-8.9 🧱 Stack base/index.html">8.9 🧱 Stack base</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="52be42df9c6f436786bb0da967e1a5e2" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/10-8.10 🚀 Stack completo/index.html">8.10 🚀 Stack completo</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="071d578ee66c4832815c9e0e3934064e" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/11-8.11 ⌨️ Comandos esenciales de Docker Compose/index.html">8.11 ⌨️ Comandos esenciales de Docker Compose</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="481870a956b84f459f1c7187fe116929" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/12-8.12 🚫 Antipatrones/index.html">8.12 🚫 Antipatrones</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7eca56c234084fadba4eb05c5b19c28a" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/13-8.13 🧭 Siguientes pasos/index.html">8.13 🧭 Siguientes pasos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7b532e97eefe44db845f637e27bbeedb" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/14-8.14 📊 Cómo estimar recursos/index.html">8.14 📊 Cómo estimar recursos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e226ae6e898242d6b54834a9f854b825" data-module="12-M8 — DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — DOCKER COMPOSE/15-🌟 Lab- Docker Compose/index.html">🌟 Lab: Docker Compose</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">13</span>
+                    <h2 class="mtitle">M9 — PROYECTOS CON DOCKER COMPOSE</h2>
+                    <span class="mcount" data-module-count="13-M9 — PROYECTOS CON DOCKER COMPOSE">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="13-M9 — PROYECTOS CON DOCKER COMPOSE"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a82b30fb16464b9ba507d130993b8208" data-module="13-M9 — PROYECTOS CON DOCKER COMPOSE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — PROYECTOS CON DOCKER COMPOSE/1-🌟 POPSHOP - Frontend, Backend y Base de Datos/index.html">🌟 POPSHOP - Frontend, Backend y Base de Datos</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">14</span>
+                    <h2 class="mtitle">M10 — CONTAINER REGISTRIES</h2>
+                    <span class="mcount" data-module-count="14-M10 — CONTAINER REGISTRIES">0/7</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="14-M10 — CONTAINER REGISTRIES"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4d1caf1f29f349b6b979401059029ffa" data-module="14-M10 — CONTAINER REGISTRIES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — CONTAINER REGISTRIES/1-🌟 Introducción/index.html">🌟 Introducción</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d039c47101bf4632868b7caaaf94ca35" data-module="14-M10 — CONTAINER REGISTRIES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — CONTAINER REGISTRIES/2-🌟 AWS Elastic Container Registry/index.html">🌟 AWS Elastic Container Registry</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d0ece4b36fd047a5990deb32c849e326" data-module="14-M10 — CONTAINER REGISTRIES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — CONTAINER REGISTRIES/3-🌟 Azure Container Registry/index.html">🌟 Azure Container Registry</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b79a58591c5f4126bdad97a45b03a6f3" data-module="14-M10 — CONTAINER REGISTRIES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — CONTAINER REGISTRIES/4-🌟 GitHub Container Registry/index.html">🌟 GitHub Container Registry</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c11682b7120542f9b1935c104bec1dff" data-module="14-M10 — CONTAINER REGISTRIES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — CONTAINER REGISTRIES/5-🌟 GitLab Container Registry/index.html">🌟 GitLab Container Registry</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="93a1c6eaac764a639a13e8750e1262f0" data-module="14-M10 — CONTAINER REGISTRIES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — CONTAINER REGISTRIES/6-🌟 Reflexión final/index.html">🌟 Reflexión final</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9cbb06022d194d5880464732290c69b2" data-module="14-M10 — CONTAINER REGISTRIES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — CONTAINER REGISTRIES/7-🌟 Lab- Docker Registry/index.html">🌟 Lab: Docker Registry</a>
+                </li></ul>
+            </article>
+    </section>
+</main>
+<footer class="foot">Backup local de 📦 Docker de Cero a Pro. El progreso se guarda en este navegador (localStorage); no se envía a ningún lado.</footer>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+(function () {
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-lesson]'));
+
+    function refresh() {
+        var total = boxes.length, done = 0;
+        var byModule = {};
+        boxes.forEach(function (b) {
+            var id = b.getAttribute('data-lesson');
+            var key = b.getAttribute('data-module');
+            var isDone = Progress.isDone(id);
+            b.checked = isDone;
+            if (!byModule[key]) byModule[key] = { done: 0, total: 0 };
+            byModule[key].total++;
+            if (isDone) { byModule[key].done++; done++; }
+            var row = b.closest ? b.closest('.lesson') : null;
+            if (row) row.classList.toggle('is-done', isDone);
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-bar]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-bar')] || { done: 0, total: 0 };
+            el.style.width = (m.total ? Math.round((m.done / m.total) * 100) : 0) + '%';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-count]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-count')] || { done: 0, total: 0 };
+            el.textContent = m.done + '/' + m.total;
+        });
+
+        var pct = total ? Math.round((done / total) * 100) : 0;
+        var op = document.querySelector('[data-overall-bar]'); if (op) op.style.width = pct + '%';
+        var opct = document.querySelector('[data-overall-pct]'); if (opct) opct.textContent = pct + '%';
+        var oc = document.querySelector('[data-overall-count]');
+        if (oc) oc.textContent = done + ' de ' + total + ' lecciones completadas';
+    }
+
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            Progress.set(b.getAttribute('data-lesson'), b.checked);
+            refresh();
+        });
+    });
+
+    var reset = document.querySelector('[data-reset]');
+    if (reset) reset.addEventListener('click', function () {
+        if (window.confirm('¿Borrar todo el progreso de este curso?')) { Progress.reset(); refresh(); }
+    });
+
+    Progress.load(refresh);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

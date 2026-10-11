@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Networking para DevOps: IPs, CIDRs, Firewalls y Multi-Cloud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+:root {
+  --bg-deep:#0f172a;--bg-card:#1e293b;--bg-card-hover:#334155;
+  --accent-cyan:#06b6d4;--accent-orange:#FF9900;--accent-purple:#a855f7;
+  --accent-green:#10b981;--text-primary:#f8fafc;--text-secondary:#94a3b8;
+  --success:#10b981;--danger:#ef4444;--warning:#f59e0b;
+  --font-ui:'Inter',sans-serif;--font-code:'JetBrains Mono',monospace;
+  --transition:all 0.4s cubic-bezier(0.25,1,0.5,1);
+  --glow:0 0 20px rgba(6,182,212,0.3);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background-color:#020617;color:var(--text-primary);font-family:var(--font-ui);overflow:auto;min-height:100vh;display:flex;flex-direction:column;padding:20px 0;
+  background-image:radial-gradient(circle at 10% 20%,rgba(6,182,212,0.08) 0%,transparent 40%),radial-gradient(circle at 90% 80%,rgba(168,85,247,0.05) 0%,transparent 40%);}
+#app{position:relative;width:100%;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}
+.slide{position:absolute;width:1280px;height:720px;opacity:0;pointer-events:none;transition:opacity 0.4s ease;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+  background:var(--bg-card);border:2px solid rgba(255,255,255,0.15);border-radius:20px;padding:50px;box-shadow:0 20px 50px rgba(0,0,0,0.5);overflow:hidden;}
+.slide.active{opacity:1;pointer-events:all;z-index:10;}
+h1{font-size:3rem;font-weight:900;line-height:1.1;margin-bottom:1rem;
+  background:linear-gradient(135deg,#fff 0%,var(--text-secondary) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+h2{font-size:2.1rem;color:var(--accent-cyan);margin-bottom:1rem;text-shadow:var(--glow);}
+h3{font-size:1.3rem;color:var(--text-primary);margin-bottom:0.7rem;}
+p{font-size:1.05rem;color:var(--text-secondary);line-height:1.6;margin-bottom:0.8rem;max-width:850px;}
+.highlight{color:var(--accent-cyan);font-weight:bold;}
+.orange{color:var(--accent-orange);font-weight:bold;}
+.green{color:var(--success);font-weight:bold;}
+.red{color:var(--danger);font-weight:bold;}
+.code-font{font-family:var(--font-code);}
+.jean-avatar{width:90px;height:90px;border-radius:50%;border:3px solid var(--accent-cyan);box-shadow:var(--glow);object-fit:cover;margin-bottom:1rem;}
+.jean-handle{font-family:var(--font-code);color:var(--accent-cyan);background:rgba(6,182,212,0.1);padding:0.25rem 0.75rem;border-radius:20px;font-size:0.9rem;margin-bottom:1.5rem;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;width:100%;margin-top:0.8rem;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;width:100%;margin-top:0.8rem;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:0.8rem;width:100%;margin-top:0.8rem;}
+.card{background:rgba(15,23,42,0.8);padding:1.2rem;border-radius:12px;border:2px solid rgba(255,255,255,0.15);text-align:left;transition:var(--transition);}
+.card:hover{border-color:var(--accent-cyan);background:rgba(15,23,42,0.95);}
+.card-header{font-family:var(--font-code);font-size:1rem;font-weight:700;color:var(--accent-cyan);margin-bottom:0.6rem;display:flex;align-items:center;gap:0.5rem;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:0.4rem;}
+.card-bad{border-color:var(--danger)!important;background:rgba(239,68,68,0.1)!important;}
+.card-bad .card-header{color:var(--danger);}
+.card-good{border-color:var(--success)!important;background:rgba(16,185,129,0.1)!important;}
+.card-good .card-header{color:var(--success);}
+.card-warn{border-color:var(--warning)!important;background:rgba(245,158,11,0.1)!important;}
+.tag{display:inline-block;font-family:var(--font-code);font-size:0.82rem;padding:0.2rem 0.6rem;border-radius:6px;margin:0.15rem;}
+.tag-cyan{background:rgba(6,182,212,0.15);color:var(--accent-cyan);border:1px solid rgba(6,182,212,0.4);}
+.tag-orange{background:rgba(255,153,0,0.15);color:var(--accent-orange);border:1px solid rgba(255,153,0,0.4);}
+.tag-green{background:rgba(16,185,129,0.15);color:var(--success);border:1px solid rgba(16,185,129,0.4);}
+.tag-red{background:rgba(239,68,68,0.15);color:var(--danger);border:1px solid rgba(239,68,68,0.4);}
+.tag-purple{background:rgba(168,85,247,0.15);color:var(--accent-purple);border:1px solid rgba(168,85,247,0.4);}
+.icon-lg{font-size:2.5rem;margin-bottom:0.8rem;color:var(--accent-cyan);}
+.stat-box{background:rgba(6,182,212,0.08);border:2px solid var(--accent-cyan);border-radius:12px;padding:1.2rem;text-align:center;}
+.stat-number{font-size:2.5rem;font-weight:900;color:var(--accent-cyan);}
+.stat-label{font-size:0.85rem;color:var(--text-secondary);margin-top:0.3rem;}
+table.data{width:100%;border-collapse:collapse;font-size:0.88rem;margin-top:0.5rem;}
+table.data th{background:rgba(6,182,212,0.2);color:var(--accent-cyan);padding:0.6rem 1rem;text-align:left;font-family:var(--font-code);border:1px solid rgba(6,182,212,0.4);}
+table.data td{padding:0.5rem 1rem;border:1px solid rgba(255,255,255,0.12);color:var(--text-secondary);font-family:var(--font-code);}
+table.data tr:hover td{background:rgba(255,255,255,0.04);color:var(--text-primary);}
+table.data .imp td{color:var(--accent-orange);font-weight:bold;}
+table.data .good td{color:var(--success);font-weight:bold;}
+.analogy-box{background:rgba(168,85,247,0.08);border:2px solid var(--accent-purple);border-radius:12px;padding:1rem 1.5rem;margin:0.8rem 0;max-width:870px;}
+.analogy-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--accent-purple);margin-bottom:0.3rem;font-family:var(--font-code);}
+.info-box{background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.4);border-radius:12px;padding:1rem 1.5rem;margin:0.8rem 0;max-width:870px;}
+.warn-box{background:rgba(245,158,11,0.06);border:2px solid rgba(245,158,11,0.5);border-radius:12px;padding:0.8rem 1.2rem;margin:0.5rem 0;max-width:870px;}
+.btn-cta{background:linear-gradient(90deg,var(--accent-orange),#ea580c);color:#fff;padding:0.9rem 2.5rem;font-size:1.1rem;font-weight:700;border:none;border-radius:50px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:10px;transition:var(--transition);box-shadow:0 4px 15px rgba(255,153,0,0.4);margin-top:1.2rem;}
+.btn-cta:hover{transform:scale(1.05);}
+.social-row{display:flex;gap:2rem;margin-top:1.5rem;}
+.social-item{display:flex;flex-direction:column;align-items:center;gap:0.4rem;color:var(--text-secondary);font-size:0.85rem;}
+.controls{position:fixed;left:0;right:0;top:50%;display:flex;justify-content:space-between;padding:0 1rem;z-index:100;pointer-events:none;}
+.nav-btn{background:rgba(30,41,59,0.8);border:2px solid rgba(255,255,255,0.15);color:rgba(248,250,252,0.5);width:55px;height:55px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.3rem;transition:var(--transition);pointer-events:all;backdrop-filter:blur(10px);}
+.nav-btn:hover{background:rgba(6,182,212,0.3);color:var(--accent-cyan);border-color:var(--accent-cyan);}
+.progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent-cyan);width:0%;transition:width 0.3s ease;z-index:1000;}
+.slide-counter{position:fixed;bottom:2rem;right:1.5rem;font-family:var(--font-code);color:var(--text-secondary);font-size:0.85rem;background:rgba(15,23,42,0.8);padding:0.3rem 0.8rem;border-radius:20px;border:1px solid rgba(255,255,255,0.1);}
+
+/* ===== ANIMATIONS ===== */
+@keyframes packetFlow{0%{left:-60px;opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{left:calc(100% + 60px);opacity:0;}}
+@keyframes packetFlowBlocked{0%{left:-60px;opacity:0;}10%{opacity:1;}50%{opacity:1;left:45%;}55%{transform:scale(1.3);background:var(--danger);}70%{opacity:0;left:45%;}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(0.95);}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes slideRight{from{transform:translateX(-20px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 5px rgba(6,182,212,0.3);}50%{box-shadow:0 0 20px rgba(6,182,212,0.8);}}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+.anim-container{position:relative;width:100%;height:80px;background:rgba(0,0,0,0.3);border-radius:10px;border:2px solid rgba(255,255,255,0.1);overflow:hidden;display:flex;align-items:center;margin:0.5rem 0;}
+.anim-container .endpoint{position:absolute;background:rgba(6,182,212,0.15);border:2px solid var(--accent-cyan);border-radius:8px;padding:0.4rem 0.8rem;font-family:var(--font-code);font-size:0.8rem;color:var(--accent-cyan);display:flex;align-items:center;gap:0.4rem;}
+.anim-container .ep-left{left:15px;}
+.anim-container .ep-right{right:15px;}
+.packet{position:absolute;width:50px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-family:var(--font-code);font-weight:700;text-transform:uppercase;animation:packetFlow 2.5s ease-in-out infinite;}
+.packet-blocked{animation:packetFlowBlocked 2.5s ease-in-out infinite;}
+.packet-ok{background:rgba(16,185,129,0.3);border:1px solid var(--success);color:var(--success);}
+.packet-web{background:rgba(6,182,212,0.3);border:1px solid var(--accent-cyan);color:var(--accent-cyan);}
+.packet-blocked-style{background:rgba(239,68,68,0.3);border:1px solid var(--danger);color:var(--danger);}
+.firewall-wall{position:absolute;left:50%;top:0;bottom:0;width:4px;background:linear-gradient(180deg,transparent,var(--warning),transparent);transform:translateX(-50%);}
+.firewall-label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--font-code);font-size:0.65rem;color:var(--warning);background:rgba(245,158,11,0.15);padding:0.2rem 0.4rem;border-radius:4px;white-space:nowrap;}
+
+/* Subnet calculator styles */
+.calc-box{background:rgba(6,182,212,0.06);border:2px solid rgba(6,182,212,0.4);border-radius:16px;padding:1.5rem;width:100%;max-width:900px;}
+.calc-input{display:flex;gap:1rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;justify-content:center;}
+.calc-field{display:flex;flex-direction:column;gap:0.3rem;align-items:flex-start;}
+.calc-field label{font-family:var(--font-code);font-size:0.75rem;color:var(--text-secondary);}
+.calc-field input,.calc-field select{background:rgba(0,0,0,0.4);border:2px solid rgba(6,182,212,0.4);border-radius:8px;color:var(--text-primary);padding:0.5rem 0.8rem;font-family:var(--font-code);font-size:0.95rem;outline:none;transition:border-color 0.3s;}
+.calc-field input:focus,.calc-field select:focus{border-color:var(--accent-cyan);}
+.calc-btn{background:linear-gradient(90deg,var(--accent-cyan),#0891b2);color:#fff;border:none;border-radius:8px;padding:0.6rem 1.5rem;font-family:var(--font-code);font-weight:700;cursor:pointer;font-size:0.9rem;transition:var(--transition);}
+.calc-btn:hover{transform:scale(1.03);}
+.calc-results{display:grid;grid-template-columns:repeat(3,1fr);gap:0.8rem;}
+.calc-result-item{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:0.7rem;text-align:center;}
+.calc-result-label{font-family:var(--font-code);font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.3rem;}
+.calc-result-value{font-family:var(--font-code);font-size:0.95rem;font-weight:700;color:var(--accent-cyan);}
+
+/* network diagrams */
+.net-diagram{display:flex;align-items:center;justify-content:center;gap:0.8rem;flex-wrap:wrap;margin:0.8rem 0;}
+.nd-box{border-radius:10px;padding:0.6rem 1rem;text-align:center;font-size:0.8rem;font-family:var(--font-code);border:2px solid;min-width:100px;}
+.nd-arrow{font-size:1.4rem;color:var(--accent-cyan);}
+.server-icon{font-size:2rem;display:block;margin-bottom:0.2rem;}
+
+/* IP visual blocks */
+.ip-row{display:flex;align-items:center;gap:0;margin:0.8rem auto;justify-content:center;}
+.ip-oct{background:rgba(6,182,212,0.1);border:2px solid var(--accent-cyan);padding:0.6rem 0.9rem;font-family:var(--font-code);font-size:1.6rem;font-weight:700;color:var(--accent-cyan);min-width:65px;text-align:center;}
+.ip-oct.net-part{background:rgba(255,153,0,0.15);border-color:var(--accent-orange);color:var(--accent-orange);}
+.ip-oct.host-part{background:rgba(16,185,129,0.15);border-color:var(--success);color:var(--success);}
+.ip-dot{font-size:1.6rem;font-weight:900;color:var(--text-secondary);padding:0 0.05rem;}
+
+/* container diagram */
+.container-box{border:2px dashed rgba(6,182,212,0.5);border-radius:10px;padding:0.6rem;position:relative;background:rgba(6,182,212,0.04);font-size:0.75rem;font-family:var(--font-code);}
+.container-box .label{position:absolute;top:-10px;left:10px;background:#020617;padding:0 6px;color:var(--accent-cyan);font-size:0.7rem;}
+.container-inner{background:rgba(15,23,42,0.9);border:1px solid rgba(6,182,212,0.3);border-radius:6px;padding:0.4rem 0.7rem;margin:0.2rem;text-align:center;color:var(--text-primary);}
+
+@media(max-width:1400px){.slide{width:90vw;height:auto;min-height:720px;max-height:90vh;}}
+@media(max-width:768px){h1{font-size:2rem;}h2{font-size:1.5rem;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.slide{width:95vw;padding:30px;}}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+<main id="app">
+
+<!-- S1: PORTADA -->
+<div class="slide active" id="slide-1">
+  <img src="https://jemjaf.com/images/avatars/jean/0.png" alt="Jean" class="jean-avatar">
+  <div class="jean-handle">@jemjaf</div>
+  <h1>🌐 Networking para DevOps</h1>
+  <h3 class="code-font" style="color:var(--accent-cyan);letter-spacing:2px;">IPs · CIDRs · FIREWALLS · PEERING · CONTENEDORES · MULTI-CLOUD</h3>
+  <p style="margin-top:1.2rem;">Entiende cómo fluye el tráfico — desde tu laptop hasta producción en 3 nubes.</p>
+  <div class="net-diagram" style="margin-top:1.2rem;">
+    <div class="nd-box" style="border-color:var(--accent-purple);color:var(--accent-purple);">💻 Tu PC</div>
+    <div class="nd-arrow">→</div>
+    <div class="nd-box" style="border-color:var(--warning);color:var(--warning);">🛡️ Firewall</div>
+    <div class="nd-arrow">→</div>
+    <div class="nd-box" style="border-color:var(--accent-orange);color:var(--accent-orange);">☁️ AWS</div>
+    <div class="nd-arrow">→</div>
+    <div class="nd-box" style="border-color:var(--success);color:var(--success);">��️ DB</div>
+  </div>
+  <div style="font-size:0.8rem;margin-top:1.5rem;color:var(--text-secondary);">ACADEMIA DEVOPS &amp; CLOUD</div>
+</div>
+
+<!-- S2: IPv4 vs IPv6 -->
+<div class="slide" id="slide-2">
+  <h2>⚠️ ANTES DE EMPEZAR: IPv4 vs IPv6</h2>
+  <p>Todo lo que veremos en este curso es sobre <span class="highlight">IPv4</span>. Es la versión que usa el 90%+ de la infraestructura actual.</p>
+  <div class="grid-2" style="max-width:1000px;">
+    <div class="card" style="border-color:var(--accent-cyan);">
+      <div class="card-header"><i class="ph ph-star"></i> IPv4 — Lo que necesitas dominar</div>
+      <div class="ip-row" style="margin:0.5rem 0;">
+        <div class="ip-oct" style="font-size:1.1rem;min-width:45px;">192</div><div class="ip-dot" style="font-size:1.1rem;">.</div>
+        <div class="ip-oct" style="font-size:1.1rem;min-width:45px;">168</div><div class="ip-dot" style="font-size:1.1rem;">.</div>
+        <div class="ip-oct" style="font-size:1.1rem;min-width:45px;">1</div><div class="ip-dot" style="font-size:1.1rem;">.</div>
+        <div class="ip-oct" style="font-size:1.1rem;min-width:45px;">5</div>
+      </div>
+      <ul style="font-size:0.88rem;padding-left:1rem;color:var(--text-secondary);margin-top:0.3rem;">
+        <li>4 grupos de 0–255 separados por puntos</li>
+        <li>~4.3 mil millones de direcciones únicas</li>
+        <li>AWS, VPCs, Firewalls, K8s → todo IPv4</li>
+        <li>CIDR, subnetting, peering → IPv4</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(255,255,255,0.2);opacity:0.7;">
+      <div class="card-header" style="color:var(--text-secondary);"><i class="ph ph-clock"></i> IPv6 — El futuro (no urgente aún)</div>
+      <div style="font-family:var(--font-code);font-size:0.85rem;color:var(--text-secondary);margin-top:0.3rem;">2001:0db8:85a3::8a2e:0370:7334</div>
+      <ul style="font-size:0.88rem;padding-left:1rem;color:var(--text-secondary);margin-top:0.5rem;">
+        <li>128-bit, 8 grupos hexadecimales</li>
+        <li>340 undecillones de direcciones</li>
+        <li>Conceptos similares a IPv4</li>
+        <li>Usado en móviles, ISPs modernos, CDN</li>
+      </ul>
+      <div class="warn-box" style="margin-top:0.5rem;padding:0.5rem 0.8rem;">
+        <p style="margin:0;font-size:0.82rem;color:var(--warning);">La mayoría de infra enterprise aún usa IPv4. Lo dominarás primero.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S3: QUÉ ES UNA IP -->
+<div class="slide" id="slide-3">
+  <h2>📬 ¿QUÉ ES UNA DIRECCIÓN IP?</h2>
+  <div class="analogy-box">
+    <div class="analogy-label">🏠 Analogía</div>
+    <p style="margin:0;color:var(--text-primary);">Una IP es el <strong>domicilio postal</strong> de un dispositivo. Sin dirección, nadie sabe dónde enviarte datos.</p>
+  </div>
+  <div class="ip-row" style="margin:1rem auto;">
+    <div class="ip-oct">192</div><div class="ip-dot">.</div>
+    <div class="ip-oct">168</div><div class="ip-dot">.</div>
+    <div class="ip-oct">1</div><div class="ip-dot">.</div>
+    <div class="ip-oct">100</div>
+  </div>
+  <div class="grid-3" style="max-width:900px;margin-top:0.5rem;">
+    <div class="stat-box"><div class="stat-number">4</div><div class="stat-label">grupos (octetos)</div></div>
+    <div class="stat-box"><div class="stat-number">0–255</div><div class="stat-label">rango de cada octeto</div></div>
+    <div class="stat-box"><div class="stat-number">4,300M</div><div class="stat-label">millones de IPs posibles en IPv4</div></div>
+  </div>
+  <div class="anim-container" style="max-width:800px;margin-top:0.8rem;height:60px;">
+    <div class="endpoint ep-left"><i class="ph ph-desktop"></i> Tu PC<br><span style="font-size:0.7rem;color:var(--text-secondary);">192.168.1.5</span></div>
+    <div class="packet packet-web" style="animation-delay:0s;top:18px;">DATA</div>
+    <div class="packet packet-ok" style="animation-delay:1.2s;top:18px;">ACK</div>
+    <div class="endpoint ep-right"><i class="ph ph-cloud"></i> Servidor<br><span style="font-size:0.7rem;color:var(--text-secondary);">34.102.1.80</span></div>
+  </div>
+</div>
+
+<!-- S4: IPs ESPECIALES -->
+<div class="slide" id="slide-4">
+  <h2>🔑 IPs ESPECIALES QUE DEBES CONOCER</h2>
+  <table class="data" style="max-width:1100px;margin:0.5rem auto;">
+    <thead><tr><th>Dirección IP</th><th>Nombre</th><th>Qué significa</th><th>Ejemplo real</th></tr></thead>
+    <tbody>
+      <tr class="imp"><td>127.0.0.1</td><td>Loopback / localhost</td><td>Tu propio dispositivo. El tráfico nunca sale a la red.</td><td>Tu app en http://localhost:3000</td></tr>
+      <tr class="good"><td>0.0.0.0</td><td>Wildcard / All interfaces</td><td>Escucha en TODAS las interfaces de red del host</td><td>Servidor web que acepta cualquier origen</td></tr>
+      <tr><td>255.255.255.255</td><td>Broadcast limitado</td><td>Envía a todos los dispositivos en la red local</td><td>DHCP discovery de tu router</td></tr>
+      <tr><td>169.254.x.x</td><td>Link-Local (APIPA)</td><td>Asignada cuando no hay DHCP. Señal de problema.</td><td>AWS Instance Metadata: 169.254.169.254</td></tr>
+      <tr><td>10.x.x.x</td><td>RFC 1918 Privada</td><td>Rango privado, no ruteable en Internet</td><td>Tu VPC en AWS/Azure/GCP</td></tr>
+    </tbody>
+  </table>
+  <div class="warn-box" style="max-width:900px;margin-top:0.5rem;">
+    <p style="margin:0;font-size:0.88rem;color:var(--warning);">⚡ <strong>Dato AWS:</strong> La IP <span class="code-font">169.254.169.254</span> es el endpoint de Instance Metadata Service (IMDS). Cada EC2 lo usa para obtener su rol IAM, user-data, etc.</p>
+  </div>
+</div>
+
+<!-- S5: 0.0.0.0:PORT vs 127.0.0.1:PORT -->
+<div class="slide" id="slide-5">
+  <h2>🔌 0.0.0.0:PORT vs 127.0.0.1:PORT</h2>
+  <p>Cuando un servicio "levanta" en un puerto, decide <span class="highlight">quién puede conectarse</span>. Es crítico entender esto.</p>
+  <div class="grid-2" style="max-width:1050px;">
+    <div class="card card-good">
+      <div class="card-header"><i class="ph ph-globe"></i> 0.0.0.0:8080 — Escucha en TODAS las interfaces</div>
+      <div class="anim-container" style="height:55px;margin-bottom:0.5rem;">
+        <div class="endpoint ep-left" style="font-size:0.7rem;">🌐 Internet<br>1.2.3.4</div>
+        <div class="packet packet-web" style="top:15px;animation-delay:0s;">HTTP</div>
+        <div class="endpoint ep-right" style="font-size:0.7rem;">🖥️ Servidor<br>:8080</div>
+      </div>
+      <ul style="font-size:0.85rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>Acepta conexiones de Internet, LAN, localhost</li>
+        <li>Necesario para servidores web en producción</li>
+        <li>Ejemplo: <span class="code-font" style="color:var(--success);">nginx -g "listen 0.0.0.0:80"</span></li>
+        <li>En Docker: <span class="code-font" style="color:var(--success);">-p 8080:8080</span> expone al host</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:var(--accent-cyan);">
+      <div class="card-header"><i class="ph ph-lock"></i> 127.0.0.1:8080 — Solo loopback (local)</div>
+      <div class="anim-container" style="height:55px;margin-bottom:0.5rem;">
+        <div class="endpoint ep-left" style="font-size:0.7rem;">🌐 Internet<br>1.2.3.4</div>
+        <div class="packet packet-blocked-style packet-blocked" style="top:15px;">HTTP</div>
+        <div class="firewall-wall"></div>
+        <div class="firewall-label">BLOCKED</div>
+        <div class="endpoint ep-right" style="font-size:0.7rem;">🖥️ Localhost<br>:8080</div>
+      </div>
+      <ul style="font-size:0.85rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>Solo accesible desde el mismo host</li>
+        <li>Ideal para DBs, caches, APIs internas</li>
+        <li>Ejemplo: <span class="code-font" style="color:var(--accent-cyan);">redis-server --bind 127.0.0.1</span></li>
+        <li>En Docker: sin <span class="code-font">-p</span>, solo accesible entre contenedores</li>
+      </ul>
+    </div>
+  </div>
+  <div class="info-box" style="max-width:900px;margin-top:0.5rem;padding:0.6rem 1rem;">
+    <p style="margin:0;font-size:0.88rem;">🔐 <strong>Regla de seguridad:</strong> Tu base de datos nunca debe escuchar en <span class="code-font" style="color:var(--danger);">0.0.0.0</span>. Solo en <span class="code-font" style="color:var(--success);">127.0.0.1</span> o la IP privada de su subnet.</p>
+  </div>
+</div>
+
+<!-- S6: IPs PÚBLICAS vs PRIVADAS -->
+<div class="slide" id="slide-6">
+  <h2>🌍 IPs PÚBLICAS vs PRIVADAS</h2>
+  <div class="anim-container" style="max-width:1000px;height:90px;">
+    <div class="endpoint ep-left" style="flex-direction:column;gap:0.1rem;">
+      <span style="font-size:1.2rem;">💻</span><span style="font-size:0.72rem;">Tu PC</span>
+      <span class="code-font" style="font-size:0.65rem;color:var(--text-secondary);">192.168.1.5 (priv)</span>
+    </div>
+    <div class="packet packet-web" style="top:32px;animation-delay:0s;">GET</div>
+    <div class="packet packet-ok" style="top:32px;animation-delay:1.3s;">200</div>
+    <div style="position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0.1rem;">
+      <span style="font-size:0.7rem;color:var(--warning);">🔄 NAT en router</span>
+      <span class="code-font" style="font-size:0.62rem;color:var(--text-secondary);">IP priv → IP pub</span>
+    </div>
+    <div class="endpoint ep-right" style="flex-direction:column;gap:0.1rem;">
+      <span style="font-size:1.2rem;">☁️</span><span style="font-size:0.72rem;">Servidor AWS</span>
+      <span class="code-font" style="font-size:0.65rem;color:var(--text-secondary);">34.102.136.180 (pub)</span>
+    </div>
+  </div>
+  <div class="grid-2" style="max-width:1000px;margin-top:0.5rem;">
+    <div class="card card-good">
+      <div class="card-header"><i class="ph ph-globe"></i> IP PÚBLICA — Visible en Internet</div>
+      <ul style="font-size:0.88rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>Única en el mundo</li>
+        <li>Asignada por ISP o proveedor cloud</li>
+        <li>Ej: <span class="code-font">34.102.136.180</span> (EC2 con IP pública)</li>
+        <li>Necesaria para: ALB, NAT Gateway, servidores web</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:var(--accent-cyan);">
+      <div class="card-header"><i class="ph ph-house-line"></i> IP PRIVADA — Solo dentro de tu red</div>
+      <ul style="font-size:0.88rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>Reutilizable en distintas redes privadas</li>
+        <li>No ruteable desde Internet</li>
+        <li>RFC 1918: <span class="code-font">10.x</span>, <span class="code-font">172.16.x</span>, <span class="code-font">192.168.x</span></li>
+        <li>Tus EC2, RDS, pods de K8s</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- S7: RANGOS RFC 1918 -->
+<div class="slide" id="slide-7">
+  <h2>📋 RANGOS PRIVADOS (RFC 1918)</h2>
+  <p>Estos rangos están <span class="highlight">reservados en todo Internet</span>. Ningún router público los rutea.</p>
+  <table class="data" style="max-width:980px;margin:0.5rem auto;">
+    <thead><tr><th>Rango</th><th>CIDR</th><th>IPs disponibles</th><th>Uso típico</th></tr></thead>
+    <tbody>
+      <tr class="imp"><td>10.0.0.0 – 10.255.255.255</td><td>10.0.0.0/8</td><td>~16.7 millones</td><td>VPCs cloud, corporaciones grandes</td></tr>
+      <tr><td>172.16.0.0 – 172.31.255.255</td><td>172.16.0.0/12</td><td>~1 millón</td><td>Docker (172.17.0.0/16 por defecto)</td></tr>
+      <tr><td>192.168.0.0 – 192.168.255.255</td><td>192.168.0.0/16</td><td>~65,000</td><td>Tu router de casa, LANs pequeñas</td></tr>
+    </tbody>
+  </table>
+  <div class="grid-3" style="max-width:980px;margin-top:0.8rem;">
+    <div class="card" style="text-align:center;border-color:var(--accent-orange);">
+      <div class="card-header" style="color:var(--accent-orange);justify-content:center;">☁️ AWS VPC default</div>
+      <div class="code-font" style="font-size:1.1rem;color:var(--accent-orange);">172.31.0.0/16</div>
+      <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.3rem;">VPC por defecto de AWS</div>
+    </div>
+    <div class="card" style="text-align:center;border-color:var(--accent-cyan);">
+      <div class="card-header" style="color:var(--accent-cyan);justify-content:center;">🐳 Docker bridge</div>
+      <div class="code-font" style="font-size:1.1rem;color:var(--accent-cyan);">172.17.0.0/16</div>
+      <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.3rem;">Red interna de Docker</div>
+    </div>
+    <div class="card" style="text-align:center;border-color:var(--success);">
+      <div class="card-header" style="color:var(--success);justify-content:center;">🏠 Tu router</div>
+      <div class="code-font" style="font-size:1.1rem;color:var(--success);">192.168.1.0/24</div>
+      <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.3rem;">Red wifi de tu casa</div>
+    </div>
+  </div>
+</div>
+
+<!-- S8: CIDR -->
+<div class="slide" id="slide-8">
+  <h2>🎯 CIDR: ¿QUÉ ES ESA BARRA?</h2>
+  <div class="analogy-box">
+    <div class="analogy-label">📦 Analogía</div>
+    <p style="margin:0;color:var(--text-primary);">CIDR es como un <strong>código postal</strong>: en vez de una sola dirección, define una zona entera de direcciones.</p>
+  </div>
+  <div style="margin:0.8rem auto;text-align:center;">
+    <div style="font-family:var(--font-code);font-size:2rem;color:var(--text-primary);">
+      <span style="color:var(--accent-orange);">10.0</span><span style="color:var(--accent-cyan);">.0.0</span><span style="color:var(--accent-purple);">/16</span>
+    </div>
+    <div style="display:flex;gap:2.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
+      <div style="text-align:center;"><div style="color:var(--accent-orange);font-weight:700;font-size:0.82rem;">PARTE DE RED (fija)</div><div style="color:var(--text-secondary);font-size:0.78rem;">10.0.x.x — no cambia</div></div>
+      <div style="text-align:center;"><div style="color:var(--accent-cyan);font-weight:700;font-size:0.82rem;">PARTE DE HOST (libre)</div><div style="color:var(--text-secondary);font-size:0.78rem;">puede ser 0–255 en cada octeto</div></div>
+      <div style="text-align:center;"><div style="color:var(--accent-purple);font-weight:700;font-size:0.82rem;">PREFIJO = 16 bits fijos</div><div style="color:var(--text-secondary);font-size:0.78rem;">32 - 16 = 16 bits libres → 65,534 IPs</div></div>
+    </div>
+  </div>
+  <div class="ip-row" style="margin:0.5rem auto;max-width:800px;">
+    <div class="ip-oct net-part">10</div><div class="ip-dot">.</div>
+    <div class="ip-oct net-part">0</div><div class="ip-dot">.</div>
+    <div class="ip-oct host-part">0</div><div class="ip-dot">.</div>
+    <div class="ip-oct host-part">0</div>
+    <span style="margin-left:0.5rem;font-family:var(--font-code);font-size:1.4rem;color:var(--accent-purple);">/16</span>
+  </div>
+  <div style="display:flex;gap:1.5rem;justify-content:center;margin-top:0.3rem;">
+    <span><span style="background:rgba(255,153,0,0.2);padding:0.2rem 0.5rem;border-radius:4px;color:var(--accent-orange);font-size:0.8rem;">🔒 Parte RED (fija)</span></span>
+    <span><span style="background:rgba(16,185,129,0.2);padding:0.2rem 0.5rem;border-radius:4px;color:var(--success);font-size:0.8rem;">🔓 Parte HOST (libre)</span></span>
+  </div>
+</div>
+
+<!-- S9: TABLA CIDR -->
+<div class="slide" id="slide-9">
+  <h2>📊 TABLA CIDR — MEMORIZA LAS CLAVES</h2>
+  <table class="data" style="max-width:1050px;margin:0.5rem auto;">
+    <thead><tr><th>CIDR</th><th>IPs totales</th><th>IPs usables</th><th>Qué representa</th><th>Uso típico</th></tr></thead>
+    <tbody>
+      <tr class="imp"><td>/0</td><td>4,294,967,296</td><td>Todo</td><td style="color:var(--danger);font-weight:bold;">🌍 TODOS los dispositivos de Internet</td><td>Regla "abierto al mundo" en SG/Firewall</td></tr>
+      <tr><td>/8</td><td>16,777,216</td><td>~16.7M</td><td>Red enorme (ej: 10.x.x.x)</td><td>Redes corporativas grandes / RFC 1918</td></tr>
+      <tr><td>/16</td><td>65,536</td><td>65,534</td><td>Red grande (ej: 10.0.x.x)</td><td>VPC principal en AWS/Azure/GCP</td></tr>
+      <tr><td>/24</td><td>256</td><td>251*</td><td>Subnet estándar (ej: 10.0.1.x)</td><td>Subnet por AZ, por servicio</td></tr>
+      <tr><td>/28</td><td>16</td><td>11*</td><td>Subnet pequeña</td><td>NAT Gateway, servicios AWS gestionados</td></tr>
+      <tr class="good"><td>/32</td><td>1</td><td>1</td><td style="color:var(--success);font-weight:bold;">🎯 UNA sola IP exacta</td><td>Whitelist de una IP específica</td></tr>
+    </tbody>
+  </table>
+  <div class="warn-box" style="max-width:900px;margin-top:0.5rem;">
+    <p style="margin:0;font-size:0.85rem;color:var(--warning);">* AWS reserva <strong>5 IPs por subnet</strong>: red, gateway, DNS, futuro uso x2 y broadcast. En un /24: 256 - 5 = <strong>251 IPs usables</strong>.</p>
+  </div>
+</div>
+
+<!-- S10: IPs RESERVADAS POR SUBNET -->
+<div class="slide" id="slide-10">
+  <h2>⛔ 5 IPs QUE UNA SUBNET TE QUITA</h2>
+  <p>Sin importar qué nube uses, <span class="highlight">cada subnet reserva las primeras y últimas IPs</span>. No puedes asignarlas a recursos.</p>
+  <div style="max-width:950px;margin:0.5rem auto;">
+    <div style="font-family:var(--font-code);font-size:0.88rem;margin-bottom:0.5rem;color:var(--text-secondary);">Ejemplo con subnet <span style="color:var(--accent-cyan);">10.0.1.0/24</span> (256 IPs totales)</div>
+    <div style="display:flex;flex-direction:column;gap:0.4rem;">
+      <div style="display:flex;align-items:center;gap:1rem;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:0.5rem 1rem;">
+        <span class="code-font" style="color:var(--danger);min-width:130px;">10.0.1.0</span>
+        <span class="tag tag-red">Dirección de red</span>
+        <span style="font-size:0.85rem;color:var(--text-secondary);">Identifica la subnet. Nunca asignable.</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:0.5rem 1rem;">
+        <span class="code-font" style="color:var(--warning);min-width:130px;">10.0.1.1</span>
+        <span class="tag tag-orange">Router / Gateway</span>
+        <span style="font-size:0.85rem;color:var(--text-secondary);">AWS la reserva para el gateway de la VPC.</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:8px;padding:0.5rem 1rem;">
+        <span class="code-font" style="color:var(--accent-purple);min-width:130px;">10.0.1.2</span>
+        <span class="tag tag-purple">DNS</span>
+        <span style="font-size:0.85rem;color:var(--text-secondary);">Servidor DNS de la VPC (Base + 2). Azure usa la misma convención.</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.3);border-radius:8px;padding:0.5rem 1rem;">
+        <span class="code-font" style="color:var(--accent-cyan);min-width:130px;">10.0.1.3</span>
+        <span class="tag tag-cyan">Reservado</span>
+        <span style="font-size:0.85rem;color:var(--text-secondary);">Reservado para uso futuro por AWS.</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:0.5rem 1rem;">
+        <span class="code-font" style="color:var(--danger);min-width:130px;">10.0.1.255</span>
+        <span class="tag tag-red">Broadcast</span>
+        <span style="font-size:0.85rem;color:var(--text-secondary);">Última IP. AWS no usa broadcast pero la reserva.</span>
+      </div>
+    </div>
+  </div>
+  <div class="info-box" style="max-width:900px;margin-top:0.5rem;padding:0.5rem 1rem;">
+    <p style="margin:0;font-size:0.88rem;">💡 /24 = 256 - 5 = <strong style="color:var(--success);">251 usables</strong> &nbsp;|&nbsp; /28 = 16 - 5 = <strong style="color:var(--success);">11 usables</strong> &nbsp;|&nbsp; /16 = 65,536 - 5 = <strong style="color:var(--success);">65,531 usables</strong></p>
+  </div>
+</div>
+
+<!-- S11: SUBNETTING -->
+<div class="slide" id="slide-11">
+  <h2>🔪 SUBNETTING: DIVIDIR UNA RED EN ZONAS</h2>
+  <div class="analogy-box">
+    <div class="analogy-label">🏢 Analogía</div>
+    <p style="margin:0;color:var(--text-primary);">Tu VPC es el <strong>edificio</strong>. Las subnets son los <strong>pisos</strong>. Cada piso tiene sus propias reglas de acceso.</p>
+  </div>
+  <div style="width:100%;max-width:1050px;margin:0.8rem auto;">
+    <div style="font-family:var(--font-code);text-align:center;margin-bottom:0.5rem;color:var(--accent-cyan);font-size:0.9rem;">🏢 VPC: 10.0.0.0/16</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.5rem;">
+      <div style="border:2px solid var(--accent-orange);border-radius:8px;padding:0.5rem;text-align:center;background:rgba(255,153,0,0.06);">
+        <div style="font-size:1.2rem;">🌐</div>
+        <div class="code-font" style="color:var(--accent-orange);font-size:0.75rem;">Subnet Pública A</div>
+        <div class="code-font" style="font-size:0.7rem;color:var(--text-secondary);">10.0.1.0/24</div>
+        <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:0.2rem;">ALB, Bastion, NAT GW</div>
+      </div>
+      <div style="border:2px solid var(--accent-orange);border-radius:8px;padding:0.5rem;text-align:center;background:rgba(255,153,0,0.06);">
+        <div style="font-size:1.2rem;">🌐</div>
+        <div class="code-font" style="color:var(--accent-orange);font-size:0.75rem;">Subnet Pública B</div>
+        <div class="code-font" style="font-size:0.7rem;color:var(--text-secondary);">10.0.2.0/24</div>
+        <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:0.2rem;">AZ-b (Alta Disponibilidad)</div>
+      </div>
+      <div style="border:2px solid var(--accent-cyan);border-radius:8px;padding:0.5rem;text-align:center;background:rgba(6,182,212,0.06);">
+        <div style="font-size:1.2rem;">🔒</div>
+        <div class="code-font" style="color:var(--accent-cyan);font-size:0.75rem;">Subnet Privada A</div>
+        <div class="code-font" style="font-size:0.7rem;color:var(--text-secondary);">10.0.10.0/24</div>
+        <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:0.2rem;">EC2, ECS, Lambda</div>
+      </div>
+      <div style="border:2px solid var(--success);border-radius:8px;padding:0.5rem;text-align:center;background:rgba(16,185,129,0.06);">
+        <div style="font-size:1.2rem;">🗄️</div>
+        <div class="code-font" style="color:var(--success);font-size:0.75rem;">Subnet DB</div>
+        <div class="code-font" style="font-size:0.7rem;color:var(--text-secondary);">10.0.20.0/24</div>
+        <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:0.2rem;">RDS, ElastiCache</div>
+      </div>
+    </div>
+    <div class="net-diagram" style="margin-top:0.5rem;">
+      <div class="nd-box" style="border-color:var(--success);color:var(--success);font-size:0.75rem;">🌍 Internet<br>0.0.0.0/0</div>
+      <div class="nd-arrow">→</div>
+      <div class="nd-box" style="border-color:var(--accent-orange);color:var(--accent-orange);font-size:0.75rem;">🚪 Internet<br>Gateway</div>
+      <div class="nd-arrow">→</div>
+      <div class="nd-box" style="border-color:var(--accent-orange);color:var(--accent-orange);font-size:0.75rem;">🌐 Subnet<br>Pública</div>
+      <div class="nd-arrow">→</div>
+      <div class="nd-box" style="border-color:var(--warning);color:var(--warning);font-size:0.75rem;">🔄 NAT<br>Gateway</div>
+      <div class="nd-arrow">→</div>
+      <div class="nd-box" style="border-color:var(--accent-cyan);color:var(--accent-cyan);font-size:0.75rem;">🔒 Subnet<br>Privada</div>
+    </div>
+  </div>
+</div>
+
+<!-- S12: SEGMENTACIÓN DE RED -->
+<div class="slide" id="slide-12">
+  <h2>🧱 SEGMENTACIÓN: ¿POR QUÉ DIVIDIR?</h2>
+  <div class="analogy-box">
+    <div class="analogy-label">🏦 Analogía</div>
+    <p style="margin:0;color:var(--text-primary);">Un banco no pone la bóveda al lado de la entrada. Cada zona tiene <strong>acceso diferente y restringido</strong>. Tus subnets igual.</p>
+  </div>
+  <div class="grid-2" style="max-width:1000px;margin-top:0.5rem;">
+    <div class="card card-bad">
+      <div class="card-header">❌ Sin Segmentación — Todo en una red</div>
+      <div class="anim-container" style="height:60px;margin-bottom:0.5rem;">
+        <div class="endpoint ep-left" style="font-size:0.7rem;">😈 Atacante</div>
+        <div class="packet packet-ok" style="top:18px;animation-delay:0s;background:rgba(239,68,68,0.3);border-color:var(--danger);color:var(--danger);">HACK</div>
+        <div class="endpoint ep-right" style="font-size:0.7rem;">🗄️ Base de datos<br><span style="font-size:0.6rem;color:var(--danger);">ACCESO DIRECTO</span></div>
+      </div>
+      <ul style="font-size:0.82rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>Un solo punto comprometido = todo expuesto</li>
+        <li>La DB es accesible desde Internet</li>
+        <li>Movimiento lateral libre del atacante</li>
+      </ul>
+    </div>
+    <div class="card card-good">
+      <div class="card-header">✅ Con Segmentación — Zonas aisladas</div>
+      <div class="anim-container" style="height:60px;margin-bottom:0.5rem;">
+        <div class="endpoint ep-left" style="font-size:0.7rem;">🌐 Internet</div>
+        <div class="packet packet-web" style="top:18px;animation-delay:0s;">HTTP</div>
+        <div class="firewall-wall"></div>
+        <div class="firewall-label">:443 OK</div>
+        <div class="endpoint ep-right" style="font-size:0.7rem;">⚖️ ALB<br><span style="font-size:0.6rem;color:var(--success);">Subnet Pública</span></div>
+      </div>
+      <ul style="font-size:0.82rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>Solo el ALB está expuesto a Internet</li>
+        <li>App servers en subnet privada</li>
+        <li>DB solo acepta tráfico de la app (por SG)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="info-box" style="max-width:900px;margin-top:0.5rem;padding:0.6rem 1rem;">
+    <p style="margin:0;font-size:0.85rem;"><strong>Principio de mínimo privilegio en red:</strong> Cada componente solo habla con quien necesita. La DB solo recibe tráfico del SG de la app en el puerto 5432.</p>
+  </div>
+</div>
+
+<!-- S13: FIREWALLS -->
+<div class="slide" id="slide-13">
+  <h2>🚧 FIREWALLS: EL GUARDIA DE SEGURIDAD</h2>
+  <div class="analogy-box">
+    <div class="analogy-label">👮 Analogía</div>
+    <p style="margin:0;color:var(--text-primary);">El firewall es el guardia de una discoteca: decide quién entra, por qué puerta, y si llevan algo prohibido.</p>
+  </div>
+  <div class="grid-2" style="max-width:1050px;margin-top:0.5rem;">
+    <div class="card">
+      <div class="card-header"><i class="ph ph-funnel"></i> Qué filtra</div>
+      <ul style="font-size:0.88rem;padding-left:1rem;color:var(--text-secondary);">
+        <li><strong style="color:var(--text-primary);">IP Origen:</strong> ¿de dónde viene? (0.0.0.0/0 = todos)</li>
+        <li><strong style="color:var(--text-primary);">IP Destino:</strong> ¿a dónde va?</li>
+        <li><strong style="color:var(--text-primary);">Protocolo:</strong> TCP, UDP, ICMP</li>
+        <li><strong style="color:var(--text-primary);">Puerto:</strong> 80, 443, 22, 3306...</li>
+        <li><strong style="color:var(--text-primary);">Dirección:</strong> Inbound / Outbound</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="ph ph-list-checks"></i> Ejemplo de reglas</div>
+      <table style="width:100%;font-size:0.8rem;border-collapse:collapse;">
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+          <td style="padding:0.3rem;color:var(--success);">✅ ALLOW</td><td>TCP :443</td><td style="color:var(--text-secondary);">0.0.0.0/0</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+          <td style="padding:0.3rem;color:var(--success);">✅ ALLOW</td><td>TCP :22</td><td style="color:var(--text-secondary);">10.0.0.0/8</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+          <td style="padding:0.3rem;color:var(--success);">✅ ALLOW</td><td>TCP :5432</td><td style="color:var(--text-secondary);">10.0.10.0/24</td>
+        </tr>
+        <tr>
+          <td style="padding:0.3rem;color:var(--danger);">❌ DENY</td><td>ALL</td><td style="color:var(--danger);">0.0.0.0/0</td>
+        </tr>
+      </table>
+      <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.4rem;">Las reglas se evalúan en orden. La primera que coincide gana.</div>
+    </div>
+  </div>
+  <div class="anim-container" style="max-width:900px;height:60px;margin-top:0.5rem;">
+    <div class="endpoint ep-left">🌐 :443 HTTPS</div>
+    <div class="packet packet-web" style="top:18px;">HTTPS</div>
+    <div class="firewall-wall"></div>
+    <div class="firewall-label">✅ ALLOW :443</div>
+    <div class="endpoint ep-right">🖥️ Servidor</div>
+  </div>
+</div>
+
+<!-- S14: CALCULADORA SUBNET -->
+<div class="slide" id="slide-14">
+  <h2>🧮 CALCULADORA DE SUBNETTING</h2>
+  <p>Ingresa una red y un prefijo para calcular sus rangos al instante.</p>
+  <div class="calc-box" style="max-width:960px;">
+    <div class="calc-input">
+      <div class="calc-field">
+        <label>IP BASE</label>
+        <input type="text" id="calcIP" value="10.0.0.0" placeholder="10.0.0.0" style="width:145px;">
+      </div>
+      <div class="calc-field">
+        <label>PREFIJO</label>
+        <select id="calcPrefix" style="width:80px;">
+          <option value="16">/16</option>
+          <option value="17">/17</option>
+          <option value="18">/18</option>
+          <option value="19">/19</option>
+          <option value="20">/20</option>
+          <option value="21">/21</option>
+          <option value="22">/22</option>
+          <option value="23">/23</option>
+          <option value="24" selected>/24</option>
+          <option value="25">/25</option>
+          <option value="26">/26</option>
+          <option value="27">/27</option>
+          <option value="28">/28</option>
+          <option value="29">/29</option>
+          <option value="30">/30</option>
+          <option value="32">/32</option>
+        </select>
+      </div>
+      <div class="calc-field">
+        <label>&nbsp;</label>
+        <button class="calc-btn" onclick="calcSubnet()">▶ CALCULAR</button>
+      </div>
+    </div>
+    <div class="calc-results" id="calcResults">
+      <div class="calc-result-item"><div class="calc-result-label">DIRECCIÓN DE RED</div><div class="calc-result-value" id="rNetwork">—</div></div>
+      <div class="calc-result-item"><div class="calc-result-label">PRIMERA IP USABLE</div><div class="calc-result-value" id="rFirst">—</div></div>
+      <div class="calc-result-item"><div class="calc-result-label">ÚLTIMA IP USABLE</div><div class="calc-result-value" id="rLast">—</div></div>
+      <div class="calc-result-item"><div class="calc-result-label">BROADCAST</div><div class="calc-result-value" id="rBroadcast">—</div></div>
+      <div class="calc-result-item"><div class="calc-result-label">IPs TOTALES</div><div class="calc-result-value" id="rTotal">—</div></div>
+      <div class="calc-result-item"><div class="calc-result-label">IPs USABLES (−5 AWS)</div><div class="calc-result-value" id="rUsable">—</div></div>
+    </div>
+  </div>
+  <div class="info-box" style="max-width:900px;margin-top:0.5rem;padding:0.5rem 1rem;">
+    <p style="margin:0;font-size:0.82rem;">💡 Regla rápida: IPs usables = 2^(32 - prefijo) − 5 (reservadas por AWS)</p>
+  </div>
+</div>
+
+<!-- S15: SG vs NACL -->
+<div class="slide" id="slide-15">
+  <h2>🛡️ SECURITY GROUPS vs NACLs (AWS)</h2>
+  <div class="grid-2" style="max-width:1050px;">
+    <div class="card" style="border-color:var(--accent-cyan);">
+      <div class="card-header"><i class="ph ph-shield-check"></i> Security Group (SG) — Nivel Recurso</div>
+      <ul style="font-size:0.87rem;padding-left:1rem;color:var(--text-secondary);">
+        <li><strong style="color:var(--text-primary);">Stateful</strong>: permite entrada → respuesta sale automáticamente</li>
+        <li>Solo reglas de <strong style="color:var(--success);">PERMITIR</strong></li>
+        <li>Se asigna a: EC2, RDS, Lambda, ELB</li>
+        <li>Puedes referenciar otros SGs como origen</li>
+      </ul>
+      <div style="margin-top:0.5rem;font-family:var(--font-code);font-size:0.78rem;background:rgba(0,0,0,0.3);padding:0.5rem;border-radius:6px;color:var(--text-secondary);">
+        Permite TCP :5432 desde sg-app-servers<br>
+        <span style="color:var(--success);">→ Solo la app puede hablar con la DB</span>
+      </div>
+    </div>
+    <div class="card" style="border-color:var(--accent-purple);">
+      <div class="card-header" style="color:var(--accent-purple);"><i class="ph ph-wall"></i> Network ACL (NACL) — Nivel Subnet</div>
+      <ul style="font-size:0.87rem;padding-left:1rem;color:var(--text-secondary);">
+        <li><strong style="color:var(--text-primary);">Stateless</strong>: debes permitir entrada Y salida</li>
+        <li>Reglas de <strong style="color:var(--success);">PERMITIR</strong> y <strong style="color:var(--danger);">DENEGAR</strong></li>
+        <li>Se asigna a la subnet completa</li>
+        <li>Evaluación en orden numérico (100 → 200 → 300)</li>
+      </ul>
+      <div style="margin-top:0.5rem;font-family:var(--font-code);font-size:0.78rem;background:rgba(0,0,0,0.3);padding:0.5rem;border-radius:6px;color:var(--text-secondary);">
+        100: DENY TCP de 1.2.3.4/32 any<br>
+        <span style="color:var(--danger);">→ Bloquear IP maliciosa en toda la subnet</span>
+      </div>
+    </div>
+  </div>
+  <div class="analogy-box" style="margin-top:0.8rem;max-width:900px;">
+    <div class="analogy-label">🔑 Cuándo usar cada uno</div>
+    <p style="margin:0;color:var(--text-primary);font-size:0.88rem;">Empieza con <strong>Security Groups</strong> (más fáciles). Usa <strong>NACLs</strong> cuando necesites bloquear IPs específicas a nivel de subnet (ej: respuesta rápida a un ataque).</p>
+  </div>
+</div>
+
+<!-- S16: REDES EN CONTENEDORES -->
+<div class="slide" id="slide-16">
+  <h2>🐳 REDES EN CONTENEDORES (Docker)</h2>
+  <div class="analogy-box">
+    <div class="analogy-label">🏙️ Analogía</div>
+    <p style="margin:0;color:var(--text-primary);">Docker crea una <strong>ciudad interna</strong> en tu servidor. Cada contenedor tiene su apartamento (IP) en esa ciudad.</p>
+  </div>
+  <div style="width:100%;max-width:1050px;margin:0.5rem auto;">
+    <div style="border:2px solid rgba(6,182,212,0.4);border-radius:12px;padding:0.8rem;background:rgba(6,182,212,0.04);">
+      <div style="font-family:var(--font-code);font-size:0.8rem;color:var(--accent-cyan);margin-bottom:0.5rem;">🐳 Docker Host: tu servidor (IP: 192.168.1.10)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;">
+        <div style="border:2px dashed rgba(255,153,0,0.5);border-radius:8px;padding:0.5rem;background:rgba(255,153,0,0.04);">
+          <div style="font-family:var(--font-code);font-size:0.72rem;color:var(--accent-orange);margin-bottom:0.3rem;">🌉 bridge network (por defecto: 172.17.0.0/16)</div>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+            <div style="background:rgba(15,23,42,0.9);border:1px solid rgba(6,182,212,0.3);border-radius:6px;padding:0.3rem 0.5rem;font-family:var(--font-code);font-size:0.7rem;text-align:center;">
+              📦 nginx<br><span style="color:var(--accent-cyan);">172.17.0.2</span>
+            </div>
+            <div style="background:rgba(15,23,42,0.9);border:1px solid rgba(6,182,212,0.3);border-radius:6px;padding:0.3rem 0.5rem;font-family:var(--font-code);font-size:0.7rem;text-align:center;">
+              📦 app<br><span style="color:var(--accent-cyan);">172.17.0.3</span>
+            </div>
+            <div style="background:rgba(15,23,42,0.9);border:1px solid rgba(6,182,212,0.3);border-radius:6px;padding:0.3rem 0.5rem;font-family:var(--font-code);font-size:0.7rem;text-align:center;">
+              📦 redis<br><span style="color:var(--accent-cyan);">172.17.0.4</span>
+            </div>
+          </div>
+        </div>
+        <div style="border:2px dashed rgba(168,85,247,0.5);border-radius:8px;padding:0.5rem;background:rgba(168,85,247,0.04);">
+          <div style="font-family:var(--font-code);font-size:0.72rem;color:var(--accent-purple);margin-bottom:0.3rem;">🔗 custom network (app-network: 10.10.0.0/16)</div>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+            <div style="background:rgba(15,23,42,0.9);border:1px solid rgba(168,85,247,0.3);border-radius:6px;padding:0.3rem 0.5rem;font-family:var(--font-code);font-size:0.7rem;text-align:center;">
+              📦 api<br><span style="color:var(--accent-purple);">10.10.0.2</span>
+            </div>
+            <div style="background:rgba(15,23,42,0.9);border:1px solid rgba(168,85,247,0.3);border-radius:6px;padding:0.3rem 0.5rem;font-family:var(--font-code);font-size:0.7rem;text-align:center;">
+              📦 postgres<br><span style="color:var(--accent-purple);">10.10.0.3</span>
+            </div>
+          </div>
+          <div style="font-size:0.7rem;color:var(--success);margin-top:0.3rem;">✅ api puede llamar "postgres:5432" por nombre</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;font-family:var(--font-code);font-size:0.75rem;">
+        <div style="background:rgba(255,153,0,0.15);padding:0.3rem 0.6rem;border-radius:6px;color:var(--accent-orange);">-p 80:80 → expone al host</div>
+        <div style="font-size:1rem;color:var(--accent-cyan);">→</div>
+        <div style="color:var(--text-secondary);">Internet → 192.168.1.10:80 → nginx:80</div>
+      </div>
+    </div>
+  </div>
+  <div class="info-box" style="max-width:900px;margin-top:0.5rem;padding:0.5rem 1rem;">
+    <p style="margin:0;font-size:0.82rem;">🔑 Sin <code>-p</code>: el contenedor solo es accesible desde la red de Docker.<br>Con <code>-p HOST:CONT</code>: expones el servicio al servidor host (y posiblemente al mundo).</p>
+  </div>
+</div>
+
+<!-- S17: SERVER-TO-SERVER -->
+<div class="slide" id="slide-17">
+  <h2>🖥️ REDES DE SERVIDORES: SERVER-TO-SERVER</h2>
+  <p>En producción, tus servicios se llaman entre sí. Entender el flujo es crítico para debuggear.</p>
+  <div style="width:100%;max-width:1050px;margin:0.5rem auto;">
+    <div class="net-diagram" style="margin-bottom:0.8rem;align-items:flex-start;">
+      <div style="text-align:center;min-width:100px;">
+        <div style="font-size:1.5rem;">🌍</div>
+        <div class="code-font" style="font-size:0.72rem;color:var(--text-secondary);">Usuario</div>
+        <div class="code-font" style="font-size:0.65rem;color:var(--text-secondary);">203.0.113.5</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.1rem;">
+        <div class="nd-arrow">→</div>
+        <div style="font-size:0.65rem;color:var(--text-secondary);">HTTPS :443</div>
+      </div>
+      <div style="text-align:center;min-width:100px;border:2px solid var(--accent-orange);border-radius:8px;padding:0.5rem;background:rgba(255,153,0,0.05);">
+        <div style="font-size:1.3rem;">⚖️</div>
+        <div class="code-font" style="font-size:0.72rem;color:var(--accent-orange);">ALB</div>
+        <div class="code-font" style="font-size:0.65rem;color:var(--text-secondary);">54.x.x.x (pub)</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.1rem;">
+        <div class="nd-arrow">→</div>
+        <div style="font-size:0.65rem;color:var(--text-secondary);">HTTP :8080</div>
+      </div>
+      <div style="text-align:center;min-width:100px;border:2px solid var(--accent-cyan);border-radius:8px;padding:0.5rem;background:rgba(6,182,212,0.05);">
+        <div style="font-size:1.3rem;">📦</div>
+        <div class="code-font" style="font-size:0.72rem;color:var(--accent-cyan);">API Server</div>
+        <div class="code-font" style="font-size:0.65rem;color:var(--text-secondary);">10.0.10.5 (priv)</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.1rem;">
+        <div class="nd-arrow">→</div>
+        <div style="font-size:0.65rem;color:var(--text-secondary);">TCP :5432</div>
+      </div>
+      <div style="text-align:center;min-width:100px;border:2px solid var(--success);border-radius:8px;padding:0.5rem;background:rgba(16,185,129,0.05);">
+        <div style="font-size:1.3rem;">🗄️</div>
+        <div class="code-font" style="font-size:0.72rem;color:var(--success);">RDS PostgreSQL</div>
+        <div class="code-font" style="font-size:0.65rem;color:var(--text-secondary);">10.0.20.8 (priv)</div>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-top:0.3rem;">
+      <div class="card card-bad">
+        <div class="card-header">❌ Hardcodear IPs</div>
+        <div class="code-font" style="font-size:0.78rem;color:var(--danger);">DB_HOST=10.0.20.8</div>
+        <p style="font-size:0.8rem;margin:0.3rem 0 0 0;">Si la IP cambia → todo rompe. Escalar imposible.</p>
+      </div>
+      <div class="card card-good">
+        <div class="card-header">✅ Usar DNS interno</div>
+        <div class="code-font" style="font-size:0.78rem;color:var(--success);">DB_HOST=db.internal</div>
+        <p style="font-size:0.8rem;margin:0.3rem 0 0 0;">AWS Route 53 Private Zone resuelve la IP. Escala bien.</p>
+      </div>
+      <div class="card" style="border-color:var(--accent-cyan);">
+        <div class="card-header">🔗 Service Discovery</div>
+        <div class="code-font" style="font-size:0.78rem;color:var(--accent-cyan);">DB_HOST=rds.endpoint.aws</div>
+        <p style="font-size:0.8rem;margin:0.3rem 0 0 0;">El endpoint de RDS nunca cambia aunque la IP interna cambie.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S18: CTA COMUNIDAD -->
+<div class="slide" id="slide-18">
+  <img src="https://jemjaf.com/images/avatars/jean/0.png" alt="Jean" style="width:100px;height:100px;border-radius:50%;border:4px solid var(--accent-orange);box-shadow:0 0 30px rgba(255,153,0,0.4);object-fit:cover;margin-bottom:1.2rem;">
+  <h2 style="color:var(--accent-orange);">PRACTICA EN LA COMUNIDAD</h2>
+  <p style="max-width:680px;">Diseña VPCs reales, configura Security Groups, crea peerings y construye arquitecturas multi-cuenta. <strong style="color:var(--text-primary);">Proyectos guiados, paso a paso.</strong></p>
+  <a href="https://skool.com/jemjaf" target="_blank" class="btn-cta">
+    <i class="ph ph-users-three"></i> skool.com/jemjaf
+  </a>
+  <div style="margin-top:1.5rem;font-size:0.85rem;color:var(--text-secondary);">Academia DevOps &amp; Cloud · Mentoría · Proyectos reales</div>
+</div>
+
+<!-- S19: PEERING -->
+<div class="slide" id="slide-19">
+  <h2>🤝 PEERING: CONECTAR REDES PRIVADAS</h2>
+  <div class="analogy-box">
+    <div class="analogy-label">🏘️ Analogía</div>
+    <p style="margin:0;color:var(--text-primary);">Peering = abrir una <strong>puerta secreta entre dos edificios</strong>. Tráfico privado, sin salir a la calle pública (Internet).</p>
+  </div>
+  <div style="max-width:900px;margin:0.8rem auto;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:0.8rem;flex-wrap:wrap;">
+      <div style="border:2px solid var(--accent-cyan);border-radius:10px;padding:0.8rem;text-align:center;background:rgba(6,182,212,0.06);min-width:150px;">
+        <div style="font-size:1.5rem;">☁️</div>
+        <div class="code-font" style="color:var(--accent-cyan);font-size:0.75rem;">VPC-A (Prod)</div>
+        <div class="code-font" style="font-size:0.7rem;color:var(--text-secondary);">10.0.0.0/16</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
+        <div style="font-family:var(--font-code);font-size:0.65rem;color:var(--success);">VPC Peering ✅</div>
+        <div style="font-size:1.8rem;color:var(--success);">⇌</div>
+        <div style="font-family:var(--font-code);font-size:0.65rem;color:var(--success);">Tráfico privado</div>
+      </div>
+      <div style="border:2px solid var(--accent-orange);border-radius:10px;padding:0.8rem;text-align:center;background:rgba(255,153,0,0.06);min-width:150px;">
+        <div style="font-size:1.5rem;">🔧</div>
+        <div class="code-font" style="color:var(--accent-orange);font-size:0.75rem;">VPC-B (SharedSvc)</div>
+        <div class="code-font" style="font-size:0.7rem;color:var(--text-secondary);">10.1.0.0/16</div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:0.8rem;">
+      <div class="card card-good">
+        <div class="card-header">✅ Ventajas</div>
+        <ul style="font-size:0.85rem;padding-left:1rem;color:var(--text-secondary);">
+          <li>Sin Internet — tráfico interno privado</li>
+          <li>Latencia baja y predecible</li>
+          <li>Sin costo de NAT Gateway</li>
+          <li>Funciona intra- e inter-región</li>
+        </ul>
+      </div>
+      <div class="card card-bad">
+        <div class="card-header">❌ Limitaciones CRÍTICAS</div>
+        <ul style="font-size:0.85rem;padding-left:1rem;color:var(--text-secondary);">
+          <li><strong style="color:var(--danger);">No transitivo:</strong> A↔B, B↔C ≠ A↔C</li>
+          <li><strong style="color:var(--danger);">Sin CIDR overlap</strong> — bloqueante</li>
+          <li>Requiere route tables en ambos lados</li>
+          <li>Alternativa escalable: Transit Gateway</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S20: CIDR OVERLAP -->
+<div class="slide" id="slide-20">
+  <h2>⚠️ SOLAPAMIENTO DE CIDRs: EL ERROR FATAL</h2>
+  <div class="analogy-box">
+    <div class="analogy-label">📬 Analogía</div>
+    <p style="margin:0;color:var(--text-primary);">Dos edificios con el mismo número de apartamento 302. El cartero (router) <strong>no sabe a cuál ir</strong>. Resultado: fallo total.</p>
+  </div>
+  <div class="grid-2" style="max-width:1000px;margin-top:0.8rem;">
+    <div class="card card-bad">
+      <div class="card-header">❌ OVERLAP — Peering imposible</div>
+      <div style="font-family:var(--font-code);margin-top:0.5rem;">
+        <div style="color:var(--danger);">VPC-A: 10.0.0.0/16</div>
+        <div style="color:var(--danger);">VPC-B: 10.0.0.0/16</div>
+        <div style="color:var(--danger);">VPC-C: 10.0.5.0/24 ← dentro de VPC-A</div>
+      </div>
+      <div style="margin-top:0.7rem;font-size:0.82rem;color:var(--text-secondary);">La consola de AWS mostrará error inmediatamente. Azure y GCP igual.</div>
+    </div>
+    <div class="card card-good">
+      <div class="card-header">✅ SIN OVERLAP — Peering OK</div>
+      <div style="font-family:var(--font-code);margin-top:0.5rem;">
+        <div style="color:var(--accent-cyan);">Prod:       10.0.0.0/16</div>
+        <div style="color:var(--accent-orange);">Staging:    10.1.0.0/16</div>
+        <div style="color:var(--success);">Dev:        10.2.0.0/16</div>
+        <div style="color:var(--accent-purple);">SharedSvc:  10.10.0.0/16</div>
+        <div style="color:var(--warning);">On-Prem:    192.168.0.0/16</div>
+      </div>
+      <div style="margin-top:0.5rem;font-size:0.82rem;color:var(--success);">Todos con CIDRs distintos → pueden conectarse sin conflicto.</div>
+    </div>
+  </div>
+  <div class="warn-box" style="max-width:900px;margin-top:0.8rem;">
+    <p style="margin:0;font-size:0.88rem;color:var(--warning);">⚡ Planifica tus CIDRs <strong>antes de crear la primera VPC</strong>. Cambiar el CIDR de una VPC existente es imposible en AWS — debes recrearla.</p>
+  </div>
+</div>
+
+<!-- S21: ON-PREM + CLOUD -->
+<div class="slide" id="slide-21">
+  <h2>🏭 ON-PREMISE + CLOUD HYBRID</h2>
+  <div class="grid-2" style="max-width:1050px;">
+    <div class="card" style="border-color:var(--accent-cyan);">
+      <div class="card-header"><i class="ph ph-vpn"></i> VPN Site-to-Site</div>
+      <div class="anim-container" style="height:55px;margin-bottom:0.5rem;">
+        <div class="endpoint ep-left" style="font-size:0.7rem;">�� On-Prem<br>192.168.0.0/16</div>
+        <div class="packet packet-web" style="top:15px;animation-delay:0.5s;">IPSec</div>
+        <div class="endpoint ep-right" style="font-size:0.7rem;">☁️ VPC AWS<br>10.0.0.0/16</div>
+      </div>
+      <ul style="font-size:0.85rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>Túnel cifrado sobre Internet público</li>
+        <li>Económico (~$36/mes en AWS)</li>
+        <li>Latencia variable (Internet)</li>
+        <li>Máx. ~1.25 Gbps</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:var(--accent-orange);">
+      <div class="card-header" style="color:var(--accent-orange);"><i class="ph ph-lightning"></i> Direct Connect / ExpressRoute</div>
+      <div class="anim-container" style="height:55px;margin-bottom:0.5rem;">
+        <div class="endpoint ep-left" style="font-size:0.7rem;">🏭 On-Prem</div>
+        <div class="packet packet-ok" style="top:15px;animation-delay:0s;background:rgba(255,153,0,0.3);border-color:var(--accent-orange);color:var(--accent-orange);">FIBER</div>
+        <div class="endpoint ep-right" style="font-size:0.7rem;">☁️ Cloud</div>
+      </div>
+      <ul style="font-size:0.85rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>Fibra privada dedicada</li>
+        <li>Latencia baja y constante</li>
+        <li>Hasta 100 Gbps</li>
+        <li>Costoso — para cargas críticas</li>
+      </ul>
+    </div>
+  </div>
+  <div class="warn-box" style="max-width:900px;margin-top:0.8rem;">
+    <p style="margin:0;font-size:0.85rem;color:var(--warning);">⚠️ Siempre verifica que los CIDRs de on-prem (<span class="code-font">192.168.0.0/16</span>) y tu VPC (<span class="code-font">10.0.0.0/16</span>) <strong>no se solapen</strong>.</p>
+  </div>
+</div>
+
+<!-- S22: NAT GATEWAY ANIMADO -->
+<div class="slide" id="slide-22">
+  <h2>🔄 NAT GATEWAY: SALIDA SIN EXPOSICIÓN</h2>
+  <div class="analogy-box">
+    <div class="analogy-label">📤 Analogía</div>
+    <p style="margin:0;color:var(--text-primary);">El NAT Gateway es la <strong>recepcionista</strong>: los empleados internos pueden llamar afuera, pero nadie de afuera llama directo a los empleados.</p>
+  </div>
+  <div style="max-width:900px;margin:0.8rem auto;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:0;">
+      <div style="border:2px solid var(--accent-cyan);border-radius:10px;padding:0.8rem;text-align:center;background:rgba(6,182,212,0.05);min-width:140px;">
+        <div style="font-size:1.3rem;">🖥️</div>
+        <div class="code-font" style="font-size:0.72rem;color:var(--accent-cyan);">EC2</div>
+        <div class="code-font" style="font-size:0.65rem;color:var(--text-secondary);">10.0.10.5</div>
+        <div style="font-size:0.65rem;color:var(--text-secondary);">Subnet Privada</div>
+      </div>
+      <div class="anim-container" style="height:50px;width:200px;border:none;background:transparent;margin:0;">
+        <div class="packet packet-web" style="top:13px;animation-delay:0s;width:40px;">GET</div>
+      </div>
+      <div style="border:2px solid var(--warning);border-radius:10px;padding:0.8rem;text-align:center;background:rgba(245,158,11,0.05);min-width:140px;">
+        <div style="font-size:1.3rem;">🔄</div>
+        <div class="code-font" style="font-size:0.72rem;color:var(--warning);">NAT Gateway</div>
+        <div class="code-font" style="font-size:0.65rem;color:var(--text-secondary);">IP Elástica Pública</div>
+        <div style="font-size:0.65rem;color:var(--text-secondary);">Subnet Pública</div>
+      </div>
+      <div class="anim-container" style="height:50px;width:200px;border:none;background:transparent;margin:0;">
+        <div class="packet packet-ok" style="top:13px;animation-delay:0.8s;width:40px;">REQ</div>
+      </div>
+      <div style="border:2px solid var(--success);border-radius:10px;padding:0.8rem;text-align:center;background:rgba(16,185,129,0.05);min-width:140px;">
+        <div style="font-size:1.3rem;">🌍</div>
+        <div class="code-font" style="font-size:0.72rem;color:var(--success);">Internet</div>
+        <div class="code-font" style="font-size:0.65rem;color:var(--text-secondary);">api.github.com</div>
+        <div style="font-size:0.65rem;color:var(--text-secondary);">yum / apt repos</div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:0.5rem;">
+      <div class="card card-good">
+        <div class="card-header">✅ NAT permite</div>
+        <ul style="font-size:0.83rem;padding-left:1rem;color:var(--text-secondary);">
+          <li>EC2 privada → descargar paquetes de Internet</li>
+          <li>EC2 privada → llamar APIs externas</li>
+        </ul>
+      </div>
+      <div class="card card-bad">
+        <div class="card-header">❌ NAT NO permite</div>
+        <ul style="font-size:0.83rem;padding-left:1rem;color:var(--text-secondary);">
+          <li>Internet → iniciar conexión a EC2 privada</li>
+          <li>SSH desde fuera hacia subnet privada</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S23: RESUMEN VISUAL -->
+<div class="slide" id="slide-23">
+  <h2>🗺️ ARQUITECTURA COMPLETA</h2>
+  <div style="width:100%;max-width:1100px;margin:0.3rem auto;font-family:var(--font-code);font-size:0.78rem;">
+    <div style="display:grid;grid-template-columns:170px 1fr 170px;gap:0.6rem;align-items:center;">
+      <div>
+        <div style="border:2px solid var(--accent-purple);border-radius:8px;padding:0.5rem;text-align:center;background:rgba(168,85,247,0.05);margin-bottom:0.4rem;">
+          <div style="color:var(--accent-purple);font-weight:700;">🏭 On-Prem</div>
+          <div style="color:var(--text-secondary);font-size:0.7rem;">192.168.0.0/16</div>
+        </div>
+        <div style="border:2px solid rgba(255,255,255,0.2);border-radius:8px;padding:0.5rem;text-align:center;font-size:0.7rem;color:var(--text-secondary);">VPN / DX ↕</div>
+      </div>
+      <div style="border:2px solid var(--accent-orange);border-radius:12px;padding:0.8rem;background:rgba(255,153,0,0.03);">
+        <div style="color:var(--accent-orange);font-weight:700;text-align:center;margin-bottom:0.4rem;">☁️ AWS VPC: 10.0.0.0/16</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.3rem;">
+          <div style="border:1px solid var(--accent-orange);border-radius:6px;padding:0.3rem;text-align:center;background:rgba(255,153,0,0.06);">
+            <div>⚖️ ALB</div><div style="color:var(--text-secondary);font-size:0.65rem;">:443</div>
+          </div>
+          <div style="border:1px solid var(--warning);border-radius:6px;padding:0.3rem;text-align:center;background:rgba(245,158,11,0.06);">
+            <div>🔄 NAT GW</div><div style="color:var(--text-secondary);font-size:0.65rem;">Pub IP</div>
+          </div>
+          <div style="border:1px solid var(--accent-cyan);border-radius:6px;padding:0.3rem;text-align:center;background:rgba(6,182,212,0.06);">
+            <div>📦 EC2/ECS</div><div style="color:var(--text-secondary);font-size:0.65rem;">10.0.10.x</div>
+          </div>
+          <div style="border:1px solid var(--success);border-radius:6px;padding:0.3rem;text-align:center;background:rgba(16,185,129,0.06);">
+            <div>🗄️ RDS</div><div style="color:var(--text-secondary);font-size:0.65rem;">10.0.20.x</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem;margin-top:0.3rem;">
+          <div style="border:1px solid rgba(0,120,212,0.5);border-radius:6px;padding:0.3rem;text-align:center;color:rgba(0,120,212,0.9);background:rgba(0,120,212,0.05);">Azure VNet<br>10.1.0.0/16</div>
+          <div style="border:1px solid rgba(66,133,244,0.5);border-radius:6px;padding:0.3rem;text-align:center;color:rgba(66,133,244,0.9);background:rgba(66,133,244,0.05);">GCP VPC<br>10.2.0.0/16</div>
+        </div>
+      </div>
+      <div>
+        <div style="border:2px solid var(--success);border-radius:8px;padding:0.5rem;text-align:center;background:rgba(16,185,129,0.05);margin-bottom:0.4rem;">
+          <div style="color:var(--success);font-weight:700;">🌍 Internet</div>
+          <div style="color:var(--text-secondary);font-size:0.7rem;">0.0.0.0/0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;margin-top:0.5rem;">
+    <span class="tag tag-red">/0 = TODO Internet</span>
+    <span class="tag tag-orange">/16 = 65k IPs</span>
+    <span class="tag tag-cyan">/24 = 254 IPs</span>
+    <span class="tag tag-green">/32 = 1 sola IP</span>
+    <span class="tag tag-purple">127.0.0.1 = loopback</span>
+    <span class="tag" style="background:rgba(245,158,11,0.15);color:var(--warning);border:1px solid rgba(245,158,11,0.4);">0.0.0.0 = todas las interfaces</span>
+  </div>
+</div>
+
+<!-- S24: CHECKLIST -->
+<div class="slide" id="slide-24">
+  <h2>✅ CHECKLIST DEL ARQUITECTO DE REDES</h2>
+  <div class="grid-2" style="max-width:1050px;">
+    <div class="card">
+      <div class="card-header"><i class="ph ph-check-circle"></i> CIDRs y Subnets</div>
+      <ul style="font-size:0.83rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>¿Usé rangos RFC 1918 (<span class="code-font">10.x</span>, <span class="code-font">172.16.x</span>, <span class="code-font">192.168.x</span>)?</li>
+        <li>¿Mis VPCs tienen CIDRs que NO se solapan?</li>
+        <li>¿Usé /16 para la VPC (no /28)?</li>
+        <li>¿Consideré las 5 IPs reservadas por subnet?</li>
+        <li>¿Dejé espacio para crecer? ¿Calculé el /24 correcto?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="ph ph-shield-check"></i> Seguridad</div>
+      <ul style="font-size:0.83rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>¿SSH (:22) solo desde IPs internas o bastion?</li>
+        <li>¿Nunca usé <span class="code-font" style="color:var(--danger);">0.0.0.0/0</span> en SSH/RDP?</li>
+        <li>¿Las DBs están en subnets privadas?</li>
+        <li>¿Las DBs escuchan en <span class="code-font">127.0.0.1</span> o IP privada?</li>
+        <li>¿Usé principio de mínimo privilegio en SGs?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="ph ph-arrow-fat-right"></i> Conectividad</div>
+      <ul style="font-size:0.83rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>¿Subnet pública tiene Internet Gateway?</li>
+        <li>¿Subnet privada tiene NAT Gateway para salir?</li>
+        <li>¿Route tables configuradas correctamente?</li>
+        <li>¿Peering tiene rutas en ambos lados?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="ph ph-code"></i> Aplicaciones</div>
+      <ul style="font-size:0.83rem;padding-left:1rem;color:var(--text-secondary);">
+        <li>¿Servicios internos solo escuchan en <span class="code-font">127.0.0.1</span>?</li>
+        <li>¿Usas DNS interno en vez de IPs hardcodeadas?</li>
+        <li>¿Docker: usas networks custom (no solo default bridge)?</li>
+        <li>¿Puertos expuestos con <span class="code-font">-p</span> son los estrictamente necesarios?</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- S25: SLIDE FINAL CTA -->
+<div class="slide" id="slide-25">
+  <img src="https://jemjaf.com/images/avatars/jean/0.png" alt="Jean" class="jean-avatar" style="border-color:var(--accent-orange);">
+  <h2 style="color:var(--accent-orange);">ACCEDE A LA GRABACIÓN</h2>
+  <p>Esta sesión está disponible en la comunidad junto con labs prácticos: diseña VPCs, configura firewalls y conecta ambientes.</p>
+  <a href="https://skool.com/jemjaf" target="_blank" class="btn-cta">
+    <i class="ph ph-users-three"></i> skool.com/jemjaf
+  </a>
+  <div class="social-row" style="margin-top:2rem;">
+    <div class="social-item"><i class="ph ph-tiktok-logo" style="font-size:1.8rem;"></i><span>@jemjaf</span></div>
+    <div class="social-item"><i class="ph ph-instagram-logo" style="font-size:1.8rem;"></i><span>@jemjaf</span></div>
+    <div class="social-item"><i class="ph ph-youtube-logo" style="font-size:1.8rem;"></i><span>@jemjaf</span></div>
+    <div class="social-item"><i class="ph ph-linkedin-logo" style="font-size:1.8rem;"></i><span>/jemjaf</span></div>
+  </div>
+  <div style="font-size:0.8rem;margin-top:1.5rem;color:var(--text-secondary);">ACADEMIA DEVOPS &amp; CLOUD</div>
+</div>
+
+</main><!-- end #app -->
+<div class="controls">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)"><i class="ph ph-caret-left"></i></button>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)"><i class="ph ph-caret-right"></i></button>
+</div>
+<div class="slide-counter" id="counter">1 / 25</div>
+
+<script>
+let current = 1;
+const total = 25;
+function changeSlide(dir) {
+  document.getElementById('slide-' + current).classList.remove('active');
+  current = Math.max(1, Math.min(total, current + dir));
+  document.getElementById('slide-' + current).classList.add('active');
+  document.getElementById('counter').textContent = current + ' / ' + total;
+  document.getElementById('progress').style.width = ((current / total) * 100) + '%';
+  document.getElementById('prevBtn').style.opacity = current === 1 ? '0.2' : '1';
+  document.getElementById('nextBtn').style.opacity = current === total ? '0.2' : '1';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+});
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+
+// Subnet Calculator
+function calcSubnet() {
+  const ipStr = document.getElementById('calcIP').value.trim();
+  const prefix = parseInt(document.getElementById('calcPrefix').value);
+  const parts = ipStr.split('.').map(Number);
+  if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) {
+    alert('IP inválida. Usa formato: x.x.x.x (ej: 10.0.1.0)');
+    return;
+  }
+  const ipInt = (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
+  const mask = prefix === 0 ? 0 : (~0 << (32 - prefix));
+  const networkInt = ipInt & mask;
+  const broadcastInt = networkInt | (~mask >>> 0);
+  const firstUsable = networkInt + 1;
+  const lastUsable = broadcastInt - 1;
+  const total = Math.pow(2, 32 - prefix);
+  const usable = Math.max(0, total - 5);
+  const intToIP = n => [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.');
+  document.getElementById('rNetwork').textContent = intToIP(networkInt);
+  document.getElementById('rFirst').textContent = prefix >= 31 ? 'N/A' : intToIP(firstUsable);
+  document.getElementById('rLast').textContent = prefix >= 31 ? 'N/A' : intToIP(lastUsable);
+  document.getElementById('rBroadcast').textContent = intToIP(broadcastInt >>> 0);
+  document.getElementById('rTotal').textContent = total.toLocaleString();
+  document.getElementById('rUsable').textContent = usable <= 0 ? '0' : usable.toLocaleString();
+}
+// Auto-calculate on load for S14
+calcSubnet();
+changeSlide(0);
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

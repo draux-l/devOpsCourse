@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nginx + SSL: Hosteo Seguro desde Cero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bg-deep: #0f172a;
+            --bg-card: #1e293b;
+            --accent-cyan: #06b6d4;
+            --accent-orange: #FF9900;
+            --accent-purple: #a855f7;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --key-highlight: #ffbd2e;
+            --font-ui: 'Inter', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #020617;
+            color: var(--text-primary);
+            font-family: var(--font-ui);
+            overflow: auto;
+            min-height: 100vh;
+            padding: 20px 0;
+            background-image:
+                radial-gradient(circle at 12% 18%, rgba(6,182,212,0.07) 0%, transparent 40%),
+                radial-gradient(circle at 88% 82%, rgba(168,85,247,0.05) 0%, transparent 40%);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            transition: width 0.4s ease;
+            z-index: 100;
+        }
+
+        /* Layout */
+        #app {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Slide system */
+        .slide {
+            position: absolute;
+            width: 1280px;
+            height: 720px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 48px 60px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        .slide.active { opacity: 1; pointer-events: all; z-index: 10; }
+
+        /* Decorative glow corners */
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px; right: -1px; bottom: -1px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(6,182,212,0.15), transparent 40%, rgba(168,85,247,0.1));
+            pointer-events: none;
+        }
+
+        .slide-tag {
+            position: absolute;
+            top: 18px; left: 26px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            background: rgba(255,255,255,0.04);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+
+        /* Typography */
+        h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 1rem; letter-spacing: -0.02em; }
+        h2 { font-size: 2rem; font-weight: 900; margin-bottom: 0.8rem; letter-spacing: -0.01em; text-transform: uppercase; }
+        h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        p { color: var(--text-secondary); line-height: 1.6; }
+
+        .code-font { font-family: var(--font-code); }
+        .cyan { color: var(--accent-cyan); }
+        .orange { color: var(--accent-orange); }
+        .green { color: var(--success); }
+        .danger { color: var(--danger); }
+        .hl-key { color: var(--key-highlight); font-weight: 700; }
+
+        /* Avatar */
+        .jean-avatar {
+            width: 88px; height: 88px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-cyan);
+            margin-bottom: 0.8rem;
+            box-shadow: 0 0 24px rgba(6,182,212,0.4);
+        }
+        .jean-handle { font-size: 0.85rem; color: var(--accent-cyan); margin-bottom: 1.2rem; font-weight: 600; }
+
+        /* Cards */
+        .grid-cards {
+            display: grid;
+            gap: 1rem;
+            width: 100%;
+        }
+        .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 12px;
+            padding: 1.1rem 1.2rem;
+            text-align: left;
+        }
+        .card-header {
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .card p { font-size: 0.84rem; }
+        .card.cyan-border { border-color: rgba(6,182,212,0.4); }
+        .card.orange-border { border-color: rgba(255,153,0,0.4); }
+        .card.green-border { border-color: rgba(16,185,129,0.4); }
+        .card.danger-border { border-color: rgba(239,68,68,0.4); }
+        .card.purple-border { border-color: rgba(168,85,247,0.4); }
+
+        /* Comparison */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            width: 100%;
+        }
+        .comparison-bad { border-color: rgba(239,68,68,0.5) !important; background: rgba(239,68,68,0.03) !important; }
+        .comparison-good { border-color: rgba(16,185,129,0.5) !important; background: rgba(16,185,129,0.03) !important; }
+        .comparison-bad .card-header { color: var(--danger) !important; }
+        .comparison-good .card-header { color: var(--success) !important; }
+
+        /* Terminal */
+        .terminal {
+            background: #000;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: left;
+            width: 100%;
+            font-family: var(--font-code);
+            font-size: 0.8rem;
+            overflow: hidden;
+        }
+        .terminal-header {
+            background: #1a1a1a;
+            padding: 7px 12px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+        .dot.red { background: #ff5f57; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #28c840; }
+        .terminal-title {
+            font-size: 0.68rem; color: #555;
+            margin: 0 auto;
+            font-family: var(--font-ui);
+        }
+        .terminal-body {
+            padding: 0.9rem 1.1rem;
+            line-height: 1.85;
+            color: #d4d4d4;
+            white-space: pre-wrap;
+        }
+        .cmd { color: #28c840; }
+        .arg { color: #79c0ff; }
+        .comment { color: #6a9955; }
+        .out { color: #9cdcfe; }
+        .out-success { color: #4ec9b0; }
+        .out-warn { color: var(--warning); }
+
+        /* Code snippet with copy */
+        .code-block {
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: left;
+            font-family: var(--font-code);
+            font-size: 0.76rem;
+            overflow: hidden;
+            width: 100%;
+        }
+        .code-header {
+            background: #111;
+            padding: 7px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .code-label { font-size: 0.68rem; color: #888; font-family: var(--font-ui); }
+        .copy-btn {
+            background: rgba(6,182,212,0.12);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 4px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-family: var(--font-ui);
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: rgba(6,182,212,0.25); }
+        .copy-btn.copied { border-color: var(--success); color: var(--success); background: rgba(16,185,129,0.12); }
+        .code-content {
+            padding: 0.9rem 1.1rem;
+            line-height: 1.7;
+            color: #d4d4d4;
+            white-space: pre;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 195px;
+            overflow-y: auto;
+        }
+
+        /* Architecture diagram */
+        .arch-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .arch-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .arch-icon {
+            width: 68px; height: 68px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.9rem;
+            border: 2px solid;
+        }
+        .arch-label { font-size: 0.7rem; font-weight: 700; text-align: center; max-width: 90px; line-height: 1.3; }
+        .arch-sub { font-size: 0.6rem; color: var(--text-secondary); text-align: center; max-width: 90px; }
+        .arch-arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 8px;
+            margin-top: -22px;
+        }
+        .arrow-line {
+            width: 52px; height: 2px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            position: relative;
+            overflow: visible;
+        }
+        .arrow-packet {
+            position: absolute;
+            width: 8px; height: 8px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            top: -3px;
+            animation: travel 2s infinite;
+        }
+        .arrow-label { font-size: 0.58rem; color: var(--text-secondary); margin-top: 6px; white-space: nowrap; }
+
+        @keyframes travel {
+            0% { left: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: calc(100% - 8px); opacity: 0; }
+        }
+
+        .aws-box {
+            background: rgba(255,153,0,0.04);
+            border: 2px dashed rgba(255,153,0,0.35);
+            border-radius: 16px;
+            padding: 1rem 1.4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .aws-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-orange); text-transform: uppercase; }
+        .aws-inner { display: flex; gap: 1rem; align-items: center; }
+        .ec2-box {
+            background: rgba(6,182,212,0.04);
+            border: 1px solid rgba(6,182,212,0.25);
+            border-radius: 12px;
+            padding: 0.7rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .ec2-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; color: var(--accent-cyan); text-transform: uppercase; }
+        .ec2-inner { display: flex; gap: 0.7rem; }
+
+        /* Stats */
+        .stat-row { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+        .stat-box {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+        .stat-number { font-size: 2.4rem; font-weight: 900; color: var(--accent-cyan); line-height: 1; }
+        .stat-label { font-size: 0.72rem; color: var(--text-secondary); margin-top: 0.3rem; }
+
+        /* Checklist */
+        .checklist { list-style: none; text-align: left; width: 100%; }
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            padding: 0.45rem 0;
+            font-size: 0.88rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: var(--text-primary);
+        }
+        .checklist li .chk { color: var(--success); flex-shrink: 0; margin-top: 2px; }
+        .checklist li .detail { color: var(--text-secondary); font-size: 0.78rem; }
+
+        /* Phase badge */
+        .phase-badge {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: white;
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-bottom: 0.6rem;
+            display: inline-block;
+        }
+        .phase-skip {
+            font-size: 0.7rem; color: var(--warning);
+            background: rgba(245,158,11,0.08);
+            border: 1px solid rgba(245,158,11,0.3);
+            padding: 3px 10px; border-radius: 10px; margin-left: 0.5rem;
+        }
+
+        /* Two column */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; width: 100%; }
+
+        /* Diff */
+        .diff-before, .diff-after {
+            border-radius: 8px;
+            padding: 0.75rem 0.9rem;
+            font-family: var(--font-code);
+            font-size: 0.72rem;
+            line-height: 1.75;
+            text-align: left;
+            white-space: pre;
+            display: block;
+        }
+        .diff-before { background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2); }
+        .diff-after  { background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2); }
+        .diff-add     { color: var(--success); }
+        .diff-remove  { color: var(--danger);  }
+        .diff-neutral { color: #9cdcfe;         }
+
+        /* Nginx config syntax colors */
+        .ng-block   { color: #c586c0; font-weight: 700; } /* server / location */
+        .ng-dir     { color: #9cdcfe; }                   /* listen, root, etc. */
+        .ng-val     { color: #ce9178; }                   /* /var/www/… values  */
+        .ng-num     { color: #b5cea8; }                   /* 80, 443           */
+        .ng-kw      { color: #569cd6; }                   /* ssl, on, off      */
+        .ng-cmt     { color: #6a9955; font-style: italic;}/* # managed by…     */
+        .ng-cert    { color: #4ec9b0; }                   /* cert paths        */
+
+        /* Achievement */
+        @keyframes achieveIn {
+            0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+            70% { transform: scale(1.12) rotate(4deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .achievement-badge {
+            background: linear-gradient(135deg, #FF9900, #ffbd2e);
+            border-radius: 50%;
+            width: 120px; height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.8rem;
+            animation: achieveIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            box-shadow: 0 0 40px rgba(255,153,0,0.5);
+        }
+        .achievement-badge i { font-size: 2.8rem; color: white; }
+
+        .skills-row { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.8rem; }
+        .skill-pill {
+            background: rgba(6,182,212,0.1);
+            border: 1px solid rgba(6,182,212,0.3);
+            color: var(--accent-cyan);
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600;
+            font-family: var(--font-code);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(6,182,212,0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(6,182,212,0); }
+        }
+        .pulse { animation: pulse 2s infinite; }
+
+        @keyframes pulseOrange {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,153,0,0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(255,153,0,0); }
+        }
+        .pulse-orange { animation: pulseOrange 2s infinite; }
+
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(16,185,129,0); }
+        }
+        .pulse-green { animation: pulseGreen 1.5s infinite; }
+
+        @keyframes blink { 50% { opacity: 0; } }
+        .cursor-blink { animation: blink 1s infinite; }
+
+        .icon-lg { font-size: 3rem; color: var(--accent-cyan); margin: 0.5rem 0; }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 1rem; z-index: 200;
+        }
+        .nav-btn {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.15); border-color: var(--accent-cyan); }
+        .slide-counter {
+            position: fixed;
+            bottom: 24px; right: 24px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            z-index: 200;
+            font-family: var(--font-code);
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progress" style="width: 0%"></div>
+
+    <main id="app">
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 1: PORTADA                           -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide active" id="slide-1">
+            <div class="slide-tag">TALLER PRÁCTICO · ACADEMIA DEVOPS & CLOUD</div>
+            <img src="https://jemjaf.com/images/avatars/jean/0.png" class="jean-avatar" alt="Jean">
+            <div class="jean-handle">@jemjaf</div>
+            <h1 style="background: linear-gradient(135deg,#f8fafc,var(--accent-cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">NGINX + SSL</h1>
+            <h3 class="code-font" style="color: var(--accent-cyan);">Hosteo Seguro desde Cero</h3>
+            <p style="margin-top:0.8rem; font-size:0.9rem;">EC2 &nbsp;·&nbsp; Route 53 &nbsp;·&nbsp; Nginx &nbsp;·&nbsp; Let's Encrypt &nbsp;·&nbsp; Certbot</p>
+            <div style="font-size:0.7rem; margin-top:3rem; color:var(--text-secondary); letter-spacing:0.1em;">ACADEMIA DEVOPS &amp; CLOUD</div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 2: QUÉ CONSTRUIREMOS                 -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-2">
+            <div class="slide-tag">INTRO · RESULTADO FINAL</div>
+            <h2>¿QUÉ <span class="cyan">CONSTRUIREMOS</span> HOY?</h2>
+            <p style="margin-bottom:1.2rem;">Al finalizar este taller tendrás esto <strong style="color:var(--text-primary);">en producción</strong>:</p>
+
+            <div class="grid-cards" style="grid-template-columns:repeat(3,1fr); max-width:1050px;">
+                <div class="card green-border" style="text-align:center; padding:1.4rem;">
+                    <i class="ph ph-globe" style="font-size:2.6rem; color:var(--success); display:block; margin-bottom:0.5rem;"></i>
+                    <h3 style="color:var(--success);">Web en Vivo</h3>
+                    <p style="font-size:0.82rem;">Tu dominio accesible desde cualquier browser del mundo</p>
+                </div>
+                <div class="card cyan-border" style="text-align:center; padding:1.4rem;">
+                    <i class="ph ph-lock-key pulse-green" style="font-size:2.6rem; color:var(--success); display:block; margin-bottom:0.5rem;"></i>
+                    <h3 style="color:var(--accent-cyan);">HTTPS + SSL</h3>
+                    <p style="font-size:0.82rem;">Candado verde 🔒 · Certificado gratuito y auto-renovable</p>
+                </div>
+                <div class="card orange-border" style="text-align:center; padding:1.4rem;">
+                    <i class="ph ph-arrows-clockwise" style="font-size:2.6rem; color:var(--accent-orange); display:block; margin-bottom:0.5rem;"></i>
+                    <h3 style="color:var(--accent-orange);">100% Automático</h3>
+                    <p style="font-size:0.82rem;">Renovación automática del SSL · Sin tocar nada nunca más</p>
+                </div>
+            </div>
+
+            <div class="stat-row" style="margin-top:1.4rem;">
+                <div class="stat-box"><div class="stat-number cyan">6</div><div class="stat-label">Fases del taller</div></div>
+                <div class="stat-box"><div class="stat-number" style="color:var(--success);">90</div><div class="stat-label">días dura el cert</div></div>
+                <div class="stat-box"><div class="stat-number orange">$0</div><div class="stat-label">cuesta el SSL</div></div>
+                <div class="stat-box"><div class="stat-number" style="color:var(--accent-purple);">∞</div><div class="stat-label">se renueva solo</div></div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 3: ARQUITECTURA ANIMADA              -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-3">
+            <div class="slide-tag">ARQUITECTURA · VISIÓN COMPLETA</div>
+            <h2 style="margin-bottom:0.2rem;">LA <span class="cyan">ARQUITECTURA</span> COMPLETA</h2>
+            <p style="font-size:0.82rem; margin-bottom:1rem;">Así fluye el tráfico: desde el browser hasta el candado verde &nbsp;·&nbsp; <span class="hl-key">Desplegaremos sitios web estáticos</span></p>
+
+            <div class="arch-diagram" style="gap:0; flex-wrap:nowrap;">
+                <!-- Browser -->
+                <div class="arch-node">
+                    <div class="arch-icon pulse" style="background:rgba(6,182,212,0.1); border-color:var(--accent-cyan); color:var(--accent-cyan);">
+                        <i class="ph ph-browser"></i>
+                    </div>
+                    <div class="arch-label">Usuario</div>
+                    <div class="arch-sub">Browser</div>
+                </div>
+
+                <div class="arch-arrow">
+                    <div class="arrow-line"><div class="arrow-packet" style="animation-delay:0s;"></div></div>
+                    <div class="arrow-label">HTTPS req</div>
+                </div>
+
+                <!-- Internet -->
+                <div class="arch-node">
+                    <div class="arch-icon" style="background:rgba(168,85,247,0.1); border-color:var(--accent-purple); color:var(--accent-purple);">
+                        <i class="ph ph-cloud"></i>
+                    </div>
+                    <div class="arch-label">Internet</div>
+                    <div class="arch-sub">Pública</div>
+                </div>
+
+                <div class="arch-arrow">
+                    <div class="arrow-line"><div class="arrow-packet" style="animation-delay:0.35s;"></div></div>
+                    <div class="arrow-label">DNS lookup</div>
+                </div>
+
+                <!-- AWS Box -->
+                <div class="aws-box">
+                    <div class="aws-label">☁️ AWS Cloud</div>
+                    <div class="aws-inner">
+                        <!-- Route 53 -->
+                        <div class="arch-node">
+                            <div class="arch-icon pulse-orange" style="background:rgba(255,153,0,0.1); border-color:var(--accent-orange); color:var(--accent-orange); width:56px; height:56px; font-size:1.6rem;">
+                                <i class="ph ph-map-pin"></i>
+                            </div>
+                            <div class="arch-label" style="font-size:0.65rem;">Route 53</div>
+                            <div class="arch-sub">DNS → IP</div>
+                        </div>
+
+                        <div class="arch-arrow">
+                            <div class="arrow-line" style="width:30px;"><div class="arrow-packet" style="animation-delay:0.65s;"></div></div>
+                        </div>
+
+                        <!-- EC2 Box -->
+                        <div class="ec2-box">
+                            <div class="ec2-label">🖥️ EC2 · Ubuntu</div>
+                            <div class="ec2-inner">
+                                <div class="arch-node">
+                                    <div class="arch-icon pulse" style="background:rgba(6,182,212,0.15); border-color:var(--accent-cyan); color:var(--accent-cyan); width:54px; height:54px; font-size:1.5rem;">
+                                        <i class="ph ph-cylinder"></i>
+                                    </div>
+                                    <div class="arch-label" style="font-size:0.62rem;">Nginx</div>
+                                    <div class="arch-sub">80 / 443</div>
+                                </div>
+                                <div class="arch-node">
+                                    <div class="arch-icon" style="background:rgba(16,185,129,0.1); border-color:var(--success); color:var(--success); width:54px; height:54px; font-size:1.4rem;">
+                                        <i class="ph ph-certificate"></i>
+                                    </div>
+                                    <div class="arch-label" style="font-size:0.62rem;">Certbot</div>
+                                    <div class="arch-sub">Let's Encrypt</div>
+                                </div>
+                                <div class="arch-node">
+                                    <div class="arch-icon" style="background:rgba(245,158,11,0.1); border-color:var(--warning); color:var(--warning); width:54px; height:54px; font-size:1.4rem;">
+                                        <i class="ph ph-clock"></i>
+                                    </div>
+                                    <div class="arch-label" style="font-size:0.62rem;">Timer</div>
+                                    <div class="arch-sub">Auto-renew</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arch-arrow">
+                    <div class="arrow-line" style="background:linear-gradient(90deg,var(--success),var(--accent-cyan));">
+                        <div class="arrow-packet" style="animation-delay:0.95s; background:var(--success);"></div>
+                    </div>
+                    <div class="arrow-label" style="color:var(--success);">🔒 HTTPS</div>
+                </div>
+
+                <!-- SSL result -->
+                <div class="arch-node">
+                    <div class="arch-icon pulse-green" style="background:rgba(16,185,129,0.15); border-color:var(--success); color:var(--success);">
+                        <i class="ph ph-lock-key"></i>
+                    </div>
+                    <div class="arch-label" style="color:var(--success);">SSL/TLS</div>
+                    <div class="arch-sub">Seguro ✅</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:1rem; max-width:900px; border-color:rgba(255,255,255,0.07); padding:0.6rem 1.2rem;">
+                <p style="font-size:0.78rem; color:var(--text-primary);">
+                    💡 Certbot coloca un archivo oculto en tu Nginx (puerto 80).
+                    Let's Encrypt lo visita y si lo encuentra, te da el certificado. Eso es <span class="hl-key">HTTP-01 validation</span>.
+                </p>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 4: DIAGRAMA OFICIAL                  -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-4">
+            <div class="slide-tag">ARQUITECTURA · DIAGRAMA OFICIAL DEL PROYECTO</div>
+            <h2 style="margin-bottom:0.5rem;">NGINX: <span class="cyan">TODO LO QUE PUEDE HACER</span></h2>
+            <p style="font-size:0.8rem; margin-bottom:0.9rem; color:var(--text-secondary);">Hoy nos enfocamos en sitios estáticos + SSL — En el futuro: proxy reverso para apps dinámicas.</p>
+
+            <div style="display:flex; justify-content:center; align-items:center; width:100%;">
+                <img src="/media/jemjaf/🐧 Linux desde Cero/16-M14 — PROYECTOS/1-14.1 🌐 NGINX Server Linux (Ubuntu 24)/resources/./arquitectura-nginx-oficial.png"
+                     alt="Diagrama oficial del proyecto Nginx"
+                     style="max-width:900px; width:100%; border-radius:14px;
+                            box-shadow:0 8px 40px rgba(0,0,0,0.6);
+                            border:2px solid rgba(255,255,255,0.08);">
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 5: QUÉ ES NGINX                      -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-5">
+            <div class="slide-tag">CONCEPTO · ¿QUÉ ES NGINX?</div>
+            <h2>NGINX: EL <span class="cyan">PORTERO</span> DE TU SERVIDOR</h2>
+            <p style="max-width:720px; margin-bottom:1.2rem;">
+                Imagina un edificio de departamentos. El portero recibe todas las visitas en la entrada (puerto 80/443)
+                y las dirige al piso correcto. Nginx hace exactamente eso con tus peticiones HTTP.
+            </p>
+
+            <div class="grid-cards" style="grid-template-columns:repeat(4,1fr); max-width:1100px;">
+                <div class="card cyan-border">
+                    <div class="card-header"><i class="ph ph-door-open"></i> Puerto 80</div>
+                    <p style="font-size:0.82rem;">HTTP sin cifrar. La puerta abierta. <span class="danger">No segura.</span> Usada para validación HTTP-01.</p>
+                </div>
+                <div class="card green-border">
+                    <div class="card-header" style="color:var(--success);"><i class="ph ph-lock-key"></i> Puerto 443</div>
+                    <p style="font-size:0.82rem;">HTTPS cifrado. La puerta blindada. <span class="green">Todo cifrado.</span> Aquí vive tu web segura.</p>
+                </div>
+                <div class="card orange-border">
+                    <div class="card-header" style="color:var(--accent-orange);"><i class="ph ph-arrows-left-right"></i> Redirige</div>
+                    <p style="font-size:0.82rem;">80 → 443. Fuerza HTTPS en todas las visitas. Certbot lo configura automáticamente.</p>
+                </div>
+                <div class="card purple-border">
+                    <div class="card-header" style="color:var(--accent-purple);"><i class="ph ph-files"></i> Sirve archivos</div>
+                    <p style="font-size:0.82rem;">HTML, CSS, JS, imágenes. Web estática ultra-rápida directamente desde disco.</p>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:1.2rem; max-width:850px; border-color:rgba(255,189,46,0.3); padding:0.8rem 1.3rem;">
+                <div style="display:flex; gap:1rem; align-items:center;">
+                    <i class="ph ph-lightning" style="font-size:1.6rem; color:var(--key-highlight); flex-shrink:0;"></i>
+                    <p style="font-size:0.85rem; color:var(--text-primary);">Nginx puede manejar <span class="hl-key">10,000+ conexiones simultáneas</span> con muy poca RAM gracias a su arquitectura event-driven. Por eso desplazó a Apache en la mayoría de servidores modernos.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 5: NGINX EN EL MUNDO REAL (INSIGHT)  -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-5">
+            <div class="slide-tag">INSIGHT · NGINX EN PRODUCCIÓN REAL</div>
+            <h2>NGINX EN EL <span class="cyan">MUNDO REAL</span></h2>
+            <p style="margin-bottom:1rem;">Lo que aprendes hoy está en producción en todos los niveles de la industria</p>
+
+            <div class="comparison" style="max-width:1100px;">
+                <div class="card" style="border-color:rgba(6,182,212,0.35); text-align:left;">
+                    <div class="card-header" style="font-size:0.9rem; color:var(--accent-cyan);">
+                        <i class="ph ph-storefront"></i> Empresas Pequeñas / VPS
+                    </div>
+                    <p style="font-size:0.78rem; margin-bottom:0.7rem; color:var(--text-secondary);">Hostinger, DonWeb, DigitalOcean, Vultr, Linode:</p>
+                    <ul style="list-style:none; display:flex; flex-direction:column; gap:0.4rem;">
+                        <li style="font-size:0.82rem; color:var(--text-primary);">✅ Nginx directo en el VPS, exactamente como lo haremos hoy</li>
+                        <li style="font-size:0.82rem; color:var(--text-primary);">✅ Let's Encrypt + Certbot (igual que este taller)</li>
+                        <li style="font-size:0.82rem; color:var(--text-primary);">✅ Un servidor, varios dominios con <span class="code-font hl-key">server_name</span></li>
+                        <li style="font-size:0.82rem; color:var(--text-primary);">✅ <strong>cPanel</strong> es una GUI que hace lo mismo con clics (usa Apache o Nginx debajo)</li>
+                        <li style="font-size:0.82rem; color:var(--text-secondary); margin-top:0.4rem; font-style:italic;">Costo: $5–20/mes. Perfecto para webs, portfolios, clientes</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-color:rgba(255,153,0,0.35); text-align:left;">
+                    <div class="card-header" style="font-size:0.9rem; color:var(--accent-orange);">
+                        <i class="ph ph-cloud"></i> Cloud Enterprise (AWS · GCP · Azure)
+                    </div>
+                    <p style="font-size:0.78rem; margin-bottom:0.7rem; color:var(--text-secondary);">Cuando la startup/empresa crece:</p>
+                    <ul style="list-style:none; display:flex; flex-direction:column; gap:0.4rem;">
+                        <li style="font-size:0.82rem; color:var(--text-primary);">☁️ <span class="hl-key">Load Balancer (ALB)</span> gestiona el SSL — no el servidor individual</li>
+                        <li style="font-size:0.82rem; color:var(--text-primary);">☁️ <span class="hl-key">AWS Certificate Manager</span> reemplaza a Let's Encrypt (gratis también)</li>
+                        <li style="font-size:0.82rem; color:var(--text-primary);">☁️ Nginx en EC2 recibe tráfico <span class="code-font">HTTP</span> interno ya descifrado</li>
+                        <li style="font-size:0.82rem; color:var(--text-primary);">☁️ Auto Scaling: 1 servidor → 100 servidores sin tocar la config SSL</li>
+                        <li style="font-size:0.82rem; color:var(--text-secondary); margin-top:0.4rem; font-style:italic;">Los fundamentos son exactamente los mismos. Solo escala.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 6: APACHE vs NGINX vs cPANEL         -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-6">
+            <div class="slide-tag">INSIGHT · ECOSISTEMA DE SERVIDORES WEB</div>
+            <h2>APACHE &nbsp;·&nbsp; NGINX &nbsp;·&nbsp; <span class="orange">cPANEL</span></h2>
+            <p style="margin-bottom:1rem;">Los tres aparecen constantemente en el mercado laboral. Entiéndelos.</p>
+
+            <div class="grid-cards" style="grid-template-columns:repeat(3,1fr); max-width:1060px;">
+                <div class="card" style="border-color:rgba(255,80,0,0.4); text-align:left;">
+                    <div class="card-header" style="color:#ff6a00;">
+                        <i class="ph ph-feather"></i> Apache — El Clásico
+                    </div>
+                    <p style="font-size:0.78rem; color:var(--text-primary); margin-bottom:0.5rem; font-weight:600;">Desde 1995 · Domina el hosting compartido</p>
+                    <ul style="list-style:none; font-size:0.76rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:0.3rem;">
+                        <li>→ Muy compatible con PHP / WordPress</li>
+                        <li>→ Configuración por <span class="code-font">.htaccess</span> en cada carpeta</li>
+                        <li>→ Más lento bajo alta carga concurrente</li>
+                        <li>→ Hosting barato (GoDaddy, Bluehost) lo usa</li>
+                        <li style="color:var(--warning);">→ En producción moderna va perdiendo terreno</li>
+                    </ul>
+                </div>
+                <div class="card cyan-border" style="text-align:left;">
+                    <div class="card-header"><i class="ph ph-lightning"></i> Nginx — Lo de hoy ✅</div>
+                    <p style="font-size:0.78rem; color:var(--text-primary); margin-bottom:0.5rem; font-weight:600;">Estándar moderno · VPS · Cloud</p>
+                    <ul style="list-style:none; font-size:0.76rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:0.3rem;">
+                        <li>→ Arquitectura event-driven (no un proceso por request)</li>
+                        <li>→ Ideal: web estática, proxy reverso, microservicios</li>
+                        <li>→ Config en <span class="code-font">/etc/nginx/sites-available/</span></li>
+                        <li>→ Startups, VPS modernos, cloud nativo</li>
+                        <li style="color:var(--success);">→ Hoy aprendes desde los cimientos ✅</li>
+                    </ul>
+                </div>
+                <div class="card orange-border" style="text-align:left;">
+                    <div class="card-header" style="color:var(--accent-orange);"><i class="ph ph-desktop"></i> cPanel — La GUI</div>
+                    <p style="font-size:0.78rem; color:var(--text-primary); margin-bottom:0.5rem; font-weight:600;">Interfaz gráfica encima de Apache/Nginx</p>
+                    <ul style="list-style:none; font-size:0.76rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:0.3rem;">
+                        <li>→ Panel web para gestionar el servidor</li>
+                        <li>→ "AutoSSL" = Let's Encrypt por atrás</li>
+                        <li>→ Popular en hosting compartido (GoDaddy, etc.)</li>
+                        <li>→ Clientes no técnicos lo prefieren</li>
+                        <li style="color:var(--accent-cyan);">→ Debajo: hace lo mismo que haces hoy a mano</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:1rem; max-width:920px; padding:0.7rem 1.2rem; border-color:rgba(255,189,46,0.25);">
+                <p style="font-size:0.82rem; color:var(--text-primary);">
+                    <i class="ph ph-lightbulb" style="color:var(--key-highlight);"></i>
+                    <strong> Clave:</strong> cPanel hace con clics lo que haces hoy con comandos.
+                    Quien entiende el fondo es <span class="hl-key">más valioso</span> que quien solo usa la interfaz gráfica.
+                </p>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 7: DNS-01 VS HTTP-01 CON GRÁFICOS    -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-7">
+            <div class="slide-tag">CONCEPTO · VALIDACIÓN SSL</div>
+            <h2>¿CÓMO CERTBOT <span class="cyan">PRUEBA</span> QUE ERES EL DUEÑO?</h2>
+            <p style="margin-bottom:0.8rem;">Let's Encrypt necesita verificar que controlas el dominio. Dos métodos:</p>
+
+            <div class="comparison" style="max-width:1100px; align-items:start;">
+
+                <!-- DNS-01 -->
+                <div class="card comparison-bad" style="padding:1.1rem;">
+                    <div class="card-header" style="font-size:0.9rem;"><i class="ph ph-x-circle"></i> DNS-01 — No usaremos</div>
+
+                    <!-- Flow diagram DNS-01 -->
+                    <div style="display:flex; align-items:center; gap:0.5rem; margin:0.7rem 0; padding:0.6rem; background:rgba(239,68,68,0.06); border-radius:8px;">
+                        <div style="text-align:center; flex-shrink:0;">
+                            <div style="font-size:1.4rem;">🤖</div>
+                            <div style="font-size:0.55rem; color:var(--text-secondary);">Certbot</div>
+                        </div>
+                        <div style="flex:1; display:flex; flex-direction:column; gap:3px;">
+                            <div style="height:2px; background:rgba(239,68,68,0.4); position:relative;">
+                                <div style="position:absolute; right:0; top:-4px; color:rgba(239,68,68,0.6); font-size:0.65rem;">▶</div>
+                            </div>
+                            <div style="font-size:0.55rem; color:var(--danger); text-align:center;">Crea registro TXT en DNS</div>
+                        </div>
+                        <div style="text-align:center; flex-shrink:0;">
+                            <div style="font-size:1.4rem;">🌐</div>
+                            <div style="font-size:0.55rem; color:var(--text-secondary);">Route 53</div>
+                            <div style="font-size:0.5rem; color:var(--danger); font-family:var(--font-code);">_acme-challenge</div>
+                        </div>
+                        <div style="flex:1; display:flex; flex-direction:column; gap:3px;">
+                            <div style="height:2px; background:rgba(239,68,68,0.4); position:relative;">
+                                <div style="position:absolute; right:0; top:-4px; color:rgba(239,68,68,0.6); font-size:0.65rem;">▶</div>
+                            </div>
+                            <div style="font-size:0.55rem; color:var(--danger); text-align:center;">Valida TXT</div>
+                        </div>
+                        <div style="text-align:center; flex-shrink:0;">
+                            <div style="font-size:1.4rem;">🔒</div>
+                            <div style="font-size:0.55rem; color:var(--text-secondary);">Let's Encrypt</div>
+                        </div>
+                    </div>
+
+                    <ul style="list-style:none; font-size:0.76rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:0.35rem;">
+                        <li>→ Debes ir manualmente al panel de DNS</li>
+                        <li>→ Crear <span class="code-font" style="font-size:0.68rem;">_acme-challenge.tudominio</span> TXT</li>
+                        <li>→ Esperar propagación (minutos a horas)</li>
+                        <li style="color:var(--success);">✅ Permite Wildcard <span class="code-font" style="font-size:0.68rem;">*.tudominio.com</span></li>
+                        <li style="color:var(--danger);">❌ Renovación automática muy complicada</li>
+                        <li style="color:var(--danger);">❌ Requiere APIs de DNS o manual cada vez</li>
+                    </ul>
+                </div>
+
+                <!-- HTTP-01 -->
+                <div class="card comparison-good" style="padding:1.1rem;">
+                    <div class="card-header" style="font-size:0.9rem;"><i class="ph ph-check-circle"></i> HTTP-01 — Usaremos este ✅</div>
+
+                    <!-- Flow diagram HTTP-01 -->
+                    <div style="display:flex; align-items:center; gap:0.5rem; margin:0.7rem 0; padding:0.6rem; background:rgba(16,185,129,0.06); border-radius:8px;">
+                        <div style="text-align:center; flex-shrink:0;">
+                            <div style="font-size:1.4rem;">🤖</div>
+                            <div style="font-size:0.55rem; color:var(--text-secondary);">Certbot</div>
+                        </div>
+                        <div style="flex:1; display:flex; flex-direction:column; gap:3px;">
+                            <div style="height:2px; background:rgba(16,185,129,0.4); position:relative;">
+                                <div style="position:absolute; right:0; top:-4px; color:rgba(16,185,129,0.6); font-size:0.65rem;">▶</div>
+                            </div>
+                            <div style="font-size:0.55rem; color:var(--success); text-align:center;">Crea archivo TOKEN</div>
+                        </div>
+                        <div style="text-align:center; flex-shrink:0;">
+                            <div style="font-size:1.4rem;">🖥️</div>
+                            <div style="font-size:0.55rem; color:var(--text-secondary);">Nginx :80</div>
+                            <div style="font-size:0.5rem; color:var(--success); font-family:var(--font-code);">.well-known/</div>
+                        </div>
+                        <div style="flex:1; display:flex; flex-direction:column; gap:3px;">
+                            <div style="height:2px; background:rgba(16,185,129,0.4); position:relative;">
+                                <div style="position:absolute; right:0; top:-4px; color:rgba(16,185,129,0.6); font-size:0.65rem;">▶</div>
+                            </div>
+                            <div style="font-size:0.55rem; color:var(--success); text-align:center;">HTTP GET verifica</div>
+                        </div>
+                        <div style="text-align:center; flex-shrink:0;">
+                            <div style="font-size:1.4rem;">🔒</div>
+                            <div style="font-size:0.55rem; color:var(--text-secondary);">Let's Encrypt</div>
+                            <div style="font-size:0.5rem; color:var(--success);">¡Aprobado!</div>
+                        </div>
+                    </div>
+
+                    <ul style="list-style:none; font-size:0.76rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:0.35rem;">
+                        <li>→ Certbot crea archivo en <span class="code-font" style="font-size:0.68rem;">.well-known/acme-challenge/</span></li>
+                        <li>→ Let's Encrypt hace HTTP GET a tu dominio :80</li>
+                        <li>→ Encuentra el archivo → ¡certificado aprobado!</li>
+                        <li style="color:var(--success);">✅ Renovación 100% automática</li>
+                        <li style="color:var(--success);">✅ Integración nativa con Nginx</li>
+                        <li style="color:var(--warning);">⚠️ Puerto 80 abierto requerido (sin wildcard)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 8: FASE 1 - EC2                      -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-8">
+            <div class="slide-tag">FASE 1 · EC2 EN AWS</div>
+            <span class="phase-badge">Fase 1</span>
+            <h2>DESPLEGAR INSTANCIA <span class="cyan">EC2</span> EN AWS</h2>
+            <p style="margin-bottom:0.4rem;">
+                <span class="phase-skip">⚡ Saltar si ya tienes servidor Linux + dominio propio</span>
+            </p>
+
+            <div class="two-col" style="margin-top:0.8rem; max-width:950px; align-items:start;">
+                <ul class="checklist">
+                    <li>
+                        <i class="ph ph-check-circle chk"></i>
+                        <div><strong>AMI (Sistema Operativo)</strong><br><span class="detail code-font">Ubuntu 22.04 / 24.04 LTS</span></div>
+                    </li>
+                    <li>
+                        <i class="ph ph-check-circle chk"></i>
+                        <div><strong>Tipo de instancia</strong><br><span class="detail code-font">t2.micro — Free Tier ✅</span></div>
+                    </li>
+                    <li>
+                        <i class="ph ph-check-circle chk"></i>
+                        <div><strong>Key Pair (.pem)</strong><br><span class="detail">Crear nuevo. Descargarlo y guardarlo bien. Sin él no entras.</span></div>
+                    </li>
+                    <li>
+                        <i class="ph ph-check-circle chk"></i>
+                        <div><strong>VPC / Subnet</strong><br><span class="detail">Default está bien. No modificar.</span></div>
+                    </li>
+                </ul>
+                <ul class="checklist">
+                    <li>
+                        <i class="ph ph-warning chk" style="color:var(--warning);"></i>
+                        <div>
+                            <strong>Security Group — ¡CRÍTICO!</strong><br>
+                            <span class="detail">Habilitar: <span class="code-font">SSH (22)</span> + <span class="code-font">HTTP (80)</span> + <span class="code-font">HTTPS (443)</span></span>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="ph ph-check-circle chk"></i>
+                        <div><strong>Copiar Public IPv4</strong><br><span class="detail">La necesitas para Route 53 y para la conexión SSH</span></div>
+                    </li>
+                    <li>
+                        <i class="ph ph-info chk" style="color:var(--accent-cyan);"></i>
+                        <div><strong>Dominio Route 53 Sandbox</strong><br><span class="detail">Si no tienes dominio, usa el que viene con la cuenta AWS Academy</span></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 9: FASE 2 - SSH                      -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-9">
+            <div class="slide-tag">FASE 2 · CONEXIÓN SSH</div>
+            <span class="phase-badge">Fase 2</span>
+            <h2>CONECTARSE AL SERVIDOR <span class="cyan">POR SSH</span></h2>
+            <p style="margin-bottom:0.5rem;">Ya dominamos esto en el <span class="hl-key code-font">Módulo 7</span> del curso de Linux. ¡Hora de usarlo!</p>
+
+            <div class="terminal" style="max-width:760px; margin-top:0.8rem;">
+                <div class="terminal-header">
+                    <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                    <div class="terminal-title">Terminal local → servidor remoto</div>
+                </div>
+                <div class="terminal-body">
+<span class="comment"># Dar permisos al .pem (Módulo 4 — Permisos de archivos)</span>
+<span class="cmd">$</span> <span class="arg">chmod 400 mi-llave.pem</span>
+
+<span class="comment"># Conectarse al servidor EC2 Ubuntu</span>
+<span class="cmd">$</span> <span class="arg">ssh -i mi-llave.pem ubuntu@<span class="out-warn">TU_IP_PUBLICA</span></span>
+
+<span class="out">Welcome to Ubuntu 24.04.1 LTS (GNU/Linux 6.8.0 x86_64)</span>
+<span class="out-success">ubuntu@ip-172-31-xx-xx:~$</span> <span class="cursor-blink">▌</span>
+                </div>
+            </div>
+
+            <div class="grid-cards" style="grid-template-columns:1fr 1fr; max-width:760px; margin-top:0.8rem;">
+                <div class="card" style="border-color:rgba(255,255,255,0.08);">
+                    <p style="font-size:0.8rem; color:var(--text-primary);">
+                        <i class="ph ph-info" style="color:var(--accent-cyan);"></i>
+                        El usuario es <span class="code-font hl-key">ubuntu</span> — así configura AWS la instancia Ubuntu.
+                        Para Amazon Linux sería <span class="code-font">ec2-user</span>.
+                    </p>
+                </div>
+                <div class="card" style="border-color:rgba(255,255,255,0.08);">
+                    <p style="font-size:0.8rem; color:var(--text-primary);">
+                        <i class="ph ph-warning" style="color:var(--warning);"></i>
+                        Si ves <span class="code-font" style="color:var(--danger);">Permission denied</span>, verifica que el <span class="code-font">.pem</span> tenga <span class="code-font hl-key">chmod 400</span>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 10: NGINX SETUP — SYSTEMCTL          -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-10">
+            <div class="slide-tag">SETUP · NGINX — COMANDOS ESENCIALES</div>
+            <h2>NGINX: <span class="cyan">INSTALAR Y CONTROLAR</span></h2>
+            <p style="margin-bottom:0.7rem;">Todo lo que necesitas saber para operar Nginx desde el día uno</p>
+
+            <div class="two-col" style="max-width:1080px; align-items:start; gap:1.4rem;">
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                        <div class="terminal-title">ubuntu@servidor — instalar</div>
+                    </div>
+                    <div class="terminal-body" style="font-size:0.76rem;">
+<span class="comment"># Instalar Nginx (APT — Módulo 9)</span>
+<span class="cmd">$</span> <span class="arg">sudo apt update</span>
+<span class="cmd">$</span> <span class="arg">sudo apt install nginx -y</span>
+
+<span class="comment"># Verificar versión instalada</span>
+<span class="cmd">$</span> <span class="arg">nginx -v</span>
+<span class="out-success">nginx version: nginx/1.24.0</span>
+
+<span class="comment"># Ver estado del servicio</span>
+<span class="cmd">$</span> <span class="arg">sudo systemctl status nginx</span>
+<span class="out-success">● nginx.service - A high performance web server</span>
+<span class="out-success">     Active: active (running) since ...</span>
+                    </div>
+                </div>
+
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                        <div class="terminal-title">ubuntu@servidor — controlar (Módulo 13)</div>
+                    </div>
+                    <div class="terminal-body" style="font-size:0.76rem;">
+<span class="comment"># Iniciar / Detener / Reiniciar</span>
+<span class="cmd">$</span> <span class="arg">sudo systemctl start nginx</span>
+<span class="cmd">$</span> <span class="arg">sudo systemctl stop nginx</span>
+<span class="cmd">$</span> <span class="arg">sudo systemctl restart nginx</span>
+
+<span class="comment"># Recargar config SIN bajar el servicio</span>
+<span class="cmd">$</span> <span class="arg">sudo systemctl reload nginx</span>
+
+<span class="comment"># Habilitar al arranque del servidor</span>
+<span class="cmd">$</span> <span class="arg">sudo systemctl enable --now nginx</span>
+
+<span class="comment"># Probar que responde localmente</span>
+<span class="cmd">$</span> <span class="arg">curl -I localhost</span>
+<span class="out-success">HTTP/1.1 200 OK</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-cards" style="grid-template-columns:repeat(4,1fr); max-width:1080px; margin-top:0.8rem;">
+                <div class="card" style="border-color:rgba(255,255,255,0.08); text-align:center; padding:0.7rem;">
+                    <div style="font-size:0.68rem; color:var(--success); font-family:var(--font-code); margin-bottom:0.3rem;">reload</div>
+                    <p style="font-size:0.72rem;">Recarga config. <strong style="color:var(--success);">Sin downtime.</strong> Usar tras editar nginx.conf</p>
+                </div>
+                <div class="card" style="border-color:rgba(255,255,255,0.08); text-align:center; padding:0.7rem;">
+                    <div style="font-size:0.68rem; color:var(--warning); font-family:var(--font-code); margin-bottom:0.3rem;">restart</div>
+                    <p style="font-size:0.72rem;">Baja y sube el proceso. Hay <strong style="color:var(--warning);">micropausa.</strong> Solo si reload no funciona.</p>
+                </div>
+                <div class="card" style="border-color:rgba(255,255,255,0.08); text-align:center; padding:0.7rem;">
+                    <div style="font-size:0.68rem; color:var(--accent-cyan); font-family:var(--font-code); margin-bottom:0.3rem;">enable</div>
+                    <p style="font-size:0.72rem;">Arranca al boot. Sin esto, un reinicio del server deja la web caída.</p>
+                </div>
+                <div class="card" style="border-color:rgba(255,255,255,0.08); text-align:center; padding:0.7rem;">
+                    <div style="font-size:0.68rem; color:var(--accent-purple); font-family:var(--font-code); margin-bottom:0.3rem;">journalctl</div>
+                    <p style="font-size:0.72rem;"><span class="code-font" style="font-size:0.66rem;">journalctl -u nginx -f</span> para ver logs en tiempo real.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 11: FASE 3 - NGINX                   -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-11">
+            <div class="slide-tag">FASE 3 · NGINX + WEB ESTÁTICA</div>
+            <span class="phase-badge">Fase 3</span>
+            <h2>INSTALAR NGINX Y DESPLEGAR <span class="cyan">LA WEB</span></h2>
+
+            <div class="two-col" style="max-width:1060px; margin-top:0.7rem; align-items:start;">
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                        <div class="terminal-title">ubuntu@servidor</div>
+                    </div>
+                    <div class="terminal-body" style="font-size:0.76rem;">
+<span class="comment"># Actualizar catálogo (APT — Módulo 9)</span>
+<span class="cmd">$</span> <span class="arg">sudo apt update</span>
+
+<span class="comment"># Instalar Nginx</span>
+<span class="cmd">$</span> <span class="arg">sudo apt install nginx -y</span>
+
+<span class="comment"># Habilitar e iniciar (systemctl — Módulo 13)</span>
+<span class="cmd">$</span> <span class="arg">sudo systemctl enable --now nginx</span>
+
+<span class="comment"># Verificar que funciona</span>
+<span class="cmd">$</span> <span class="arg">curl localhost</span>
+<span class="out-success">&lt;!DOCTYPE html&gt; ... (HTML de bienvenida Nginx)</span>
+
+<span class="comment"># Ir a la carpeta de tu web</span>
+<span class="cmd">$</span> <span class="arg">cd /var/www/html/</span>
+                    </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.8rem;">
+                    <div class="card green-border">
+                        <div class="card-header" style="color:var(--success);"><i class="ph ph-folder-open"></i> Ruta de archivos web</div>
+                        <p class="code-font" style="font-size:0.78rem; color:var(--text-primary);">/var/www/html/index.html</p>
+                        <p style="font-size:0.76rem; margin-top:0.3rem;">Aquí van tus HTML, CSS, imágenes</p>
+                    </div>
+                    <div class="card cyan-border">
+                        <div class="card-header"><i class="ph ph-gear"></i> Config de Nginx</div>
+                        <p class="code-font" style="font-size:0.76rem; color:var(--text-primary);">/etc/nginx/sites-available/default</p>
+                        <p style="font-size:0.76rem; margin-top:0.3rem;">Certbot la edita automáticamente</p>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,255,255,0.08);">
+                        <div class="card-header" style="color:var(--warning);"><i class="ph ph-eye"></i> Verificar en browser</div>
+                        <p class="code-font" style="font-size:0.76rem; color:var(--text-primary);">http://TU_IP_PUBLICA</p>
+                        <p style="font-size:0.76rem; margin-top:0.3rem;">Deberías ver la welcome page de Nginx</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE: SITES-AVAILABLE + SITES-ENABLED    -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-sites">
+            <div class="slide-tag">FASE 3 · ESTRUCTURA DE NGINX</div>
+            <h2>SITES-AVAILABLE <span class="cyan">+</span> SITES-ENABLED</h2>
+            <p style="margin-bottom:0.7rem; font-size:0.82rem;">Nginx separa la <strong>definición</strong> del sitio (available) de la <strong>activación</strong> (enabled) usando <span class="hl-key">symlinks</span> — así puedes activar/desactivar sin borrar configs.</p>
+
+            <div class="two-col" style="max-width:1120px; gap:1rem; align-items:start;">
+
+                <!-- Left: Commands -->
+                <div style="display:flex; flex-direction:column; gap:0.7rem;">
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                            <div class="terminal-title">ubuntu@servidor — setup completo</div>
+                        </div>
+                        <div class="terminal-body" style="font-size:0.73rem;">
+<span class="comment"># 1. Crear directorio de cada web (nombre = dominio)</span>
+<span class="cmd">$</span> <span class="arg">sudo mkdir -p /var/www/web.dominio.com</span>
+<span class="cmd">$</span> <span class="arg">sudo mkdir -p /var/www/app.dominio.com</span>
+
+<span class="comment"># 2. Subir el index.html a cada directorio</span>
+<span class="cmd">$</span> <span class="arg">sudo nano /var/www/web.dominio.com/index.html</span>
+<span class="cmd">$</span> <span class="arg">sudo nano /var/www/app.dominio.com/index.html</span>
+
+<span class="comment"># 3. Crear configs en sites-available</span>
+<span class="cmd">$</span> <span class="arg">sudo nano /etc/nginx/sites-available/web.dominio.com.conf</span>
+<span class="cmd">$</span> <span class="arg">sudo nano /etc/nginx/sites-available/app.dominio.com.conf</span>
+
+<span class="comment"># 4. Activar con symlinks a sites-enabled</span>
+<span class="cmd">$</span> <span class="arg">sudo ln -s /etc/nginx/sites-available/web.dominio.com.conf \</span>
+<span class="arg">           /etc/nginx/sites-enabled/</span>
+<span class="cmd">$</span> <span class="arg">sudo ln -s /etc/nginx/sites-available/app.dominio.com.conf \</span>
+<span class="arg">           /etc/nginx/sites-enabled/</span>
+
+<span class="comment"># 5. Verificar sintaxis y recargar</span>
+<span class="cmd">$</span> <span class="arg">sudo nginx -t</span>
+<span class="out-success">nginx: configuration file /etc/nginx/nginx.conf test is successful</span>
+<span class="cmd">$</span> <span class="arg">sudo systemctl reload nginx</span>
+                        </div>
+                    </div>
+                    <div class="card" style="border-color:rgba(6,182,212,0.25); padding:0.5rem 1rem;">
+                        <p style="font-size:0.76rem; color:var(--text-primary);">
+                            💡 El sitio <span class="code-font hl-key">default</span> de Nginx sigue funcionando — es el que certbot edita primero. Los sites personalizados tienen <strong>prioridad por server_name</strong>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right: Nginx config blocks -->
+                <div style="display:flex; flex-direction:column; gap:0.7rem;">
+
+                    <div>
+                        <p style="font-size:0.7rem; color:var(--accent-cyan); font-weight:700; margin-bottom:0.35rem; font-family:var(--font-code);">
+                            📄 /etc/nginx/sites-available/<span style="color:var(--text-primary);">web.dominio.com.conf</span>
+                        </p>
+                        <div class="diff-after" style="font-size:0.71rem; line-height:1.7;"><span class="ng-block">server</span> {
+  <span class="ng-dir">listen</span>       <span class="ng-num">80</span>;
+  <span class="ng-dir">server_name</span>  <span class="ng-val">web.dominio.com</span>;
+
+  <span class="ng-dir">root</span>   <span class="ng-val">/var/www/web.dominio.com</span>;
+  <span class="ng-dir">index</span>  <span class="ng-val">index.html</span>;
+
+  <span class="ng-dir">location</span> / {
+    <span class="ng-dir">try_files</span> <span class="ng-val">$uri $uri/ =404</span>;
+  }
+}</div>
+                    </div>
+
+                    <div>
+                        <p style="font-size:0.7rem; color:var(--accent-purple); font-weight:700; margin-bottom:0.35rem; font-family:var(--font-code);">
+                            📄 /etc/nginx/sites-available/<span style="color:var(--text-primary);">app.dominio.com.conf</span>
+                        </p>
+                        <div class="diff-after" style="font-size:0.71rem; line-height:1.7; border-color:rgba(168,85,247,0.3); background:rgba(168,85,247,0.04);"><span class="ng-block">server</span> {
+  <span class="ng-dir">listen</span>       <span class="ng-num">80</span>;
+  <span class="ng-dir">server_name</span>  <span class="ng-val">app.dominio.com</span>;
+
+  <span class="ng-dir">root</span>   <span class="ng-val">/var/www/app.dominio.com</span>;
+  <span class="ng-dir">index</span>  <span class="ng-val">index.html</span>;
+
+  <span class="ng-dir">location</span> / {
+    <span class="ng-dir">try_files</span> <span class="ng-val">$uri $uri/ =404</span>;
+  }
+}</div>
+                    </div>
+
+                    <div class="card" style="border-color:rgba(245,158,11,0.3); padding:0.5rem 1rem; background:rgba(245,158,11,0.04);">
+                        <p style="font-size:0.76rem; color:var(--text-primary);">
+                            ⚠️ <strong>Desactivar un sitio</strong> es tan simple como borrar el symlink:<br>
+                            <span class="code-font" style="color:var(--warning);">sudo rm /etc/nginx/sites-enabled/web.dominio.com.conf</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 12: WEBS DE PRÁCTICA (PREVIEW+CODE)  -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-12">
+            <div class="slide-tag">PRÁCTICA · WEBS DE DEMO</div>
+            <h2>LAS DOS <span class="cyan">WEBS DE PRÁCTICA</span></h2>
+            <p style="margin-bottom:0.6rem;">HTML de cada web → <span class="code-font hl-key">/var/www/web.dominio.com/index.html</span> &nbsp;·&nbsp; <span class="code-font hl-key">/var/www/app.dominio.com/index.html</span></p>
+
+            <div class="two-col" style="max-width:1120px; gap:1rem; align-items:start;">
+
+                <!-- WEB UNO -->
+                <div style="display:flex; flex-direction:column; gap:0;">
+                    <!-- Preview -->
+                    <div style="background:#0f172a; border:1px solid rgba(6,182,212,0.4); border-bottom:none; border-radius:10px 10px 0 0; padding:1rem 1.2rem; display:flex; flex-direction:column; align-items:center; gap:0.3rem; min-height:130px; justify-content:center;">
+                        <div style="font-size:0.5rem; letter-spacing:0.15em; color:#334155; text-transform:uppercase; margin-bottom:0.2rem;">Academia DevOps and Cloud</div>
+                        <div style="font-size:1.4rem; color:#06b6d4; font-weight:900; font-family:monospace;">Hola, DevOps!</div>
+                        <div style="font-size:0.6rem; color:#94a3b8;">Servidor activo en:</div>
+                        <div style="background:#1e293b; border:1px solid #06b6d4; color:#06b6d4; padding:3px 12px; border-radius:10px; font-size:0.6rem; font-family:monospace;">tudominio.com</div>
+                        <div style="font-size:0.5rem; color:#10b981; border:1px solid rgba(16,185,129,0.3); padding:2px 8px; border-radius:10px; margin-top:0.2rem;">HTTPS - Lets Encrypt</div>
+                    </div>
+                    <!-- Label bar -->
+                    <div style="background:#111; padding:5px 10px; display:flex; justify-content:space-between; align-items:center; border-left:1px solid rgba(6,182,212,0.4); border-right:1px solid rgba(6,182,212,0.4);">
+                        <span style="font-size:0.65rem; color:#888; font-family:var(--font-ui);">🌑 <strong style="color:var(--text-primary);">web-uno</strong> — dark corporate</span>
+                        <button class="copy-btn" onclick="copyCode(this, 'WEB_UNO')">Copiar</button>
+                    </div>
+                    <!-- Code -->
+                    <div class="code-content" style="border:1px solid rgba(6,182,212,0.4); border-top:none; border-radius:0 0 10px 10px; max-height:175px; font-size:0.68rem; padding:0.7rem 0.9rem;">&lt;!DOCTYPE html&gt;
+&lt;html&gt;&lt;head&gt;
+  &lt;title&gt;Academia DevOps&lt;/title&gt;
+  &lt;style&gt;
+    body { background:#0f172a; color:#06b6d4;
+           font-family:monospace; text-align:center;
+           padding:60px; display:flex; flex-direction:column;
+           align-items:center; justify-content:center;
+           min-height:100vh; margin:0; }
+
+    h1   { font-size:3rem; margin-bottom:0.5rem; }
+    p    { font-size:1.1rem; color:#f8fafc; }
+
+    .badge { background:#1e293b; border:1px solid #06b6d4;
+             color:#06b6d4; padding:8px 24px;
+             border-radius:20px; display:inline-block;
+             font-family:monospace; margin-top:8px; }
+
+    .tag { font-size:0.75rem; color:#94a3b8; margin-top:2rem; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;🚀 Hola, DevOps!&lt;/h1&gt;
+  &lt;p&gt;Servidor activo en:&lt;/p&gt;
+  &lt;div class="badge" id="host"&gt;&lt;/div&gt;
+  &lt;p class="tag"&gt;Academia DevOps - Nginx + SSL&lt;/p&gt;
+  &lt;script&gt;
+    document.getElementById('host').textContent
+      = window.location.hostname;
+  &lt;/script&gt;
+&lt;/body&gt;&lt;/html&gt;</div>
+                </div>
+
+                <!-- WEB DOS -->
+                <div style="display:flex; flex-direction:column; gap:0;">
+                    <!-- Preview -->
+                    <div style="background:linear-gradient(135deg,#667eea,#764ba2); border:1px solid rgba(168,85,247,0.5); border-bottom:none; border-radius:10px 10px 0 0; padding:1rem 1.2rem; display:flex; flex-direction:column; align-items:center; gap:0.3rem; min-height:130px; justify-content:center;">
+                        <div style="font-size:0.55rem; letter-spacing:0.15em; background:rgba(255,255,255,0.12); color:white; padding:2px 10px; border-radius:10px; text-transform:uppercase; margin-bottom:0.2rem;">Desplegada con Nginx + SSL</div>
+                        <div style="font-size:1.6rem; font-weight:900; color:white; text-shadow:0 2px 10px rgba(0,0,0,0.3);">Hola Mundo!</div>
+                        <div style="font-size:0.6rem; color:rgba(255,255,255,0.8);">Esta web vive en:</div>
+                        <div style="background:rgba(255,255,255,0.2); color:white; padding:4px 16px; border-radius:20px; font-size:0.65rem; border:1px solid rgba(255,255,255,0.3);">tudominio.com</div>
+                    </div>
+                    <!-- Label bar -->
+                    <div style="background:#111; padding:5px 10px; display:flex; justify-content:space-between; align-items:center; border-left:1px solid rgba(168,85,247,0.5); border-right:1px solid rgba(168,85,247,0.5);">
+                        <span style="font-size:0.65rem; color:#888; font-family:var(--font-ui);">🌈 <strong style="color:var(--text-primary);">web-dos</strong> — startup gradient</span>
+                        <button class="copy-btn" onclick="copyCode(this, 'WEB_DOS')">Copiar</button>
+                    </div>
+                    <!-- Code -->
+                    <div class="code-content" style="border:1px solid rgba(168,85,247,0.5); border-top:none; border-radius:0 0 10px 10px; max-height:175px; font-size:0.68rem; padding:0.7rem 0.9rem;">&lt;!DOCTYPE html&gt;
+&lt;html&gt;&lt;head&gt;
+  &lt;title&gt;Mi Startup&lt;/title&gt;
+  &lt;style&gt;
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:linear-gradient(135deg,#667eea,#764ba2);
+           min-height:100vh; display:flex; flex-direction:column;
+           align-items:center; justify-content:center;
+           font-family:'Segoe UI',sans-serif;
+           color:white; text-align:center; }
+
+    h1   { font-size:3.5rem; font-weight:900; margin-bottom:0.5rem;
+           text-shadow:0 2px 20px rgba(0,0,0,0.3); }
+    p    { font-size:1.1rem; opacity:.85; margin-bottom:1rem; }
+
+    .pill { background:rgba(255,255,255,0.2);
+            backdrop-filter:blur(10px); padding:10px 28px;
+            border-radius:30px; font-size:1rem;
+            border:1px solid rgba(255,255,255,.3);
+            display:inline-block; }
+
+    footer { position:fixed; bottom:20px;
+             font-size:.75rem; opacity:.5; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;✨ Hola Mundo!&lt;/h1&gt;
+  &lt;p&gt;Esta web vive en:&lt;/p&gt;
+  &lt;div class="pill" id="host"&gt;&lt;/div&gt;
+  &lt;footer&gt;Nginx + Lets Encrypt 🔒&lt;/footer&gt;
+  &lt;script&gt;
+    document.getElementById('host').textContent
+      = window.location.hostname;
+  &lt;/script&gt;
+&lt;/body&gt;&lt;/html&gt;</div>
+                </div>
+            </div>
+
+            <p style="font-size:0.72rem; margin-top:0.5rem; color:var(--text-secondary);">
+                Cada web muestra el <span class="hl-key">hostname activo</span> via JS.
+                Podrás ver la diferencia entre <span class="code-font">http://</span> e <span class="code-font">https://</span> en vivo.
+            </p>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 12: FASE 4 - ROUTE 53                -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-12">
+            <div class="slide-tag">FASE 4 · DOMINIO CON ROUTE 53</div>
+            <span class="phase-badge">Fase 4</span>
+            <h2>APUNTAR EL <span class="cyan">DOMINIO</span> AL SERVIDOR</h2>
+            <p style="margin-bottom:0.8rem;">Let's Encrypt necesita un dominio real para validar. Sin DNS no hay SSL.</p>
+
+            <div class="two-col" style="max-width:1000px; align-items:start;">
+                <ul class="checklist">
+                    <li>
+                        <i class="ph ph-check-circle chk"></i>
+                        <div><strong>Route 53 → Hosted Zones</strong><br><span class="detail">Selecciona tu dominio sandbox o propio</span></div>
+                    </li>
+                    <li>
+                        <i class="ph ph-check-circle chk"></i>
+                        <div>
+                            <strong>Create Record</strong><br>
+                            <span class="detail">Tipo: <span class="code-font">A</span> &nbsp;|&nbsp; Nombre: vacío (raíz) o <span class="code-font">web</span></span>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="ph ph-check-circle chk"></i>
+                        <div><strong>Value: tu IP pública de EC2</strong><br><span class="detail code-font">Ej: 54.123.45.67</span></div>
+                    </li>
+                    <li>
+                        <i class="ph ph-clock chk" style="color:var(--warning);"></i>
+                        <div><strong>Esperar propagación</strong><br><span class="detail">Route 53: 1–5 min · Otros DNS: hasta 48h</span></div>
+                    </li>
+                </ul>
+                <div style="display:flex; flex-direction:column; gap:0.8rem;">
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                            <div class="terminal-title">Verificar DNS (Módulo 8.2)</div>
+                        </div>
+                        <div class="terminal-body" style="font-size:0.76rem; padding:0.7rem 0.9rem;">
+<span class="comment"># dig — visto en Módulo 8.2</span>
+<span class="cmd">$</span> <span class="arg">dig tudominio.com +short</span>
+<span class="out-success">54.123.45.67</span>
+
+<span class="comment"># Verificar que la web responde</span>
+<span class="cmd">$</span> <span class="arg">curl -I http://tudominio.com</span>
+<span class="out-success">HTTP/1.1 200 OK ← ¡Listo para Certbot!</span>
+                        </div>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,255,255,0.07);">
+                        <p style="font-size:0.78rem; color:var(--text-primary);">
+                            <i class="ph ph-lightbulb" style="color:var(--key-highlight);"></i>
+                            Si <span class="code-font">curl</span> devuelve <span class="code-font" style="color:var(--success);">200 OK</span>, el DNS propagó y Certbot puede validar. ¡A la siguiente fase!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 13: FASE 5 - CERTBOT                 -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-13">
+            <div class="slide-tag">FASE 5 · CERTBOT + LET'S ENCRYPT</div>
+            <span class="phase-badge">Fase 5</span>
+            <h2>INSTALAR SSL CON <span class="cyan">CERTBOT</span></h2>
+            <p style="margin-bottom:0.7rem;">Doc oficial: <span class="code-font" style="color:var(--accent-cyan);">certbot.eff.org</span> → Nginx + Linux (snap)</p>
+
+            <div class="terminal" style="max-width:920px;">
+                <div class="terminal-header">
+                    <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                    <div class="terminal-title">ubuntu@servidor — instalar certbot</div>
+                </div>
+                <div class="terminal-body" style="font-size:0.76rem;">
+<span class="comment"># 1. Actualizar snap core (gestiona las actualizaciones)</span>
+<span class="cmd">$</span> <span class="arg">sudo snap install core; sudo snap refresh core</span>
+
+<span class="comment"># 2. Eliminar certbot viejo si existe (evita conflictos)</span>
+<span class="cmd">$</span> <span class="arg">sudo apt-get remove certbot -y</span>
+
+<span class="comment"># 3. Instalar Certbot por snap (método oficial)</span>
+<span class="cmd">$</span> <span class="arg">sudo snap install --classic certbot</span>
+<span class="out-success">certbot 2.x.x from Certbot Project installed ✓</span>
+
+<span class="comment"># 4. Enlazar el comando globalmente</span>
+<span class="cmd">$</span> <span class="arg">sudo ln -s /snap/bin/certbot /usr/local/bin/certbot</span>
+
+<span class="comment"># 5. ¡El comando mágico! — Detecta Nginx y actualiza config</span>
+<span class="cmd">$</span> <span class="arg">sudo certbot --nginx</span>
+<span class="out">  Enter email:    <span class="out-warn">tu@email.com</span></span>
+<span class="out">  Agree to ToS?   <span class="out-warn">Y</span></span>
+<span class="out">  Share with EFF? <span class="out-warn">N</span></span>
+<span class="out-success">Successfully received certificate. HTTPS enabled. 🎉</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 14: QUÉ CAMBIÓ CERTBOT               -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-14">
+            <div class="slide-tag">FASE 5 · BAJO EL CAPÓ</div>
+            <h2>¿QUÉ <span class="cyan">MODIFICÓ</span> CERTBOT?</h2>
+            <p style="margin-bottom:0.7rem;">Certbot editó <span class="code-font hl-key">/etc/nginx/sites-available/web.dominio.com.conf</span> automáticamente:</p>
+
+            <div class="two-col" style="max-width:1100px; gap:1.2rem; align-items:start;">
+                <div>
+                    <p style="font-size:0.72rem; color:var(--danger); margin-bottom:0.45rem; font-weight:700;">❌ ANTES — Solo HTTP</p>
+                    <div class="diff-before"><span class="ng-block">server</span> {
+  <span class="ng-dir">listen</span>       <span class="ng-num">80</span>;
+  <span class="ng-dir">server_name</span>  <span class="ng-val">web.dominio.com</span>;
+
+  <span class="ng-dir">root</span>   <span class="ng-val">/var/www/web.dominio.com</span>;
+  <span class="ng-dir">index</span>  <span class="ng-val">index.html</span>;
+
+  <span class="ng-dir">location</span> / {
+    <span class="ng-dir">try_files</span> <span class="ng-val">$uri $uri/ =404</span>;
+  }
+}</div>
+                </div>
+                <div>
+                    <p style="font-size:0.72rem; color:var(--success); margin-bottom:0.45rem; font-weight:700;">✅ DESPUÉS — Certbot lo reescribió automáticamente</p>
+                    <div class="diff-after"><span class="ng-block">server</span> {
+  <span class="diff-add">  <span class="ng-dir">listen</span>       <span class="ng-num">443</span> <span class="ng-kw">ssl</span>; <span class="ng-cmt"># managed by Certbot</span></span>
+  <span class="ng-dir">server_name</span>  <span class="ng-val">web.dominio.com</span>;
+
+  <span class="ng-dir">root</span>   <span class="ng-val">/var/www/web.dominio.com</span>;
+  <span class="ng-dir">index</span>  <span class="ng-val">index.html</span>;
+
+  <span class="ng-dir">location</span> / {
+    <span class="ng-dir">try_files</span> <span class="ng-val">$uri $uri/ =404</span>;
+  }
+
+  <span class="diff-add">  <span class="ng-dir">ssl_certificate</span>      <span class="ng-cert">/etc/letsencrypt/live/web.dominio.com/fullchain.pem</span>; <span class="ng-cmt"># Certbot</span></span>
+  <span class="diff-add">  <span class="ng-dir">ssl_certificate_key</span>  <span class="ng-cert">/etc/letsencrypt/live/web.dominio.com/privkey.pem</span>;  <span class="ng-cmt"># Certbot</span></span>
+  <span class="diff-add">  <span class="ng-dir">include</span>              <span class="ng-val">/etc/letsencrypt/options-ssl-nginx.conf</span>; <span class="ng-cmt"># Certbot</span></span>
+  <span class="diff-add">  <span class="ng-dir">ssl_dhparam</span>          <span class="ng-val">/etc/letsencrypt/ssl-dhparams.pem</span>; <span class="ng-cmt"># Certbot</span></span>
+}
+
+<span class="diff-add"><span class="ng-block">server</span> { <span class="ng-cmt"># Certbot — redirect HTTP → HTTPS</span>
+  <span class="ng-dir">listen</span>      <span class="ng-num">80</span>;
+  <span class="ng-dir">server_name</span> <span class="ng-val">web.dominio.com</span>;
+  <span class="ng-dir">return</span>      <span class="ng-num">301</span> <span class="ng-val">https://$host$request_uri</span>;
+}</span></div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:0.7rem; max-width:1100px; padding:0.55rem 1.2rem; border-color:rgba(16,185,129,0.3);">
+                <p style="font-size:0.78rem; color:var(--text-primary);">
+                    🔒 Los certificados quedan en <span class="code-font hl-key">/etc/letsencrypt/live/web.dominio.com/</span>
+                    — Nginx los carga en cada conexión HTTPS. Certbot también agrega el bloque de redirección HTTP→HTTPS.
+                </p>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 15: FASE 6 - RENOVACIÓN AUTOMÁTICA   -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-15">
+            <div class="slide-tag">FASE 6 · RENOVACIÓN AUTOMÁTICA</div>
+            <span class="phase-badge">Fase 6</span>
+            <h2>RENOVACIÓN <span class="cyan">AUTOMÁTICA</span> — NUNCA MÁS TE PREOCUPAS</h2>
+
+            <div class="two-col" style="max-width:1000px; gap:1.5rem; align-items:start; margin-top:0.7rem;">
+                <div style="display:flex; flex-direction:column; gap:0.8rem;">
+                    <div class="card cyan-border">
+                        <div class="card-header"><i class="ph ph-clock-countdown"></i> ¿Cuánto dura el certificado?</div>
+                        <p style="font-size:0.84rem; color:var(--text-primary);">Los certificados de Let's Encrypt duran <span class="hl-key">90 días</span>. El snap de Certbot instala automáticamente un <strong>systemd timer</strong> que los renueva antes de que expiren.</p>
+                    </div>
+                    <div class="card green-border">
+                        <div class="card-header" style="color:var(--success);"><i class="ph ph-check-circle"></i> ¿Qué hace el timer?</div>
+                        <ul style="list-style:none; font-size:0.8rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:0.3rem; padding-top:0.3rem;">
+                            <li>✅ Verifica certificados <strong style="color:var(--text-primary);">2 veces al día</strong></li>
+                            <li>✅ Si quedan &lt; 30 días → renueva automáticamente</li>
+                            <li>✅ Recarga Nginx sin downtime después de renovar</li>
+                            <li>✅ Funciona aunque no estés conectado al servidor</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.8rem;">
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                            <div class="terminal-title">Verificar renovación (Cron/Timers — Módulo 6)</div>
+                        </div>
+                        <div class="terminal-body" style="font-size:0.76rem; padding:0.7rem 0.9rem;">
+<span class="comment"># Simular renovación sin ejecutarla de verdad</span>
+<span class="cmd">$</span> <span class="arg">sudo certbot renew --dry-run</span>
+<span class="out-success">Congratulations, all simulated renewals succeeded!</span>
+
+<span class="comment"># Ver el timer instalado por certbot</span>
+<span class="cmd">$</span> <span class="arg">systemctl list-timers | grep certbot</span>
+<span class="out-success">snap.certbot.renew.timer  active  running</span>
+                        </div>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,255,255,0.07);">
+                        <p style="font-size:0.78rem; color:var(--text-primary);">
+                            Si <span class="code-font">dry-run</span> dice <span style="color:var(--success);">succeeded</span>,
+                            tu SSL jamás expirará. El server se encarga. 🎉
+                            Lo conectamos con el <span class="hl-key code-font">Módulo 6 (Cron)</span>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 16: CLOUD - SSL DESACOPLADO           -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-16">
+            <div class="slide-tag">INSIGHT · ESCALA EN LA NUBE</div>
+            <h2>CUANDO <span class="orange">TU STARTUP CRECE</span>: SSL SE DESACOPLA</h2>
+            <p style="margin-bottom:0.8rem;">En la nube enterprise el SSL no vive en Nginx. Sube al Load Balancer:</p>
+
+            <div class="arch-diagram" style="gap:0; margin-bottom:0.8rem;">
+                <div class="arch-node">
+                    <div class="arch-icon pulse" style="background:rgba(6,182,212,0.1); border-color:var(--accent-cyan); color:var(--accent-cyan);">
+                        <i class="ph ph-users"></i>
+                    </div>
+                    <div class="arch-label">Millones</div>
+                    <div class="arch-sub">usuarios</div>
+                </div>
+                <div class="arch-arrow">
+                    <div class="arrow-line"><div class="arrow-packet"></div></div>
+                    <div class="arrow-label">HTTPS</div>
+                </div>
+                <div class="aws-box" style="padding:1rem 1.4rem;">
+                    <div class="aws-label">☁️ AWS — SSL Terminado en el LB</div>
+                    <div class="aws-inner" style="align-items:center; gap:1.2rem;">
+                        <div class="arch-node">
+                            <div class="arch-icon pulse-orange" style="background:rgba(255,153,0,0.15); border-color:var(--accent-orange); color:var(--accent-orange);">
+                                <i class="ph ph-scales"></i>
+                            </div>
+                            <div class="arch-label" style="color:var(--accent-orange);">ALB</div>
+                            <div class="arch-sub">ACM Cert 🔒</div>
+                        </div>
+                        <div class="arch-arrow">
+                            <div class="arrow-line" style="background:rgba(255,255,255,0.25);">
+                                <div class="arrow-packet" style="animation-delay:0.4s; background:rgba(255,255,255,0.5);"></div>
+                            </div>
+                            <div class="arrow-label">HTTP interno</div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                            <div class="ec2-box" style="padding:0.4rem 0.8rem;">
+                                <div class="ec2-inner" style="gap:0.5rem; align-items:center;">
+                                    <div class="arch-icon" style="width:38px; height:38px; border-color:var(--accent-cyan); color:var(--accent-cyan); font-size:1rem; background:rgba(6,182,212,0.1);"><i class="ph ph-cylinder"></i></div>
+                                    <div class="arch-label" style="font-size:0.6rem;">Nginx #1</div>
+                                </div>
+                            </div>
+                            <div class="ec2-box" style="padding:0.4rem 0.8rem;">
+                                <div class="ec2-inner" style="gap:0.5rem; align-items:center;">
+                                    <div class="arch-icon" style="width:38px; height:38px; border-color:var(--accent-cyan); color:var(--accent-cyan); font-size:1rem; background:rgba(6,182,212,0.1);"><i class="ph ph-cylinder"></i></div>
+                                    <div class="arch-label" style="font-size:0.6rem;">Nginx #N</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-cards" style="grid-template-columns:repeat(3,1fr); max-width:900px;">
+                <div class="card" style="border-color:rgba(6,182,212,0.25); text-align:center; padding:0.8rem;">
+                    <p style="font-size:0.8rem;"><strong style="color:var(--accent-cyan);">Certbot / Let's Encrypt</strong><br><span style="font-size:0.72rem;">VPS, startups, proyectos personales</span></p>
+                </div>
+                <div class="card" style="border-color:rgba(255,153,0,0.3); text-align:center; padding:0.8rem;">
+                    <p style="font-size:0.8rem;"><strong style="color:var(--accent-orange);">AWS Certificate Manager</strong><br><span style="font-size:0.72rem;">Empresas en AWS. Gratis + gestionado.</span></p>
+                </div>
+                <div class="card" style="border-color:rgba(16,185,129,0.25); text-align:center; padding:0.8rem;">
+                    <p style="font-size:0.8rem;"><strong style="color:var(--success);">Mismos fundamentos</strong><br><span style="font-size:0.72rem;">Lo aprendido hoy aplica en ambos mundos</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ -->
+        <!-- SLIDE 17: CV + CIERRE                      -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="slide" id="slide-17">
+            <div class="slide-tag">CIERRE · LO QUE CONSTRUISTE HOY</div>
+            <div class="achievement-badge">
+                <i class="ph ph-trophy"></i>
+            </div>
+            <h2 style="color:var(--key-highlight);">¡LO PUSISTE EN <span style="color:var(--accent-orange);">TU CV!</span></h2>
+            <p style="max-width:760px; margin:0.4rem auto 0.8rem; font-size:0.88rem; color:var(--text-primary);">
+                "Desplegué servidor Nginx en AWS EC2 con certificado SSL/TLS automatizado mediante Let's Encrypt y Certbot"
+            </p>
+
+            <div class="skills-row" style="max-width:800px;">
+                <span class="skill-pill">Linux · Ubuntu</span>
+                <span class="skill-pill">AWS EC2</span>
+                <span class="skill-pill">AWS Route 53</span>
+                <span class="skill-pill">Nginx</span>
+                <span class="skill-pill">SSL / TLS</span>
+                <span class="skill-pill">Let's Encrypt</span>
+                <span class="skill-pill">Certbot</span>
+                <span class="skill-pill">systemctl</span>
+                <span class="skill-pill">Systemd Timers</span>
+                <span class="skill-pill">DNS (A Record)</span>
+                <span class="skill-pill">HTTP-01 Validation</span>
+            </div>
+
+            <div class="card" style="margin-top:1rem; max-width:820px; border-color:rgba(255,153,0,0.4); padding:0.8rem 1.4rem;">
+                <p style="font-size:0.85rem; color:var(--text-primary);">
+                    💼 Esto aparece en job postings de <strong>SysAdmin Jr, DevOps Jr y Cloud Engineer</strong>.
+                    La misma base que usa <span class="hl-key">Hostinger, DigitalOcean, AWS y cualquier empresa con presencia web.</span>
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="nav-btn" onclick="prevSlide()"><i class="ph ph-caret-left"></i></button>
+        <button class="nav-btn" onclick="nextSlide()"><i class="ph ph-caret-right"></i></button>
+    </div>
+    <div class="slide-counter" id="counter">1 / 17</div>
+
+    <script>
+        // Navigation
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progress = document.getElementById('progress');
+        const counter = document.getElementById('counter');
+        const totalSlides = slides.length;
+
+        function updateUI() {
+            slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+            progress.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+            counter.innerText = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; updateUI(); } }
+        function prevSlide() { if (currentSlide > 0) { currentSlide--; updateUI(); } }
+
+        document.addEventListener('keydown', e => {
+            if (['ArrowRight', ' ', 'Enter'].includes(e.key)) nextSlide();
+            else if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Web demo code strings
+        const webUno = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Academia DevOps</title>
+  <style>
+    body { background:#0f172a; color:#06b6d4; font-family:monospace;
+           text-align:center; padding:60px; margin:0; min-height:100vh;
+           display:flex; flex-direction:column;
+           align-items:center; justify-content:center; }
+    h1   { font-size:3rem; margin-bottom:0.5rem; }
+    p    { font-size:1.1rem; color:#f8fafc; }
+    .badge { background:#1e293b; border:1px solid #06b6d4;
+             color:#06b6d4; padding:8px 24px; border-radius:20px;
+             display:inline-block; font-family:monospace; margin-top:8px; }
+    .tag { font-size:0.75rem; color:#94a3b8; margin-top:2rem; }
+  </style>
+</head>
+<body>
+  <h1>🚀 Hola, DevOps!</h1>
+  <p>Servidor activo en:</p>
+  <div class="badge" id="host"></div>
+  <p class="tag">Academia DevOps & Cloud · Nginx + SSL</p>
+  <script>
+    document.getElementById('host').textContent
+      = window.location.hostname;
+  <\/script>
+<script src="/app.js"></script>
+</body>
+</html>`;
+
+        const webDos = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Mi Startup</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:linear-gradient(135deg,#667eea,#764ba2);
+           min-height:100vh; display:flex; flex-direction:column;
+           align-items:center; justify-content:center;
+           font-family:'Segoe UI',sans-serif; color:white; text-align:center; }
+    h1   { font-size:3.5rem; font-weight:900; margin-bottom:0.5rem;
+           text-shadow:0 2px 20px rgba(0,0,0,0.3); }
+    p    { font-size:1.1rem; opacity:.85; margin-bottom:1rem; }
+    .pill { background:rgba(255,255,255,0.2);
+            backdrop-filter:blur(10px); padding:10px 28px;
+            border-radius:30px; font-size:1rem;
+            border:1px solid rgba(255,255,255,.3); display:inline-block; }
+    footer { position:fixed; bottom:20px;
+             font-size:.75rem; opacity:.5; }
+  </style>
+</head>
+<body>
+  <h1>✨ ¡Hola Mundo!</h1>
+  <p>Esta web vive en:</p>
+  <div class="pill" id="host"></div>
+  <footer>Desplegada con Nginx + Let's Encrypt 🔒</footer>
+  <script>
+    document.getElementById('host').textContent
+      = window.location.hostname;
+  <\/script>
+</body>
+</html>`;
+
+        function copyCode(btn, which) {
+            const text = which === 'WEB_UNO' ? webUno : webDos;
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = '¡Copiado!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = orig;
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(() => { btn.textContent = 'Error'; });
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>

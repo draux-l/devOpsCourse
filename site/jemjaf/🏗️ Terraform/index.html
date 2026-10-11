@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>🏗️ Terraform — jemjaf</title>
+<style>
+    :root {
+        --bg: #f3f4f1;
+        --surface: #ffffff;
+        --ink: #15181c;
+        --muted: #5c636b;
+        --line: #dfe2df;
+        --track: #e7e9e6;
+        --accent: #1e7a4d;
+        --accent-ink: #14502f;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+    }
+    a { color: var(--ink); }
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(243,244,241,0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+    }
+    .topbar .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+    }
+    .crumb { font-size: 0.85rem; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .crumb a:hover { color: var(--accent); }
+    .crumb .here { color: var(--ink); }
+    .overall { display: flex; align-items: center; gap: 12px; }
+    .overall .track { width: 220px; }
+    .pct { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 700; font-size: 1rem; color: var(--accent-ink); min-width: 3.2rem; text-align: right; }
+    .ocount { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 40px 24px 80px; max-width: 900px; margin: 0 auto; }
+    .lead { margin-bottom: 34px; }
+    .lead h1 {
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px 0;
+    }
+    .lead .sub { color: var(--muted); margin: 0 0 18px 0; }
+    .lead .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ghost {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+    }
+    .ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .module {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px 22px 14px;
+        margin-bottom: 18px;
+    }
+    .module-head { display: flex; align-items: baseline; gap: 12px; }
+    .mnum {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.85rem;
+        color: var(--accent-ink);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 2px 7px;
+        flex: none;
+    }
+    .mtitle { flex: 1; font-size: 1.12rem; margin: 0; letter-spacing: -0.005em; }
+    .mcount {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--muted);
+        flex: none;
+    }
+    .track {
+        height: 6px;
+        background: var(--track);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 14px 0 18px;
+    }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .lessons { list-style: none; margin: 0; padding: 0; }
+    .lesson { display: flex; align-items: flex-start; gap: 11px; padding: 7px 0; border-top: 1px solid var(--line); }
+    .lesson:first-child { border-top: none; }
+    .lesson input[type="checkbox"] {
+        width: 17px; height: 17px; margin: 3px 0 0 0; flex: none;
+        accent-color: var(--accent);
+        cursor: pointer;
+    }
+    .lesson .ltitle { text-decoration: none; }
+    .lesson .ltitle:hover { color: var(--accent-ink); text-decoration: underline; }
+    .lesson.is-done .ltitle { color: var(--muted); }
+    footer.foot { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; color: var(--muted); font-size: 0.8rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+    @media (max-width: 600px) {
+        .topbar .wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .overall .track { width: 150px; }
+    }
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="wrap">
+        <div class="crumb">
+            <a href="../index.html">jemjaf</a> <span>/</span> <span class="here">🏗️ Terraform</span>
+        </div>
+        <div class="overall">
+            <div class="track" role="progressbar" aria-label="Progreso del curso"><div class="fill" data-overall-bar></div></div>
+            <span class="pct" data-overall-pct>0%</span>
+        </div>
+    </div>
+</div>
+<main>
+    <section class="lead">
+        <h1>🏗️ Terraform</h1>
+        <p class="sub">Comunidad jemjaf · 7 módulos · 50 lecciones</p>
+        <div class="tools">
+            <button class="ghost" data-reset type="button">Reiniciar progreso de este curso</button>
+        </div>
+        <p class="ocount"><span data-overall-count>0 de 50 lecciones</span></p>
+    </section>
+    <section class="modules">
+        
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">07</span>
+                    <h2 class="mtitle">M5 — PROYECTOS</h2>
+                    <span class="mcount" data-module-count="7-M5 — PROYECTOS">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="7-M5 — PROYECTOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="49a327fdc79f4bd58d69c069f64eced8" data-module="7-M5 — PROYECTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — PROYECTOS/1-5.1 ⚖️ Licencia BSL/index.html">5.1 ⚖️ Licencia BSL</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e64170e9cc344587b4a2ecb8903e3d90" data-module="7-M5 — PROYECTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — PROYECTOS/2-5.2 🖥️ AWS EC2/index.html">5.2 🖥️ AWS EC2</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="979ca25c746b461eaa467e305d923e18" data-module="7-M5 — PROYECTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — PROYECTOS/3-5.7 ⚙️ Terraform + GitHub Actions + AWS/index.html">5.7 ⚙️ Terraform + GitHub Actions + AWS</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">01</span>
+                    <h2 class="mtitle">Lessons</h2>
+                    <span class="mcount" data-module-count="__root__">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="__root__"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f6a7bb78ac974ec38b22ea2f9179324b" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="1-🎉 Bienvenida/index.html">🎉 Bienvenida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fd9a5f49f7f9427faa3cb395907985d0" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-📋 Prerrequisitos/index.html">📋 Prerrequisitos</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">02</span>
+                    <h2 class="mtitle">PROYECTOS DE LA COMUNIDAD</h2>
+                    <span class="mcount" data-module-count="2-PROYECTOS DE LA COMUNIDAD">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="2-PROYECTOS DE LA COMUNIDAD"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a1b8b3099fb741839ac8592ffca2644a" data-module="2-PROYECTOS DE LA COMUNIDAD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-PROYECTOS DE LA COMUNIDAD/1-🏗️ EC2 y RDS con Terraform, Ansible y CI-CD/index.html">🏗️ EC2 y RDS con Terraform, Ansible y CI/CD</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d6de8454c7df4836b1c85e57ff83c801" data-module="2-PROYECTOS DE LA COMUNIDAD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-PROYECTOS DE LA COMUNIDAD/2-🏗️ AWS con Terraform, ECS y Event Sourcing/index.html">🏗️ AWS con Terraform, ECS y Event Sourcing</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">03</span>
+                    <h2 class="mtitle">M1 — FUNDAMENTOS</h2>
+                    <span class="mcount" data-module-count="3-M1 — FUNDAMENTOS">0/10</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="3-M1 — FUNDAMENTOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5110af5c13b14935ab7aacb0346e33a3" data-module="3-M1 — FUNDAMENTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — FUNDAMENTOS/1-1.1 📖 ¿Qué es Terraform-/index.html">1.1 📖 ¿Qué es Terraform?</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="745b9e9243c741faafea9de4967bc1b5" data-module="3-M1 — FUNDAMENTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — FUNDAMENTOS/2-1.2 🔑 Configurar AWS CLI/index.html">1.2 🔑 Configurar AWS CLI</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d0c12cfbd3984164a38c440c4db577cc" data-module="3-M1 — FUNDAMENTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — FUNDAMENTOS/3-1.3 🔄 Flujo de Terraform/index.html">1.3 🔄 Flujo de Terraform</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a6d68778a2504626aceb9d176d363989" data-module="3-M1 — FUNDAMENTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — FUNDAMENTOS/4-1.4 🪣 Primer recurso- S3/index.html">1.4 🪣 Primer recurso: S3</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a24376d737104f889530141c2e4efd1c" data-module="3-M1 — FUNDAMENTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — FUNDAMENTOS/5-1.5 🗑️ Destruir recursos/index.html">1.5 🗑️ Destruir recursos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4e7a4c6df06d43ef92a1b8f21e9c939a" data-module="3-M1 — FUNDAMENTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — FUNDAMENTOS/6-1.6 🚀 terraform init/index.html">1.6 🚀 terraform init</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="79c9fe23d38e4487b2d03aede4f129b0" data-module="3-M1 — FUNDAMENTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — FUNDAMENTOS/7-1.7 📋 terraform plan/index.html">1.7 📋 terraform plan</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0db8ab5136a4486e917b57d27fb07bfe" data-module="3-M1 — FUNDAMENTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — FUNDAMENTOS/8-1.8 ✅ terraform apply/index.html">1.8 ✅ terraform apply</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fadc975026e243d280994c16b0f3e2d8" data-module="3-M1 — FUNDAMENTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — FUNDAMENTOS/9-1.9 💻 Extensiones para Terraform/index.html">1.9 💻 Extensiones para Terraform</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c46f2f948b3147e697aba49db8139433" data-module="3-M1 — FUNDAMENTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — FUNDAMENTOS/10-1.10 🏷️ Alias de Terraform/index.html">1.10 🏷️ Alias de Terraform</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">04</span>
+                    <h2 class="mtitle">M2 — LENGUAJE TERRAFORM</h2>
+                    <span class="mcount" data-module-count="4-M2 — LENGUAJE TERRAFORM">0/11</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="4-M2 — LENGUAJE TERRAFORM"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f354be866831409db8342b1890a3a8c3" data-module="4-M2 — LENGUAJE TERRAFORM" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — LENGUAJE TERRAFORM/1-2.1 📦 Providers/index.html">2.1 📦 Providers</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4685e8c7a3634521974cab5d661b97b0" data-module="4-M2 — LENGUAJE TERRAFORM" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — LENGUAJE TERRAFORM/2-2.2 🧱 Recursos/index.html">2.2 🧱 Recursos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="43c06a7265ce4baabd42d600b4c55799" data-module="4-M2 — LENGUAJE TERRAFORM" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — LENGUAJE TERRAFORM/3-2.3 🔄 Terraform Registry/index.html">2.3 🔄 Terraform Registry</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9f8ff9b44e694923be2a3dfcf6a9742e" data-module="4-M2 — LENGUAJE TERRAFORM" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — LENGUAJE TERRAFORM/4-2.4 ⚙️ Provider block/index.html">2.4 ⚙️ Provider block</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="95fc838748124df1a58685dbcebc4774" data-module="4-M2 — LENGUAJE TERRAFORM" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — LENGUAJE TERRAFORM/5-2.5 📝 Variables simples/index.html">2.5 📝 Variables simples</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e2c9ee2cfba8438895971ecebf6053cd" data-module="4-M2 — LENGUAJE TERRAFORM" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — LENGUAJE TERRAFORM/6-2.6 ✅ Validación de variables/index.html">2.6 ✅ Validación de variables</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="616e6279c0474fdfac981ae224791cf9" data-module="4-M2 — LENGUAJE TERRAFORM" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — LENGUAJE TERRAFORM/7-2.7 📚 Variables complejas/index.html">2.7 📚 Variables complejas</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bf34b1f7fe8e4dff8ba7b8ee73dd9cc5" data-module="4-M2 — LENGUAJE TERRAFORM" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — LENGUAJE TERRAFORM/8-2.8 📌 Locals/index.html">2.8 📌 Locals</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0420bc89143247f1875264f15b8011bf" data-module="4-M2 — LENGUAJE TERRAFORM" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — LENGUAJE TERRAFORM/9-2.9 📤 Outputs/index.html">2.9 📤 Outputs</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fbbe5386993240fab39d1a3fd0cbaad8" data-module="4-M2 — LENGUAJE TERRAFORM" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — LENGUAJE TERRAFORM/10-2.10 🔗 depends_on/index.html">2.10 🔗 depends_on</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="22cdf1fa283b4b0e8ac73b480736466e" data-module="4-M2 — LENGUAJE TERRAFORM" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — LENGUAJE TERRAFORM/11-2.11 🔍 Data sources/index.html">2.11 🔍 Data sources</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">05</span>
+                    <h2 class="mtitle">M3 — OPERACIÓN Y BUENAS PRÁCTICAS</h2>
+                    <span class="mcount" data-module-count="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS">0/11</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6b9bb7d7b0654cd3b99fac0d607690cd" data-module="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS/1-3.1 🌍 tfvars y TF_VAR/index.html">3.1 🌍 tfvars y TF_VAR</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2f82289fffb34894b07f071ae2bb5ba3" data-module="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS/2-3.2 🧹 terraform fmt/index.html">3.2 🧹 terraform fmt</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="37622c784c0144638025bfaf0a89f4dd" data-module="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS/3-3.3 ✅ terraform validate/index.html">3.3 ✅ terraform validate</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="667a3561e3094e38bd6f088a393608d1" data-module="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS/4-3.4 🔎 Chequeo antes de apply/index.html">3.4 🔎 Chequeo antes de apply</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f5ed4a099eeb4fc6a373b097abc529c6" data-module="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS/5-3.5 🔢 count/index.html">3.5 🔢 count</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e4251dfbfad747cb949d085ed9f446c4" data-module="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS/6-3.6 🔁 for_each I/index.html">3.6 🔁 for_each I</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="99f6ffda86324c25ab6bfe4982af599b" data-module="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS/7-3.7 🔂 for_each II/index.html">3.7 🔂 for_each II</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="133a5097cfa14eb8b837f682dce8808c" data-module="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS/8-3.8 ♻️ Lifecycle/index.html">3.8 ♻️ Lifecycle</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0cb0f91782e847bd9f0e4b91a6399d23" data-module="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS/9-3.9 ⏱️ Timeouts/index.html">3.9 ⏱️ Timeouts</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="21a6e4c500b64695a5bf93b170dabe93" data-module="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS/10-3.10 🛠️ Funciones integradas/index.html">3.10 🛠️ Funciones integradas</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b8c52b2e6da149948a5c825357e503b3" data-module="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — OPERACIÓN Y BUENAS PRÁCTICAS/11-3.11 🧩 Dynamic blocks/index.html">3.11 🧩 Dynamic blocks</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">06</span>
+                    <h2 class="mtitle">M4 — STATE Y BACKENDS</h2>
+                    <span class="mcount" data-module-count="6-M4 — STATE Y BACKENDS">0/11</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="6-M4 — STATE Y BACKENDS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="22e36d5b1d26404c8a2f3477d9b65bd9" data-module="6-M4 — STATE Y BACKENDS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — STATE Y BACKENDS/1-4.1 📄 Terraform State/index.html">4.1 📄 Terraform State</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="11db96358d974ad7bd1cd1c751355d4c" data-module="6-M4 — STATE Y BACKENDS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — STATE Y BACKENDS/2-4.2 ☁️ Estado remoto/index.html">4.2 ☁️ Estado remoto</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cced56fc48da4b3b8b77b93f52f37f17" data-module="6-M4 — STATE Y BACKENDS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — STATE Y BACKENDS/3-4.3 🪣 Backend S3/index.html">4.3 🪣 Backend S3</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9484aa74876346b28850dbbcf33cd0fd" data-module="6-M4 — STATE Y BACKENDS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — STATE Y BACKENDS/4-4.4 🕰️ Backend legacy/index.html">4.4 🕰️ Backend legacy</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="53877232346741739c9d587491f98a52" data-module="6-M4 — STATE Y BACKENDS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — STATE Y BACKENDS/5-4.5 🚀 Backend moderno/index.html">4.5 🚀 Backend moderno</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="889adfbcb5694c94b93c9b589128beb8" data-module="6-M4 — STATE Y BACKENDS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — STATE Y BACKENDS/6-4.6 🔄 Migrar State a S3/index.html">4.6 🔄 Migrar State a S3</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="dbe548fde0704dea9ed4f22ab257aff1" data-module="6-M4 — STATE Y BACKENDS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — STATE Y BACKENDS/7-4.7 🔒 Desbloquear State/index.html">4.7 🔒 Desbloquear State</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7b2565f8d46a422e9d096df800dd1161" data-module="6-M4 — STATE Y BACKENDS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — STATE Y BACKENDS/8-4.8 🎯 Uso de -target/index.html">4.8 🎯 Uso de -target</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4abc4581d2a24c2ba55128fce990276d" data-module="6-M4 — STATE Y BACKENDS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — STATE Y BACKENDS/9-4.9 📥 terraform import/index.html">4.9 📥 terraform import</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4895f01d1d584dcab19577d6d2b61948" data-module="6-M4 — STATE Y BACKENDS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — STATE Y BACKENDS/10-4.10 📚 Módulos públicos/index.html">4.10 📚 Módulos públicos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3daf9286c92e46ef83bd683b7c80cd91" data-module="6-M4 — STATE Y BACKENDS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — STATE Y BACKENDS/11-4.11 🧩 Estructura de módulos/index.html">4.11 🧩 Estructura de módulos</a>
+                </li></ul>
+            </article>
+    </section>
+</main>
+<footer class="foot">Backup local de 🏗️ Terraform. El progreso se guarda en este navegador (localStorage); no se envía a ningún lado.</footer>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+(function () {
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-lesson]'));
+
+    function refresh() {
+        var total = boxes.length, done = 0;
+        var byModule = {};
+        boxes.forEach(function (b) {
+            var id = b.getAttribute('data-lesson');
+            var key = b.getAttribute('data-module');
+            var isDone = Progress.isDone(id);
+            b.checked = isDone;
+            if (!byModule[key]) byModule[key] = { done: 0, total: 0 };
+            byModule[key].total++;
+            if (isDone) { byModule[key].done++; done++; }
+            var row = b.closest ? b.closest('.lesson') : null;
+            if (row) row.classList.toggle('is-done', isDone);
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-bar]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-bar')] || { done: 0, total: 0 };
+            el.style.width = (m.total ? Math.round((m.done / m.total) * 100) : 0) + '%';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-count]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-count')] || { done: 0, total: 0 };
+            el.textContent = m.done + '/' + m.total;
+        });
+
+        var pct = total ? Math.round((done / total) * 100) : 0;
+        var op = document.querySelector('[data-overall-bar]'); if (op) op.style.width = pct + '%';
+        var opct = document.querySelector('[data-overall-pct]'); if (opct) opct.textContent = pct + '%';
+        var oc = document.querySelector('[data-overall-count]');
+        if (oc) oc.textContent = done + ' de ' + total + ' lecciones completadas';
+    }
+
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            Progress.set(b.getAttribute('data-lesson'), b.checked);
+            refresh();
+        });
+    });
+
+    var reset = document.querySelector('[data-reset]');
+    if (reset) reset.addEventListener('click', function () {
+        if (window.confirm('¿Borrar todo el progreso de este curso?')) { Progress.reset(); refresh(); }
+    });
+
+    Progress.load(refresh);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

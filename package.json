@@ -1,0 +1,11 @@
+{
+  "name": "curso-viewer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Visor local del curso: sirve la navegación y pide los videos a Hugging Face con tu token.",
+  "scripts": {
+    "serve": "node server.js",
+    "publish": "node publish.js"
+  }
+}

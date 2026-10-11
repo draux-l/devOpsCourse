@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>🐧 Linux desde Cero — jemjaf</title>
+<style>
+    :root {
+        --bg: #f3f4f1;
+        --surface: #ffffff;
+        --ink: #15181c;
+        --muted: #5c636b;
+        --line: #dfe2df;
+        --track: #e7e9e6;
+        --accent: #1e7a4d;
+        --accent-ink: #14502f;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+    }
+    a { color: var(--ink); }
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(243,244,241,0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+    }
+    .topbar .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+    }
+    .crumb { font-size: 0.85rem; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .crumb a:hover { color: var(--accent); }
+    .crumb .here { color: var(--ink); }
+    .overall { display: flex; align-items: center; gap: 12px; }
+    .overall .track { width: 220px; }
+    .pct { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 700; font-size: 1rem; color: var(--accent-ink); min-width: 3.2rem; text-align: right; }
+    .ocount { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 40px 24px 80px; max-width: 900px; margin: 0 auto; }
+    .lead { margin-bottom: 34px; }
+    .lead h1 {
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px 0;
+    }
+    .lead .sub { color: var(--muted); margin: 0 0 18px 0; }
+    .lead .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ghost {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+    }
+    .ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .module {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px 22px 14px;
+        margin-bottom: 18px;
+    }
+    .module-head { display: flex; align-items: baseline; gap: 12px; }
+    .mnum {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.85rem;
+        color: var(--accent-ink);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 2px 7px;
+        flex: none;
+    }
+    .mtitle { flex: 1; font-size: 1.12rem; margin: 0; letter-spacing: -0.005em; }
+    .mcount {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--muted);
+        flex: none;
+    }
+    .track {
+        height: 6px;
+        background: var(--track);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 14px 0 18px;
+    }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .lessons { list-style: none; margin: 0; padding: 0; }
+    .lesson { display: flex; align-items: flex-start; gap: 11px; padding: 7px 0; border-top: 1px solid var(--line); }
+    .lesson:first-child { border-top: none; }
+    .lesson input[type="checkbox"] {
+        width: 17px; height: 17px; margin: 3px 0 0 0; flex: none;
+        accent-color: var(--accent);
+        cursor: pointer;
+    }
+    .lesson .ltitle { text-decoration: none; }
+    .lesson .ltitle:hover { color: var(--accent-ink); text-decoration: underline; }
+    .lesson.is-done .ltitle { color: var(--muted); }
+    footer.foot { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; color: var(--muted); font-size: 0.8rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+    @media (max-width: 600px) {
+        .topbar .wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .overall .track { width: 150px; }
+    }
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="wrap">
+        <div class="crumb">
+            <a href="../index.html">jemjaf</a> <span>/</span> <span class="here">🐧 Linux desde Cero</span>
+        </div>
+        <div class="overall">
+            <div class="track" role="progressbar" aria-label="Progreso del curso"><div class="fill" data-overall-bar></div></div>
+            <span class="pct" data-overall-pct>0%</span>
+        </div>
+    </div>
+</div>
+<main>
+    <section class="lead">
+        <h1>🐧 Linux desde Cero</h1>
+        <p class="sub">Comunidad jemjaf · 17 módulos · 45 lecciones</p>
+        <div class="tools">
+            <button class="ghost" data-reset type="button">Reiniciar progreso de este curso</button>
+        </div>
+        <p class="ocount"><span data-overall-count>0 de 45 lecciones</span></p>
+    </section>
+    <section class="modules">
+        
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">13</span>
+                    <h2 class="mtitle">M11 — JSON Y YAML</h2>
+                    <span class="mcount" data-module-count="13-M11 — JSON Y YAML">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="13-M11 — JSON Y YAML"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9596c2393f1741ba8209aa8db344f217" data-module="13-M11 — JSON Y YAML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M11 — JSON Y YAML/1-11.1 🧩 jq Básico/index.html">11.1 🧩 jq Básico</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8a0e886d931c4988a85e6daeb7a08932" data-module="13-M11 — JSON Y YAML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M11 — JSON Y YAML/2-11.2 🧠 jq Avanzado/index.html">11.2 🧠 jq Avanzado</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fa562eba404a4ffb9d279dc863127e96" data-module="13-M11 — JSON Y YAML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M11 — JSON Y YAML/3-11.3 📋 yq — YAML/index.html">11.3 📋 yq — YAML</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">01</span>
+                    <h2 class="mtitle">Lessons</h2>
+                    <span class="mcount" data-module-count="__root__">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="__root__"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="85d633daaed74a6998befc5ea80297a9" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="1-🎉 Bienvenida/index.html">🎉 Bienvenida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="deb3f1c2ade744448a647a8b26b98456" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-📚 Recursos/index.html">📚 Recursos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b165aa5ff22a432ba5040072af1ce49d" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-👋 Cierre/index.html">👋 Cierre</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">02</span>
+                    <h2 class="mtitle">M0 — SETUP DEL ENTORNO</h2>
+                    <span class="mcount" data-module-count="2-M0 — SETUP DEL ENTORNO">0/4</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="2-M0 — SETUP DEL ENTORNO"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="77935233e9274669ae60fd56c99c4cc3" data-module="2-M0 — SETUP DEL ENTORNO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M0 — SETUP DEL ENTORNO/1-0.0 💻 Elegir tu terminal/index.html">0.0 💻 Elegir tu terminal</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e36eea35c9654660b4fc1edd39d386aa" data-module="2-M0 — SETUP DEL ENTORNO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M0 — SETUP DEL ENTORNO/2-0.1 🐧 Dónde practicar Linux/index.html">0.1 🐧 Dónde practicar Linux</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b6a50798c1fa444091011d94962cb954" data-module="2-M0 — SETUP DEL ENTORNO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M0 — SETUP DEL ENTORNO/3-0.2 🖥️ Solicitar un servidor Linux/index.html">0.2 🖥️ Solicitar un servidor Linux</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1a6260d79b4b4f80aa46c2001fb9d6d0" data-module="2-M0 — SETUP DEL ENTORNO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M0 — SETUP DEL ENTORNO/4-0.3 ☁️ Servers Linux en AWS/index.html">0.3 ☁️ Servers Linux en AWS</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">03</span>
+                    <h2 class="mtitle">M1 — NAVEGACIÓN Y ARCHIVOS</h2>
+                    <span class="mcount" data-module-count="3-M1 — NAVEGACIÓN Y ARCHIVOS">0/4</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="3-M1 — NAVEGACIÓN Y ARCHIVOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9460781464df4f3a8a21ba4e035cdf5d" data-module="3-M1 — NAVEGACIÓN Y ARCHIVOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — NAVEGACIÓN Y ARCHIVOS/1-1.1 🧭 pwd, ls, cd/index.html">1.1 🧭 pwd, ls, cd</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="991452cd76324ebb805aed332c050755" data-module="3-M1 — NAVEGACIÓN Y ARCHIVOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — NAVEGACIÓN Y ARCHIVOS/2-1.2 📖 cat, head, tail, less/index.html">1.2 📖 cat, head, tail, less</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="763a27fcdc7f4875ae1f42f93ef0b455" data-module="3-M1 — NAVEGACIÓN Y ARCHIVOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — NAVEGACIÓN Y ARCHIVOS/3-1.3 📁 mkdir, cp, mv, rm/index.html">1.3 📁 mkdir, cp, mv, rm</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b233c27121eb418398b9254150e32a4d" data-module="3-M1 — NAVEGACIÓN Y ARCHIVOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — NAVEGACIÓN Y ARCHIVOS/4-1.4 ✏️ Edición de archivos con Vim/index.html">1.4 ✏️ Edición de archivos con Vim</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">04</span>
+                    <h2 class="mtitle">M2 — PROCESAMIENTO DE TEXTO</h2>
+                    <span class="mcount" data-module-count="4-M2 — PROCESAMIENTO DE TEXTO">0/5</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="4-M2 — PROCESAMIENTO DE TEXTO"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="01dbd9e2d83b45bc8872d5ed073f45e7" data-module="4-M2 — PROCESAMIENTO DE TEXTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — PROCESAMIENTO DE TEXTO/1-2.1 📄 heredocs — cat -- EOF/index.html">2.1 📄 heredocs — cat &lt;&lt; EOF</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4c078547cc4e486ba8293af6c5988bef" data-module="4-M2 — PROCESAMIENTO DE TEXTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — PROCESAMIENTO DE TEXTO/2-2.2 🔎 grep — Búsqueda de patrones/index.html">2.2 🔎 grep — Búsqueda de patrones</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e2944df4d88c4133972c818484f4ebc6" data-module="4-M2 — PROCESAMIENTO DE TEXTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — PROCESAMIENTO DE TEXTO/3-2.3 📊 awk — Procesamiento de columnas/index.html">2.3 📊 awk — Procesamiento de columnas</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ba9e419502134d068ca7c2370a2901f7" data-module="4-M2 — PROCESAMIENTO DE TEXTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — PROCESAMIENTO DE TEXTO/4-2.4 ✂️ sed — Editor de flujos/index.html">2.4 ✂️ sed — Editor de flujos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b86e5359d7d5463b81004580febe7dd7" data-module="4-M2 — PROCESAMIENTO DE TEXTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — PROCESAMIENTO DE TEXTO/5-2.5 🔀 stdin, stdout y stderr/index.html">2.5 🔀 stdin, stdout y stderr</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">05</span>
+                    <h2 class="mtitle">M3 — VARIABLES Y ALIAS</h2>
+                    <span class="mcount" data-module-count="5-M3 — VARIABLES Y ALIAS">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="5-M3 — VARIABLES Y ALIAS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6f94cbc047cc439bbdc02679d8e468a9" data-module="5-M3 — VARIABLES Y ALIAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — VARIABLES Y ALIAS/1-3.1 🌐 Variables de entorno (env)/index.html">3.1 🌐 Variables de entorno (env)</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="67d998fd187146979937d7c9313aad26" data-module="5-M3 — VARIABLES Y ALIAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — VARIABLES Y ALIAS/2-3.2 ⚡ Alias — Atajos para comandos/index.html">3.2 ⚡ Alias — Atajos para comandos</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">06</span>
+                    <h2 class="mtitle">M4 — USUARIOS Y PERMISOS</h2>
+                    <span class="mcount" data-module-count="6-M4 — USUARIOS Y PERMISOS">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="6-M4 — USUARIOS Y PERMISOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fe04b94af7ef4b39907e816adb6e716c" data-module="6-M4 — USUARIOS Y PERMISOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — USUARIOS Y PERMISOS/1-4.1 👥 Gestión de usuarios y grupos/index.html">4.1 👥 Gestión de usuarios y grupos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="56f70a40f6dc41b2bdc9c1bfc57ae5db" data-module="6-M4 — USUARIOS Y PERMISOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — USUARIOS Y PERMISOS/2-4.2 🔐 Permisos de archivos — chmod y chown/index.html">4.2 🔐 Permisos de archivos — chmod y chown</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0bcf9623c42047af90bc57306276fd2f" data-module="6-M4 — USUARIOS Y PERMISOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — USUARIOS Y PERMISOS/3-4.3 🛡️ Sudo y permisos especiales/index.html">4.3 🛡️ Sudo y permisos especiales</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">07</span>
+                    <h2 class="mtitle">M5 — BASH SCRIPTING</h2>
+                    <span class="mcount" data-module-count="7-M5 — BASH SCRIPTING">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="7-M5 — BASH SCRIPTING"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="361f384133d84bbfb39e56d1e3e51ffb" data-module="7-M5 — BASH SCRIPTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — BASH SCRIPTING/1-5.1 📜 Tu primer script/index.html">5.1 📜 Tu primer script</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a630f3d163c04665a691f204dacec38f" data-module="7-M5 — BASH SCRIPTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — BASH SCRIPTING/2-5.2 ✅ Permisos de ejecución (+x)/index.html">5.2 ✅ Permisos de ejecución (+x)</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7a17637039894562bd4039ee00463499" data-module="7-M5 — BASH SCRIPTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — BASH SCRIPTING/3-5.3 ▶️ Ejecutar con y sin bash/index.html">5.3 ▶️ Ejecutar con y sin bash</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">08</span>
+                    <h2 class="mtitle">M6 — CRONJOBS</h2>
+                    <span class="mcount" data-module-count="8-M6 — CRONJOBS">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="8-M6 — CRONJOBS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5c08769f795a45d39cc3a52f18e90e98" data-module="8-M6 — CRONJOBS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRONJOBS/1-6.1 ⏰ Introducción a Cron y Corn Expressions/index.html">6.1 ⏰ Introducción a Cron y Corn Expressions</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e1a65a87d92249c8be5f8fabaec61b42" data-module="8-M6 — CRONJOBS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRONJOBS/2-6.2 🛠️ Mejores prácticas y debugging/index.html">6.2 🛠️ Mejores prácticas y debugging</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">09</span>
+                    <h2 class="mtitle">M7 — SSH Y CONEXIONES</h2>
+                    <span class="mcount" data-module-count="9-M7 — SSH Y CONEXIONES">0/5</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="9-M7 — SSH Y CONEXIONES"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e00753f27d9843cf93e0290f446063ad" data-module="9-M7 — SSH Y CONEXIONES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — SSH Y CONEXIONES/1-7.1 🔗 SSH básico/index.html">7.1 🔗 SSH básico</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="32dbdf580ee649518ea1d153b205e6d9" data-module="9-M7 — SSH Y CONEXIONES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — SSH Y CONEXIONES/2-7.2 🔑 SSH con llaves (keys)/index.html">7.2 🔑 SSH con llaves (keys)</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b1d4dd48335c40189d6d765f9e702683" data-module="9-M7 — SSH Y CONEXIONES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — SSH Y CONEXIONES/3-7.3 ⚙️ SSH Config/index.html">7.3 ⚙️ SSH Config</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5df937abc9984be2beeab79a7e3f069e" data-module="9-M7 — SSH Y CONEXIONES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — SSH Y CONEXIONES/4-7.4 🚇 Port Forwarding (túneles)/index.html">7.4 🚇 Port Forwarding (túneles)</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bc089397c43746fabe4f6a92bf7000a7" data-module="9-M7 — SSH Y CONEXIONES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — SSH Y CONEXIONES/5-7.5 📤 Copiar archivos — scp y rsync/index.html">7.5 📤 Copiar archivos — scp y rsync</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">10</span>
+                    <h2 class="mtitle">M8 — DIAGNÓSTICO DE RED</h2>
+                    <span class="mcount" data-module-count="10-M8 — DIAGNÓSTICO DE RED">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="10-M8 — DIAGNÓSTICO DE RED"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b72fa32f44984a17a12d1457902ab127" data-module="10-M8 — DIAGNÓSTICO DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — DIAGNÓSTICO DE RED/1-8.1 📡 curl, ping, nc/index.html">8.1 📡 curl, ping, nc</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="240b3409d62e4ba4bd84ad8c4e9dd93a" data-module="10-M8 — DIAGNÓSTICO DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — DIAGNÓSTICO DE RED/2-8.2 🌐 DNS con dig/index.html">8.2 🌐 DNS con dig</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">11</span>
+                    <h2 class="mtitle">M9 — GESTIÓN DE PAQUETES</h2>
+                    <span class="mcount" data-module-count="11-M9 — GESTIÓN DE PAQUETES">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="11-M9 — GESTIÓN DE PAQUETES"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8c2fdae51546441292008c54559c916e" data-module="11-M9 — GESTIÓN DE PAQUETES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M9 — GESTIÓN DE PAQUETES/1-9.1 📦 APT — Debian-Ubuntu/index.html">9.1 📦 APT — Debian/Ubuntu</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a3dbe9fd03c64374ae40f252eb1fc0ae" data-module="11-M9 — GESTIÓN DE PAQUETES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M9 — GESTIÓN DE PAQUETES/2-9.2 📦 YUM-DNF — Amazon Linux-RHEL/index.html">9.2 📦 YUM/DNF — Amazon Linux/RHEL</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">12</span>
+                    <h2 class="mtitle">M10 — COMPRESIÓN DE ARCHIVOS</h2>
+                    <span class="mcount" data-module-count="12-M10 — COMPRESIÓN DE ARCHIVOS">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="12-M10 — COMPRESIÓN DE ARCHIVOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d6f6e6d3541b422ca4ff7c03e58ac09f" data-module="12-M10 — COMPRESIÓN DE ARCHIVOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M10 — COMPRESIÓN DE ARCHIVOS/1-10.1 🗜️ tar, gzip, zip/index.html">10.1 🗜️ tar, gzip, zip</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">14</span>
+                    <h2 class="mtitle">M12 — CONTROL DE PROCESOS</h2>
+                    <span class="mcount" data-module-count="14-M12 — CONTROL DE PROCESOS">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="14-M12 — CONTROL DE PROCESOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="00c9b491fd5a413b82265d4246055d90" data-module="14-M12 — CONTROL DE PROCESOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M12 — CONTROL DE PROCESOS/1-12.1 📈 top, htop, ps, kill/index.html">12.1 📈 top, htop, ps, kill</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c04f85524bcc4a44a100d4113f580d71" data-module="14-M12 — CONTROL DE PROCESOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M12 — CONTROL DE PROCESOS/2-12.2 ⏱️ watch, time y sleep/index.html">12.2 ⏱️ watch, time y sleep</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">15</span>
+                    <h2 class="mtitle">M13 — SYSTEMD Y SERVICIOS</h2>
+                    <span class="mcount" data-module-count="15-M13 — SYSTEMD Y SERVICIOS">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="15-M13 — SYSTEMD Y SERVICIOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="72a25d2264f640fdb56e66d371f80d5f" data-module="15-M13 — SYSTEMD Y SERVICIOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M13 — SYSTEMD Y SERVICIOS/1-13.1 ⚙️ Gestión de servicios con Nginx/index.html">13.1 ⚙️ Gestión de servicios con Nginx</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">16</span>
+                    <h2 class="mtitle">M14 — PROYECTOS</h2>
+                    <span class="mcount" data-module-count="16-M14 — PROYECTOS">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="16-M14 — PROYECTOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9dfab05e8c2f49b28807e8f998dc77e9" data-module="16-M14 — PROYECTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M14 — PROYECTOS/1-14.1 🌐 NGINX Server Linux (Ubuntu 24)/index.html">14.1 🌐 NGINX Server Linux (Ubuntu 24)</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="421c47037c84464da3b753d2c21282ef" data-module="16-M14 — PROYECTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M14 — PROYECTOS/2-14.2 🔁 NGINX Server Proxy Inverso (Parte II)/index.html">14.2 🔁 NGINX Server Proxy Inverso (Parte II)</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">17</span>
+                    <h2 class="mtitle">M15 — OVERTheWire BANDIT</h2>
+                    <span class="mcount" data-module-count="17-M15 — OVERTheWire BANDIT">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="17-M15 — OVERTheWire BANDIT"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="83b2c10ff9a247cebbb6fd4c7f30b1bd" data-module="17-M15 — OVERTheWire BANDIT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="17-M15 — OVERTheWire BANDIT/1-15.1 🎮 Introducción a Bandit/index.html">15.1 🎮 Introducción a Bandit</a>
+                </li></ul>
+            </article>
+    </section>
+</main>
+<footer class="foot">Backup local de 🐧 Linux desde Cero. El progreso se guarda en este navegador (localStorage); no se envía a ningún lado.</footer>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+(function () {
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-lesson]'));
+
+    function refresh() {
+        var total = boxes.length, done = 0;
+        var byModule = {};
+        boxes.forEach(function (b) {
+            var id = b.getAttribute('data-lesson');
+            var key = b.getAttribute('data-module');
+            var isDone = Progress.isDone(id);
+            b.checked = isDone;
+            if (!byModule[key]) byModule[key] = { done: 0, total: 0 };
+            byModule[key].total++;
+            if (isDone) { byModule[key].done++; done++; }
+            var row = b.closest ? b.closest('.lesson') : null;
+            if (row) row.classList.toggle('is-done', isDone);
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-bar]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-bar')] || { done: 0, total: 0 };
+            el.style.width = (m.total ? Math.round((m.done / m.total) * 100) : 0) + '%';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-count]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-count')] || { done: 0, total: 0 };
+            el.textContent = m.done + '/' + m.total;
+        });
+
+        var pct = total ? Math.round((done / total) * 100) : 0;
+        var op = document.querySelector('[data-overall-bar]'); if (op) op.style.width = pct + '%';
+        var opct = document.querySelector('[data-overall-pct]'); if (opct) opct.textContent = pct + '%';
+        var oc = document.querySelector('[data-overall-count]');
+        if (oc) oc.textContent = done + ' de ' + total + ' lecciones completadas';
+    }
+
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            Progress.set(b.getAttribute('data-lesson'), b.checked);
+            refresh();
+        });
+    });
+
+    var reset = document.querySelector('[data-reset]');
+    if (reset) reset.addEventListener('click', function () {
+        if (window.confirm('¿Borrar todo el progreso de este curso?')) { Progress.reset(); refresh(); }
+    });
+
+    Progress.load(refresh);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

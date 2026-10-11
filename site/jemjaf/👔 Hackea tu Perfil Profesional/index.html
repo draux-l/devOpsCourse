@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>👔 Hackea tu Perfil Profesional — jemjaf</title>
+<style>
+    :root {
+        --bg: #f3f4f1;
+        --surface: #ffffff;
+        --ink: #15181c;
+        --muted: #5c636b;
+        --line: #dfe2df;
+        --track: #e7e9e6;
+        --accent: #1e7a4d;
+        --accent-ink: #14502f;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+    }
+    a { color: var(--ink); }
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(243,244,241,0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+    }
+    .topbar .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+    }
+    .crumb { font-size: 0.85rem; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .crumb a:hover { color: var(--accent); }
+    .crumb .here { color: var(--ink); }
+    .overall { display: flex; align-items: center; gap: 12px; }
+    .overall .track { width: 220px; }
+    .pct { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 700; font-size: 1rem; color: var(--accent-ink); min-width: 3.2rem; text-align: right; }
+    .ocount { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 40px 24px 80px; max-width: 900px; margin: 0 auto; }
+    .lead { margin-bottom: 34px; }
+    .lead h1 {
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px 0;
+    }
+    .lead .sub { color: var(--muted); margin: 0 0 18px 0; }
+    .lead .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ghost {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+    }
+    .ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .module {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px 22px 14px;
+        margin-bottom: 18px;
+    }
+    .module-head { display: flex; align-items: baseline; gap: 12px; }
+    .mnum {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.85rem;
+        color: var(--accent-ink);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 2px 7px;
+        flex: none;
+    }
+    .mtitle { flex: 1; font-size: 1.12rem; margin: 0; letter-spacing: -0.005em; }
+    .mcount {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--muted);
+        flex: none;
+    }
+    .track {
+        height: 6px;
+        background: var(--track);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 14px 0 18px;
+    }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .lessons { list-style: none; margin: 0; padding: 0; }
+    .lesson { display: flex; align-items: flex-start; gap: 11px; padding: 7px 0; border-top: 1px solid var(--line); }
+    .lesson:first-child { border-top: none; }
+    .lesson input[type="checkbox"] {
+        width: 17px; height: 17px; margin: 3px 0 0 0; flex: none;
+        accent-color: var(--accent);
+        cursor: pointer;
+    }
+    .lesson .ltitle { text-decoration: none; }
+    .lesson .ltitle:hover { color: var(--accent-ink); text-decoration: underline; }
+    .lesson.is-done .ltitle { color: var(--muted); }
+    footer.foot { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; color: var(--muted); font-size: 0.8rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+    @media (max-width: 600px) {
+        .topbar .wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .overall .track { width: 150px; }
+    }
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="wrap">
+        <div class="crumb">
+            <a href="../index.html">jemjaf</a> <span>/</span> <span class="here">👔 Hackea tu Perfil Profesional</span>
+        </div>
+        <div class="overall">
+            <div class="track" role="progressbar" aria-label="Progreso del curso"><div class="fill" data-overall-bar></div></div>
+            <span class="pct" data-overall-pct>0%</span>
+        </div>
+    </div>
+</div>
+<main>
+    <section class="lead">
+        <h1>👔 Hackea tu Perfil Profesional</h1>
+        <p class="sub">Comunidad jemjaf · 11 módulos · 79 lecciones</p>
+        <div class="tools">
+            <button class="ghost" data-reset type="button">Reiniciar progreso de este curso</button>
+        </div>
+        <p class="ocount"><span data-overall-count>0 de 79 lecciones</span></p>
+    </section>
+    <section class="modules">
+        
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">01</span>
+                    <h2 class="mtitle">Lessons</h2>
+                    <span class="mcount" data-module-count="__root__">0/5</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="__root__"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b8d6ee3e488e482fa9d48e4742d3e640" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="1-📍 [INICIO]/index.html">📍 [INICIO]</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="76956bae6ccb417ab9e7a90c806a9c72" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎉 Bienvenida/index.html">🎉 Bienvenida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d0bac10f5ac44a85befd2bee8bc70bc6" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-🎯 Objetivo del curso/index.html">🎯 Objetivo del curso</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1b960f18a32148c3aef7e817f0fdbda4" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🏆 Historias de Éxito/index.html">🏆 Historias de Éxito</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b03842bbf4e7450d96f2443e0e20c817" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-👋 Cierre/index.html">👋 Cierre</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">02</span>
+                    <h2 class="mtitle">🔴Sesiones Completas</h2>
+                    <span class="mcount" data-module-count="2-🔴Sesiones Completas">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="2-🔴Sesiones Completas"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3e950dbea7d34e9ba52b5d1feb628e0f" data-module="2-🔴Sesiones Completas" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🔴Sesiones Completas/1-🎬💼 Empleabilidad y Revisión de CVs/index.html">🎬💼 Empleabilidad y Revisión de CVs</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a80a304294474861a605085b3fa67bed" data-module="2-🔴Sesiones Completas" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🔴Sesiones Completas/2-🎬🟡 Career Ops/index.html">🎬🟡 Career Ops</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="edf88ea371e243a9aaa99d17f1a80ef6" data-module="2-🔴Sesiones Completas" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🔴Sesiones Completas/3-💬 Preguntas y Respuestas - Martes y Jueves/index.html">💬 Preguntas y Respuestas - Martes y Jueves</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">03</span>
+                    <h2 class="mtitle">M1 — PERFIL PROFESIONAL</h2>
+                    <span class="mcount" data-module-count="3-M1 — PERFIL PROFESIONAL">0/14</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="3-M1 — PERFIL PROFESIONAL"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="31aa8852aa3b41128f438511c8c57aa9" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/1-1.1 🧠 Refactorización del perfil/index.html">1.1 🧠 Refactorización del perfil</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2574396621d34b8c93a9ad37977aeb47" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/2-1.2 🛡️ El CV que pasa el firewall/index.html">1.2 🛡️ El CV que pasa el firewall</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="457e5f0fa38e4d62887fd2934028c037" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/3-1.3 🧼 Formato limpio/index.html">1.3 🧼 Formato limpio</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cd9257e50be846a18d73fea48938a0a2" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/4-1.4 📐 Estructura XYZ/index.html">1.4 📐 Estructura XYZ</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f0caa71dfb1e4ad78fddc9b6df87f4f5" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/5-1.5 🔎 Keywords y logos/index.html">1.5 🔎 Keywords y logos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7e79cb2420ad484cb97a140fb14e867f" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/6-1.6 📝 Resumen profesional/index.html">1.6 📝 Resumen profesional</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b76093020d5d49209bd41e126dfdef47" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/7-1.7 🧰 Stack tecnológico/index.html">1.7 🧰 Stack tecnológico</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="85e7f860e2a6422faa04bc72d071b1fd" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/8-1.8 🔄 CV- antes y después/index.html">1.8 🔄 CV: antes y después</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ffd06974f367473ba8765e870ff4cc0f" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/9-1.9 🌐 LinkedIn- tu API pública/index.html">1.9 🌐 LinkedIn: tu API pública</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ac2e9382c642447b85030bd0d8769cd3" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/10-1.10 🖼️ Banner y foto/index.html">1.10 🖼️ Banner y foto</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a4afe73d30ff412b8adc6ea4d26a5ca3" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/11-1.11 📰 Titular de LinkedIn/index.html">1.11 📰 Titular de LinkedIn</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="aa5d036ebd494a1894df03b591d7c89d" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/12-1.12 📖 Sección «Acerca de»/index.html">1.12 📖 Sección «Acerca de»</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3d6762556cca445c81c174ad633e57a6" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/13-1.13 🏷️ Skills y Open to Work/index.html">1.13 🏷️ Skills y Open to Work</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d9a0e09862b544c7b309c90a8d04f883" data-module="3-M1 — PERFIL PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — PERFIL PROFESIONAL/14-1.14 🔄 LinkedIn- antes y después/index.html">1.14 🔄 LinkedIn: antes y después</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">04</span>
+                    <h2 class="mtitle">M2 — REVISIÓN DE CVS</h2>
+                    <span class="mcount" data-module-count="4-M2 — REVISIÓN DE CVS">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="4-M2 — REVISIÓN DE CVS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f997dda16f0140a295aaf3c8cdea5945" data-module="4-M2 — REVISIÓN DE CVS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — REVISIÓN DE CVS/1-🌟 Revisión de CVs/index.html">🌟 Revisión de CVs</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cfba8a9b237a428f8907a9d34837d382" data-module="4-M2 — REVISIÓN DE CVS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — REVISIÓN DE CVS/2-2.1 📋 Revisión de CV #1/index.html">2.1 📋 Revisión de CV #1</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b1207298bf4d40928649ebb7ce7ee0f4" data-module="4-M2 — REVISIÓN DE CVS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — REVISIÓN DE CVS/3-2.2 📋 Revisión de CV #2/index.html">2.2 📋 Revisión de CV #2</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">05</span>
+                    <h2 class="mtitle">M3 — BÚSQUEDA LABORAL</h2>
+                    <span class="mcount" data-module-count="5-M3 — BÚSQUEDA LABORAL">0/5</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="5-M3 — BÚSQUEDA LABORAL"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="53363533ec30496aa7c692a0a855046f" data-module="5-M3 — BÚSQUEDA LABORAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — BÚSQUEDA LABORAL/1-3.1 🎯 Búsqueda inteligente/index.html">3.1 🎯 Búsqueda inteligente</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a63582aea67b42b28e924fec0c20f892" data-module="5-M3 — BÚSQUEDA LABORAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — BÚSQUEDA LABORAL/2-3.2 🔍 Búsqueda booleana/index.html">3.2 🔍 Búsqueda booleana</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ea189b0aed234b058e8116bb4d9196a6" data-module="5-M3 — BÚSQUEDA LABORAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — BÚSQUEDA LABORAL/3-3.3 📂 Empleos vs. feed/index.html">3.3 📂 Empleos vs. feed</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f30ac153381b466ca4dce6a56676447f" data-module="5-M3 — BÚSQUEDA LABORAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — BÚSQUEDA LABORAL/4-3.4 🎯 Técnica del francotirador/index.html">3.4 🎯 Técnica del francotirador</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="02eb8ede6e2c451d9a565873e81d6588" data-module="5-M3 — BÚSQUEDA LABORAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — BÚSQUEDA LABORAL/5-3.5 🚨 Alertas de empleo/index.html">3.5 🚨 Alertas de empleo</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">06</span>
+                    <h2 class="mtitle">M4 — ENTREVISTAS</h2>
+                    <span class="mcount" data-module-count="6-M4 — ENTREVISTAS">0/12</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="6-M4 — ENTREVISTAS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5bab02dbe6184d4db5957c8e382681c2" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/1-4.1 🤝 El Handshake/index.html">4.1 🤝 El Handshake</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="56b77b21c14a4e5d93dbb584d405380e" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/2-4.2 🧩 Hacking de RR. HH/index.html">4.2 🧩 Hacking de RR. HH.</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f0f7a0df9a33457ba443cf4ae097db23" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/3-4.3 🗣️ Elevator Pitch/index.html">4.3 🗣️ Elevator Pitch</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="89441310fc694f9399f4a8d74cf9b800" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/4-4.4 🚩 Red Flags/index.html">4.4 🚩 Red Flags</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="88562387a1bf4e7e87e5e8f1bf101cb3" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/5-4.5 🌍 Inglés y preguntas trampa/index.html">4.5 🌍 Inglés y preguntas trampa</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="802a019b34384f3f983f9d7b94bdfca4" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/6-4.6 💻 Entrevista técnica/index.html">4.6 💻 Entrevista técnica</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4a9bc9ad54064b5f95e1858ad3144faa" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/7-4.7 ❌ Si no sabes, no mientas/index.html">4.7 ❌ Si no sabes, no mientas</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="02d0ca50d85b4b29b5d73cfaefe75bc8" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/8-4.8 🧠 Piensa en voz alta/index.html">4.8 🧠 Piensa en voz alta</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="874a2b07ee3b42809a3a93e59196884b" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/9-4.9 🤝 Soft skills técnicas/index.html">4.9 🤝 Soft skills técnicas</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="874af2f3f64446f69ba7d8ebd18b10f0" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/10-4.10 🔁 Reverse Interviewing/index.html">4.10 🔁 Reverse Interviewing</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0619b9bfb4ab4289b0606db429eff8d1" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/11-4.11 🏢 Preguntas para RR. HH/index.html">4.11 🏢 Preguntas para RR. HH.</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="92ca6ffec62b4514bd19795a5bc11508" data-module="6-M4 — ENTREVISTAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — ENTREVISTAS/12-4.12 👨‍💻 Preguntas para el líder técnico/index.html">4.12 👨‍💻 Preguntas para el líder técnico</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">07</span>
+                    <h2 class="mtitle">M5 — NEGOCIACIÓN</h2>
+                    <span class="mcount" data-module-count="7-M5 — NEGOCIACIÓN">0/5</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="7-M5 — NEGOCIACIÓN"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fa8ef6ab238a4f569013fd84533d65fe" data-module="7-M5 — NEGOCIACIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — NEGOCIACIÓN/1-5.1 📊 Negociación salarial/index.html">5.1 📊 Negociación salarial</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4d8c3a18a99647188eea1e8f4131deaa" data-module="7-M5 — NEGOCIACIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — NEGOCIACIÓN/2-5.2 🚫 No reveles tu sueldo/index.html">5.2 🚫 No reveles tu sueldo</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="33a37b40c7f54f57bfc00c6603373f4a" data-module="7-M5 — NEGOCIACIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — NEGOCIACIÓN/3-5.3 📈 Investigación de mercado/index.html">5.3 📈 Investigación de mercado</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b0901a9514224b589c7011de8ee1ca0c" data-module="7-M5 — NEGOCIACIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — NEGOCIACIÓN/4-5.4 💵 Rango salarial/index.html">5.4 💵 Rango salarial</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="893b226415be416582937fcd4f2efeb0" data-module="7-M5 — NEGOCIACIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — NEGOCIACIÓN/5-5.5 🎁 Beneficios no monetarios/index.html">5.5 🎁 Beneficios no monetarios</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">08</span>
+                    <h2 class="mtitle">M6 — CRECIMIENTO PROFESIONAL</h2>
+                    <span class="mcount" data-module-count="8-M6 — CRECIMIENTO PROFESIONAL">0/11</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="8-M6 — CRECIMIENTO PROFESIONAL"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2606936687464ba6ae7746a1a407a40f" data-module="8-M6 — CRECIMIENTO PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRECIMIENTO PROFESIONAL/1-6.1 🤝 Day 2 Ops/index.html">6.1 🤝 Day 2 Ops</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5fd81aad68d9476e96aa44d910f6a58e" data-module="8-M6 — CRECIMIENTO PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRECIMIENTO PROFESIONAL/2-6.2 🧑‍🚀 Onboarding y marca personal/index.html">6.2 🧑‍🚀 Onboarding y marca personal</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="222a3b4d3b794d119fdfe4cb90ac304d" data-module="8-M6 — CRECIMIENTO PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRECIMIENTO PROFESIONAL/3-6.3 👕 Ponerse la camiseta/index.html">6.3 👕 Ponerse la camiseta</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ef88cfe434f24e1e99d41a389597b282" data-module="8-M6 — CRECIMIENTO PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRECIMIENTO PROFESIONAL/4-6.4 ⚖️ Proactivo vs. lamebotas/index.html">6.4 ⚖️ Proactivo vs. lamebotas</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="37b1f26b97314a79aceda559331e00a6" data-module="8-M6 — CRECIMIENTO PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRECIMIENTO PROFESIONAL/5-6.5 👁️ Visibilidad profesional/index.html">6.5 👁️ Visibilidad profesional</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="576682b5d7b74303a16f7f68bd184bb9" data-module="8-M6 — CRECIMIENTO PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRECIMIENTO PROFESIONAL/6-6.6 🔗 Networking interno/index.html">6.6 🔗 Networking interno</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b7d418dcf54c4ff384324ddcb83c3e58" data-module="8-M6 — CRECIMIENTO PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRECIMIENTO PROFESIONAL/7-6.7 🚀 Cuándo saltar/index.html">6.7 🚀 Cuándo saltar</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="53aa9761bd57477f9f597e4fed31ead3" data-module="8-M6 — CRECIMIENTO PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRECIMIENTO PROFESIONAL/8-6.8 ⏳ Regla de los dos años/index.html">6.8 ⏳ Regla de los dos años</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0f63a61e7878460ab4e33080a3019bdd" data-module="8-M6 — CRECIMIENTO PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRECIMIENTO PROFESIONAL/9-6.9 📊 Aumento por cambio/index.html">6.9 📊 Aumento por cambio</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="42689128784b45cfbdcd9469b4b1cfaa" data-module="8-M6 — CRECIMIENTO PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRECIMIENTO PROFESIONAL/10-6.10 🚫 La contraoferta/index.html">6.10 🚫 La contraoferta</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="698d45d7731e44cab3181ab6a9869d9b" data-module="8-M6 — CRECIMIENTO PROFESIONAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — CRECIMIENTO PROFESIONAL/11-6.11 🎩 Salida elegante/index.html">6.11 🎩 Salida elegante</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">09</span>
+                    <h2 class="mtitle">M7 — BOLSAS DE TRABAJO</h2>
+                    <span class="mcount" data-module-count="9-M7 — BOLSAS DE TRABAJO">0/11</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="9-M7 — BOLSAS DE TRABAJO"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a19d5051159440529e2573b6c919c42c" data-module="9-M7 — BOLSAS DE TRABAJO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — BOLSAS DE TRABAJO/1-7.1 💼 LinkedIn Jobs/index.html">7.1 💼 LinkedIn Jobs</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="76b37c2f420b465e8769af32e997127b" data-module="9-M7 — BOLSAS DE TRABAJO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — BOLSAS DE TRABAJO/2-7.2 💼 Indeed/index.html">7.2 💼 Indeed</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ff97b8e23988451995ce74bcd4e7afbc" data-module="9-M7 — BOLSAS DE TRABAJO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — BOLSAS DE TRABAJO/3-7.3 💼 Get on Board/index.html">7.3 💼 Get on Board</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7de9210242de48a6827343ec45ff0da8" data-module="9-M7 — BOLSAS DE TRABAJO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — BOLSAS DE TRABAJO/4-7.4 💼 Hireline/index.html">7.4 💼 Hireline</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="57228f3e57384e12b10e41bfd2d78dfb" data-module="9-M7 — BOLSAS DE TRABAJO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — BOLSAS DE TRABAJO/5-7.5 💼 Computrabajo/index.html">7.5 💼 Computrabajo</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="16cd7a91ec72424998d22063a1ec1564" data-module="9-M7 — BOLSAS DE TRABAJO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — BOLSAS DE TRABAJO/6-7.6 💼 Bumeran/index.html">7.6 💼 Bumeran</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7e36f59189384b67b5d104e19c88431a" data-module="9-M7 — BOLSAS DE TRABAJO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — BOLSAS DE TRABAJO/7-7.7 📋 Análisis de CV/index.html">7.7 📋 Análisis de CV</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7a0d234acdec41ab897330ccfc6d3660" data-module="9-M7 — BOLSAS DE TRABAJO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — BOLSAS DE TRABAJO/8-7.8 💼 Glassdoor/index.html">7.8 💼 Glassdoor</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3535cd901b444431b0d903fa5ddd8817" data-module="9-M7 — BOLSAS DE TRABAJO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — BOLSAS DE TRABAJO/9-7.9 💼 Talently/index.html">7.9 💼 Talently</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="769ba36478644f00a6918d8f2128dfa3" data-module="9-M7 — BOLSAS DE TRABAJO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — BOLSAS DE TRABAJO/10-7.10 💼 Arc/index.html">7.10 💼 Arc</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="861a0104e6e1420d9af03f40bd131f28" data-module="9-M7 — BOLSAS DE TRABAJO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — BOLSAS DE TRABAJO/11-7.11 ❓ Preguntas y recomendaciones/index.html">7.11 ❓ Preguntas y recomendaciones</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">10</span>
+                    <h2 class="mtitle">M8 — BONUS ESTRATÉGICO</h2>
+                    <span class="mcount" data-module-count="10-M8 — BONUS ESTRATÉGICO">0/6</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="10-M8 — BONUS ESTRATÉGICO"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b7975ff79c664ae0a640010b7695f669" data-module="10-M8 — BONUS ESTRATÉGICO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — BONUS ESTRATÉGICO/1-8.1 🎅 El Job Description ideal/index.html">8.1 🎅 El Job Description ideal</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a6a53786b0b748728075cf45d14b403e" data-module="10-M8 — BONUS ESTRATÉGICO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — BONUS ESTRATÉGICO/2-8.2 👻 Ghosting/index.html">8.2 👻 Ghosting</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="69f02f2a65824f889caf188a0c1eefac" data-module="10-M8 — BONUS ESTRATÉGICO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — BONUS ESTRATÉGICO/3-8.3 🧬 Culture Fit/index.html">8.3 🧬 Culture Fit</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3d9d87921fe3458ba2a0f0c19a85943f" data-module="10-M8 — BONUS ESTRATÉGICO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — BONUS ESTRATÉGICO/4-8.4 👩‍💻 Mujeres en Tech/index.html">8.4 👩‍💻 Mujeres en Tech</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6d9e862f26624b9baf7326e7d963a639" data-module="10-M8 — BONUS ESTRATÉGICO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — BONUS ESTRATÉGICO/5-8.5 🚩 Red Flags/index.html">8.5 🚩 Red Flags</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="28173ebc65884ea3bff7bb7da6394341" data-module="10-M8 — BONUS ESTRATÉGICO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — BONUS ESTRATÉGICO/6-🌟 Inglés para Tech/index.html">🌟 Inglés para Tech</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">11</span>
+                    <h2 class="mtitle">M9 — SIMULACRO DEVOPS</h2>
+                    <span class="mcount" data-module-count="11-M9 — SIMULACRO DEVOPS">0/4</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="11-M9 — SIMULACRO DEVOPS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2e98df0c388b4f71856f8a04a7dbbfc4" data-module="11-M9 — SIMULACRO DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M9 — SIMULACRO DEVOPS/1-9.1 🎯 Overview/index.html">9.1 🎯 Overview</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fe2b14147f45404e97c8c525b988323a" data-module="11-M9 — SIMULACRO DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M9 — SIMULACRO DEVOPS/2-9.2 👋 Introducción/index.html">9.2 👋 Introducción</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4666b7c82b20412a889b0d6d0f55afec" data-module="11-M9 — SIMULACRO DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M9 — SIMULACRO DEVOPS/3-9.3 🎙️ Entrevista DevOps 1 — Lenner/index.html">9.3 🎙️ Entrevista DevOps 1 — Lenner</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="58a8f0ffd8694d8d88c3942165f45835" data-module="11-M9 — SIMULACRO DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M9 — SIMULACRO DEVOPS/4-9.4 🎙️ Entrevista DevOps 2 — Mario/index.html">9.4 🎙️ Entrevista DevOps 2 — Mario</a>
+                </li></ul>
+            </article>
+    </section>
+</main>
+<footer class="foot">Backup local de 👔 Hackea tu Perfil Profesional. El progreso se guarda en este navegador (localStorage); no se envía a ningún lado.</footer>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+(function () {
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-lesson]'));
+
+    function refresh() {
+        var total = boxes.length, done = 0;
+        var byModule = {};
+        boxes.forEach(function (b) {
+            var id = b.getAttribute('data-lesson');
+            var key = b.getAttribute('data-module');
+            var isDone = Progress.isDone(id);
+            b.checked = isDone;
+            if (!byModule[key]) byModule[key] = { done: 0, total: 0 };
+            byModule[key].total++;
+            if (isDone) { byModule[key].done++; done++; }
+            var row = b.closest ? b.closest('.lesson') : null;
+            if (row) row.classList.toggle('is-done', isDone);
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-bar]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-bar')] || { done: 0, total: 0 };
+            el.style.width = (m.total ? Math.round((m.done / m.total) * 100) : 0) + '%';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-count]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-count')] || { done: 0, total: 0 };
+            el.textContent = m.done + '/' + m.total;
+        });
+
+        var pct = total ? Math.round((done / total) * 100) : 0;
+        var op = document.querySelector('[data-overall-bar]'); if (op) op.style.width = pct + '%';
+        var opct = document.querySelector('[data-overall-pct]'); if (opct) opct.textContent = pct + '%';
+        var oc = document.querySelector('[data-overall-count]');
+        if (oc) oc.textContent = done + ' de ' + total + ' lecciones completadas';
+    }
+
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            Progress.set(b.getAttribute('data-lesson'), b.checked);
+            refresh();
+        });
+    });
+
+    var reset = document.querySelector('[data-reset]');
+    if (reset) reset.addEventListener('click', function () {
+        if (window.confirm('¿Borrar todo el progreso de este curso?')) { Progress.reset(); refresh(); }
+    });
+
+    Progress.load(refresh);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

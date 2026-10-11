@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>♾️ DevOps desde Cero — jemjaf</title>
+<style>
+    :root {
+        --bg: #f3f4f1;
+        --surface: #ffffff;
+        --ink: #15181c;
+        --muted: #5c636b;
+        --line: #dfe2df;
+        --track: #e7e9e6;
+        --accent: #1e7a4d;
+        --accent-ink: #14502f;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+    }
+    a { color: var(--ink); }
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(243,244,241,0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+    }
+    .topbar .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+    }
+    .crumb { font-size: 0.85rem; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .crumb a:hover { color: var(--accent); }
+    .crumb .here { color: var(--ink); }
+    .overall { display: flex; align-items: center; gap: 12px; }
+    .overall .track { width: 220px; }
+    .pct { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 700; font-size: 1rem; color: var(--accent-ink); min-width: 3.2rem; text-align: right; }
+    .ocount { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 40px 24px 80px; max-width: 900px; margin: 0 auto; }
+    .lead { margin-bottom: 34px; }
+    .lead h1 {
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px 0;
+    }
+    .lead .sub { color: var(--muted); margin: 0 0 18px 0; }
+    .lead .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ghost {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+    }
+    .ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .module {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px 22px 14px;
+        margin-bottom: 18px;
+    }
+    .module-head { display: flex; align-items: baseline; gap: 12px; }
+    .mnum {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.85rem;
+        color: var(--accent-ink);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 2px 7px;
+        flex: none;
+    }
+    .mtitle { flex: 1; font-size: 1.12rem; margin: 0; letter-spacing: -0.005em; }
+    .mcount {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--muted);
+        flex: none;
+    }
+    .track {
+        height: 6px;
+        background: var(--track);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 14px 0 18px;
+    }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .lessons { list-style: none; margin: 0; padding: 0; }
+    .lesson { display: flex; align-items: flex-start; gap: 11px; padding: 7px 0; border-top: 1px solid var(--line); }
+    .lesson:first-child { border-top: none; }
+    .lesson input[type="checkbox"] {
+        width: 17px; height: 17px; margin: 3px 0 0 0; flex: none;
+        accent-color: var(--accent);
+        cursor: pointer;
+    }
+    .lesson .ltitle { text-decoration: none; }
+    .lesson .ltitle:hover { color: var(--accent-ink); text-decoration: underline; }
+    .lesson.is-done .ltitle { color: var(--muted); }
+    footer.foot { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; color: var(--muted); font-size: 0.8rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+    @media (max-width: 600px) {
+        .topbar .wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .overall .track { width: 150px; }
+    }
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="wrap">
+        <div class="crumb">
+            <a href="../index.html">jemjaf</a> <span>/</span> <span class="here">♾️ DevOps desde Cero</span>
+        </div>
+        <div class="overall">
+            <div class="track" role="progressbar" aria-label="Progreso del curso"><div class="fill" data-overall-bar></div></div>
+            <span class="pct" data-overall-pct>0%</span>
+        </div>
+    </div>
+</div>
+<main>
+    <section class="lead">
+        <h1>♾️ DevOps desde Cero</h1>
+        <p class="sub">Comunidad jemjaf · 12 módulos · 46 lecciones</p>
+        <div class="tools">
+            <button class="ghost" data-reset type="button">Reiniciar progreso de este curso</button>
+        </div>
+        <p class="ocount"><span data-overall-count>0 de 46 lecciones</span></p>
+    </section>
+    <section class="modules">
+        
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">06</span>
+                    <h2 class="mtitle">M4 — DE CÓDIGO A PRODUCCIÓN</h2>
+                    <span class="mcount" data-module-count="6-M4 — DE CÓDIGO A PRODUCCIÓN">0/5</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="6-M4 — DE CÓDIGO A PRODUCCIÓN"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b87fd453734f44ef8c6a1d334b148704" data-module="6-M4 — DE CÓDIGO A PRODUCCIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — DE CÓDIGO A PRODUCCIÓN/1-4.1 🔄 CI-CD/index.html">4.1 🔄 CI/CD</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b2c525c9ebb746369f77e4595157a294" data-module="6-M4 — DE CÓDIGO A PRODUCCIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — DE CÓDIGO A PRODUCCIÓN/2-🌟 Jenkins, GitHub, GitLab CI y Bitbucket/index.html">🌟 Jenkins, GitHub, GitLab CI y Bitbucket</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8b3e33eb4a254687a23bc0e9a48ee1f2" data-module="6-M4 — DE CÓDIGO A PRODUCCIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — DE CÓDIGO A PRODUCCIÓN/3-4.2 🚀 Pipelines/index.html">4.2 🚀 Pipelines</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="db0e1045ddde4a5a8d48a11099bc497a" data-module="6-M4 — DE CÓDIGO A PRODUCCIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — DE CÓDIGO A PRODUCCIÓN/4-4.3 ↩️ Rollback/index.html">4.3 ↩️ Rollback</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e4df24a5e36445e5aeb9403d709eadff" data-module="6-M4 — DE CÓDIGO A PRODUCCIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M4 — DE CÓDIGO A PRODUCCIÓN/5-4.4 ⬆️ Estrategias de despliegue/index.html">4.4 ⬆️ Estrategias de despliegue</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">01</span>
+                    <h2 class="mtitle">Lessons</h2>
+                    <span class="mcount" data-module-count="__root__">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="__root__"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4ca642f2f20746759a8d9d42d8e4da6e" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="1-📍 [INICIO]/index.html">📍 [INICIO]</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="788a8a4ef1254bcc9c5ff717435dfefe" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎉 Bienvenida/index.html">🎉 Bienvenida</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">02</span>
+                    <h2 class="mtitle">🎬🔴 SESIONES COMPLETAS</h2>
+                    <span class="mcount" data-module-count="2-🎬🔴 SESIONES COMPLETAS">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="2-🎬🔴 SESIONES COMPLETAS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="60b1b49369304470aff4995341524363" data-module="2-🎬🔴 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔴 SESIONES COMPLETAS/1-🔴♾️ [PARTE 1] Roles DevOps - CI-CD - Despliegues/index.html">🔴♾️ [PARTE 1] Roles DevOps - CI/CD - Despliegues</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="97bd29bfc026493f9ef4a103e3e0130b" data-module="2-🎬🔴 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔴 SESIONES COMPLETAS/2-🔴♾️ [PARTE 2] IaC - Contenedores - Orquestación/index.html">🔴♾️ [PARTE 2] IaC - Contenedores - Orquestación</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="de8370747408422a9a359deda5175aa0" data-module="2-🎬🔴 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔴 SESIONES COMPLETAS/3-🔴♾️ [PARTE 3] CNCF - Seguridad - Continuidad/index.html">🔴♾️ [PARTE 3] CNCF - Seguridad - Continuidad</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">03</span>
+                    <h2 class="mtitle">M1 — MENTALIDAD DEVOPS</h2>
+                    <span class="mcount" data-module-count="3-M1 — MENTALIDAD DEVOPS">0/8</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="3-M1 — MENTALIDAD DEVOPS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="be7c7211b52b42d0a6aae63065ac17cf" data-module="3-M1 — MENTALIDAD DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — MENTALIDAD DEVOPS/1-1.1 ♾️ DevOps/index.html">1.1 ♾️ DevOps</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3b47ec644f434f0c837f574a5fe1ad4f" data-module="3-M1 — MENTALIDAD DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — MENTALIDAD DEVOPS/2-1.2 🔐 DevSecOps/index.html">1.2 🔐 DevSecOps</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="474b0a19740d4466a44814046c5ddfc7" data-module="3-M1 — MENTALIDAD DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — MENTALIDAD DEVOPS/3-1.3 🛡️ OWASP/index.html">1.3 🛡️ OWASP</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="36d570f6c3074bf9bc2ad279423f7fad" data-module="3-M1 — MENTALIDAD DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — MENTALIDAD DEVOPS/4-1.4 👨‍💻 DevOps Engineer/index.html">1.4 👨‍💻 DevOps Engineer</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2c8113a5b91440b79abe5927f66d6656" data-module="3-M1 — MENTALIDAD DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — MENTALIDAD DEVOPS/5-1.5 📈 Site Reliability Engineering (SRE)/index.html">1.5 📈 Site Reliability Engineering (SRE)</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="05e930eb38234e89800a130658baf56d" data-module="3-M1 — MENTALIDAD DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — MENTALIDAD DEVOPS/6-1.6 ☁️ Cloud Engineer/index.html">1.6 ☁️ Cloud Engineer</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a4856011bb934b64a81cbe5656bb3ec5" data-module="3-M1 — MENTALIDAD DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — MENTALIDAD DEVOPS/7-1.7 🏗️ Platform Engineering/index.html">1.7 🏗️ Platform Engineering</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2763a75378c740d9acb2cf807390e313" data-module="3-M1 — MENTALIDAD DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M1 — MENTALIDAD DEVOPS/8-1.8 ⚔️ Platform Engineering vs. DevOps/index.html">1.8 ⚔️ Platform Engineering vs. DevOps</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">04</span>
+                    <h2 class="mtitle">M2 — SISTEMA OPERATIVO</h2>
+                    <span class="mcount" data-module-count="4-M2 — SISTEMA OPERATIVO">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="4-M2 — SISTEMA OPERATIVO"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="54bd0750d4fd475c8e77d7c1dfdbfb5c" data-module="4-M2 — SISTEMA OPERATIVO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — SISTEMA OPERATIVO/1-🌟 Linux/index.html">🌟 Linux</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c76357d06dd14e6bb63b34f19b5ad17d" data-module="4-M2 — SISTEMA OPERATIVO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M2 — SISTEMA OPERATIVO/2-🌟 OOM (Out of Memory)/index.html">🌟 OOM (Out of Memory)</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">05</span>
+                    <h2 class="mtitle">M3 — CONTROL DE VERSIONES</h2>
+                    <span class="mcount" data-module-count="5-M3 — CONTROL DE VERSIONES">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="5-M3 — CONTROL DE VERSIONES"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6994e3896df648bebc46ea62d1a063ce" data-module="5-M3 — CONTROL DE VERSIONES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — CONTROL DE VERSIONES/1-3.1 🌿 SCM y Git/index.html">3.1 🌿 SCM y Git</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="097d8ede0d1f4ff5a7288a9c719ec9c6" data-module="5-M3 — CONTROL DE VERSIONES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — CONTROL DE VERSIONES/2-3.3 🐙 GitHub/index.html">3.3 🐙 GitHub</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="19b69e69228d4dde8829aa14736d00b1" data-module="5-M3 — CONTROL DE VERSIONES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M3 — CONTROL DE VERSIONES/3-3.4 🏷️ SemVer/index.html">3.4 🏷️ SemVer</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">07</span>
+                    <h2 class="mtitle">M5 — CONFIGURACIÓN DEVOPS</h2>
+                    <span class="mcount" data-module-count="7-M5 — CONFIGURACIÓN DEVOPS">0/6</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="7-M5 — CONFIGURACIÓN DEVOPS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="361f8e3136a045128839a02617258a8f" data-module="7-M5 — CONFIGURACIÓN DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — CONFIGURACIÓN DEVOPS/1-5.1 🏞️ Ambientes de Despliegue/index.html">5.1 🏞️ Ambientes de Despliegue</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a373734a41774eea8a10563cce6b8af0" data-module="7-M5 — CONFIGURACIÓN DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — CONFIGURACIÓN DEVOPS/2-5.2 📄 YAML/index.html">5.2 📄 YAML</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7ab8d575d377441d9afb03c9c05374f3" data-module="7-M5 — CONFIGURACIÓN DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — CONFIGURACIÓN DEVOPS/3-5.3 🗂️ JSON/index.html">5.3 🗂️ JSON</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="49fd0f99e6bb4feda21f903462ffa12a" data-module="7-M5 — CONFIGURACIÓN DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — CONFIGURACIÓN DEVOPS/4-5.4 🌍 Variables de entorno/index.html">5.4 🌍 Variables de entorno</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="70c9eaecdec443c7a7cffe3162e3cb1d" data-module="7-M5 — CONFIGURACIÓN DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — CONFIGURACIÓN DEVOPS/5-5.5 🔑 Secretos/index.html">5.5 🔑 Secretos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c7d011aaeb5b4550ab87db8c4c534698" data-module="7-M5 — CONFIGURACIÓN DEVOPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M5 — CONFIGURACIÓN DEVOPS/6-5.6 👥 RBAC/index.html">5.6 👥 RBAC</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">08</span>
+                    <h2 class="mtitle">M6 — INFRAESTRUCTURA</h2>
+                    <span class="mcount" data-module-count="8-M6 — INFRAESTRUCTURA">0/4</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="8-M6 — INFRAESTRUCTURA"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a551218bb82b4d12a3205c15b3b80a97" data-module="8-M6 — INFRAESTRUCTURA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — INFRAESTRUCTURA/1-6.1 🏗️ Infraestructura como Código (IaC)/index.html">6.1 🏗️ Infraestructura como Código (IaC)</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="dbb1009c6b2549cc888550d1e4ebf10d" data-module="8-M6 — INFRAESTRUCTURA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — INFRAESTRUCTURA/2-6.2 🟪 Terraform/index.html">6.2 🟪 Terraform</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e97fd65c6d4449bfbb76e45fe0d055c8" data-module="8-M6 — INFRAESTRUCTURA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — INFRAESTRUCTURA/3-6.3 ☁️ CloudFormation/index.html">6.3 ☁️ CloudFormation</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="35f06a9d67e34e21955e0aca0aa76cea" data-module="8-M6 — INFRAESTRUCTURA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M6 — INFRAESTRUCTURA/4-6.4 ⚙️ Ansible y Configuration as Code (CaC)/index.html">6.4 ⚙️ Ansible y Configuration as Code (CaC)</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">09</span>
+                    <h2 class="mtitle">M7 — CONTENEDORES</h2>
+                    <span class="mcount" data-module-count="9-M7 — CONTENEDORES">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="9-M7 — CONTENEDORES"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6a38ba739e424c9aa69d88e29e6bb5fa" data-module="9-M7 — CONTENEDORES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — CONTENEDORES/1-7.1 🐳 Docker/index.html">7.1 🐳 Docker</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b2e5db2527234bd0973eed8e565b080d" data-module="9-M7 — CONTENEDORES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M7 — CONTENEDORES/2-7.2 🧩 Docker Compose/index.html">7.2 🧩 Docker Compose</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">10</span>
+                    <h2 class="mtitle">M8 — ORQUESTANDO A ESCALA</h2>
+                    <span class="mcount" data-module-count="10-M8 — ORQUESTANDO A ESCALA">0/5</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="10-M8 — ORQUESTANDO A ESCALA"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a06f1c92980b458ea1f5aaab7afe20c3" data-module="10-M8 — ORQUESTANDO A ESCALA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — ORQUESTANDO A ESCALA/1-8.1 🏢 Monolito vs. Microservicios/index.html">8.1 🏢 Monolito vs. Microservicios</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="81e24b6b6275407791f4893ba05cf049" data-module="10-M8 — ORQUESTANDO A ESCALA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — ORQUESTANDO A ESCALA/2-8.2 📈 Escalabilidad/index.html">8.2 📈 Escalabilidad</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="df90c375c0914a488a83420a8b1ab333" data-module="10-M8 — ORQUESTANDO A ESCALA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — ORQUESTANDO A ESCALA/3-8.3 ☸️ Kubernetes/index.html">8.3 ☸️ Kubernetes</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b1550426e6c442a6932e00ed8e4134b1" data-module="10-M8 — ORQUESTANDO A ESCALA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — ORQUESTANDO A ESCALA/4-8.4 ⛵ Helm/index.html">8.4 ⛵ Helm</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c0c580feddc147e2adf7781f994544e9" data-module="10-M8 — ORQUESTANDO A ESCALA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M8 — ORQUESTANDO A ESCALA/5-🌟 OpenShift/index.html">🌟 OpenShift</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">11</span>
+                    <h2 class="mtitle">M9 — CLOUD NATIVE</h2>
+                    <span class="mcount" data-module-count="11-M9 — CLOUD NATIVE">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="11-M9 — CLOUD NATIVE"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d02c712db018498894fb088e2e8ea595" data-module="11-M9 — CLOUD NATIVE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M9 — CLOUD NATIVE/1-9.1 🏛️ Cloud Native Computing Foundation (CNCF)/index.html">9.1 🏛️ Cloud Native Computing Foundation (CNCF)</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cec82d3052fa4bf48ed54cd3b44b1eae" data-module="11-M9 — CLOUD NATIVE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M9 — CLOUD NATIVE/2-9.2 🔄 GitOps - ARGOCD/index.html">9.2 🔄 GitOps - ARGOCD</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="656f9327093c403d8d394eeb0592e60a" data-module="11-M9 — CLOUD NATIVE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M9 — CLOUD NATIVE/3-9.3 🌐 Crossplane/index.html">9.3 🌐 Crossplane</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">12</span>
+                    <h2 class="mtitle">M10 — SISTEMAS CONFIABLES</h2>
+                    <span class="mcount" data-module-count="12-M10 — SISTEMAS CONFIABLES">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="12-M10 — SISTEMAS CONFIABLES"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="14ff2b183a90448baaf82d55cb2e1c04" data-module="12-M10 — SISTEMAS CONFIABLES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M10 — SISTEMAS CONFIABLES/1-10.1 📊 Monitoreo y observabilidad/index.html">10.1 📊 Monitoreo y observabilidad</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c9a5237f8bb748ce82a38a6d1f4f1e31" data-module="12-M10 — SISTEMAS CONFIABLES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M10 — SISTEMAS CONFIABLES/2-10.2 💥 Chaos Engineering/index.html">10.2 💥 Chaos Engineering</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="49dae11602224be5bc5f9708e602b670" data-module="12-M10 — SISTEMAS CONFIABLES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M10 — SISTEMAS CONFIABLES/3-10.3 🛟 Disaster Recovery Plan (DRP)/index.html">10.3 🛟 Disaster Recovery Plan (DRP)</a>
+                </li></ul>
+            </article>
+    </section>
+</main>
+<footer class="foot">Backup local de ♾️ DevOps desde Cero. El progreso se guarda en este navegador (localStorage); no se envía a ningún lado.</footer>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+(function () {
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-lesson]'));
+
+    function refresh() {
+        var total = boxes.length, done = 0;
+        var byModule = {};
+        boxes.forEach(function (b) {
+            var id = b.getAttribute('data-lesson');
+            var key = b.getAttribute('data-module');
+            var isDone = Progress.isDone(id);
+            b.checked = isDone;
+            if (!byModule[key]) byModule[key] = { done: 0, total: 0 };
+            byModule[key].total++;
+            if (isDone) { byModule[key].done++; done++; }
+            var row = b.closest ? b.closest('.lesson') : null;
+            if (row) row.classList.toggle('is-done', isDone);
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-bar]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-bar')] || { done: 0, total: 0 };
+            el.style.width = (m.total ? Math.round((m.done / m.total) * 100) : 0) + '%';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-count]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-count')] || { done: 0, total: 0 };
+            el.textContent = m.done + '/' + m.total;
+        });
+
+        var pct = total ? Math.round((done / total) * 100) : 0;
+        var op = document.querySelector('[data-overall-bar]'); if (op) op.style.width = pct + '%';
+        var opct = document.querySelector('[data-overall-pct]'); if (opct) opct.textContent = pct + '%';
+        var oc = document.querySelector('[data-overall-count]');
+        if (oc) oc.textContent = done + ' de ' + total + ' lecciones completadas';
+    }
+
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            Progress.set(b.getAttribute('data-lesson'), b.checked);
+            refresh();
+        });
+    });
+
+    var reset = document.querySelector('[data-reset]');
+    if (reset) reset.addEventListener('click', function () {
+        if (window.confirm('¿Borrar todo el progreso de este curso?')) { Progress.reset(); refresh(); }
+    });
+
+    Progress.load(refresh);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

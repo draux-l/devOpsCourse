@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>🌐 Networking para DevOps — jemjaf</title>
+<style>
+    :root {
+        --bg: #f3f4f1;
+        --surface: #ffffff;
+        --ink: #15181c;
+        --muted: #5c636b;
+        --line: #dfe2df;
+        --track: #e7e9e6;
+        --accent: #1e7a4d;
+        --accent-ink: #14502f;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+    }
+    a { color: var(--ink); }
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(243,244,241,0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+    }
+    .topbar .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+    }
+    .crumb { font-size: 0.85rem; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .crumb a:hover { color: var(--accent); }
+    .crumb .here { color: var(--ink); }
+    .overall { display: flex; align-items: center; gap: 12px; }
+    .overall .track { width: 220px; }
+    .pct { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 700; font-size: 1rem; color: var(--accent-ink); min-width: 3.2rem; text-align: right; }
+    .ocount { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 40px 24px 80px; max-width: 900px; margin: 0 auto; }
+    .lead { margin-bottom: 34px; }
+    .lead h1 {
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px 0;
+    }
+    .lead .sub { color: var(--muted); margin: 0 0 18px 0; }
+    .lead .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ghost {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+    }
+    .ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .module {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px 22px 14px;
+        margin-bottom: 18px;
+    }
+    .module-head { display: flex; align-items: baseline; gap: 12px; }
+    .mnum {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.85rem;
+        color: var(--accent-ink);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 2px 7px;
+        flex: none;
+    }
+    .mtitle { flex: 1; font-size: 1.12rem; margin: 0; letter-spacing: -0.005em; }
+    .mcount {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--muted);
+        flex: none;
+    }
+    .track {
+        height: 6px;
+        background: var(--track);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 14px 0 18px;
+    }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .lessons { list-style: none; margin: 0; padding: 0; }
+    .lesson { display: flex; align-items: flex-start; gap: 11px; padding: 7px 0; border-top: 1px solid var(--line); }
+    .lesson:first-child { border-top: none; }
+    .lesson input[type="checkbox"] {
+        width: 17px; height: 17px; margin: 3px 0 0 0; flex: none;
+        accent-color: var(--accent);
+        cursor: pointer;
+    }
+    .lesson .ltitle { text-decoration: none; }
+    .lesson .ltitle:hover { color: var(--accent-ink); text-decoration: underline; }
+    .lesson.is-done .ltitle { color: var(--muted); }
+    footer.foot { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; color: var(--muted); font-size: 0.8rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+    @media (max-width: 600px) {
+        .topbar .wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .overall .track { width: 150px; }
+    }
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="wrap">
+        <div class="crumb">
+            <a href="../index.html">jemjaf</a> <span>/</span> <span class="here">🌐 Networking para DevOps</span>
+        </div>
+        <div class="overall">
+            <div class="track" role="progressbar" aria-label="Progreso del curso"><div class="fill" data-overall-bar></div></div>
+            <span class="pct" data-overall-pct>0%</span>
+        </div>
+    </div>
+</div>
+<main>
+    <section class="lead">
+        <h1>🌐 Networking para DevOps</h1>
+        <p class="sub">Comunidad jemjaf · 6 módulos · 33 lecciones</p>
+        <div class="tools">
+            <button class="ghost" data-reset type="button">Reiniciar progreso de este curso</button>
+        </div>
+        <p class="ocount"><span data-overall-count>0 de 33 lecciones</span></p>
+    </section>
+    <section class="modules">
+        
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">01</span>
+                    <h2 class="mtitle">Lessons</h2>
+                    <span class="mcount" data-module-count="__root__">0/4</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="__root__"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="698930bfa0d648d1a1e27d05d60caa37" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="1-📍 [INICIO]/index.html">📍 [INICIO]</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1cfac0682bf449348b4890e70904a312" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIÓN COMPLETA/index.html">🎬🔵 SESIÓN COMPLETA</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="19faf4b67a584c5bb6a98795a4250f8f" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-🎉 Bienvenida/index.html">🎉 Bienvenida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="026d79404f294a57b8337093358b2f3e" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-👋 Cierre/index.html">👋 Cierre</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">02</span>
+                    <h2 class="mtitle">M1 — FUNDAMENTOS DE RED</h2>
+                    <span class="mcount" data-module-count="2-M1 — FUNDAMENTOS DE RED">0/12</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="2-M1 — FUNDAMENTOS DE RED"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b6041b8bd51044469fb0c9bc6c02ec09" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/1-1.1 🧩 Dirección IP/index.html">1.1 🧩 Dirección IP</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d500d54baa7a4d079a4016398b1ca525" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/2-1.2 🔄 IPv4 vs. IPv6/index.html">1.2 🔄 IPv4 vs. IPv6</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bb6940c16e3b46f48a7a03e1ba1a39bc" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/3-1.3 🌐 IP pública vs. privada/index.html">1.3 🌐 IP pública vs. privada</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e37541831fc9410d95e5fb7f39127bbe" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/4-1.4 🔑 Rangos IPv4 privados/index.html">1.4 🔑 Rangos IPv4 privados</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="94331f0bd66b44bba89201beb3d0d25b" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/5-1.5 📜 Rangos privados RFC 1918/index.html">1.5 📜 Rangos privados RFC 1918</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3a9892527c4444548aa3497872739962" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/6-1.6 🚨 Direcciones IP especiales/index.html">1.6 🚨 Direcciones IP especiales</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ccedfe41725a4faba54066396dcbce13" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/7-1.7 🧪 0.0.0.0 vs. 127.0.0.1/index.html">1.7 🧪 0.0.0.0 vs. 127.0.0.1</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="dbbd01a2325742208f9c5fc775db329c" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/8-1.11 🖥️ Comunicación entre hosts/index.html">1.11 🖥️ Comunicación entre hosts</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e7f55d2a73c34733a247cdc7a08d1e34" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/9-1.12 🔌 Puertos conocidos/index.html">1.12 🔌 Puertos conocidos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="aede379452e44f5298aa3b0b63521098" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/10-1.13 🎲 Puertos efímeros/index.html">1.13 🎲 Puertos efímeros</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="87edbbfa39af4f308d6fe1502d048745" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/11-1.14 🔍 DNS- hostname a IP/index.html">1.14 🔍 DNS: hostname a IP</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="26d5f8d6fd0243ddaac4f141443c4885" data-module="2-M1 — FUNDAMENTOS DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-M1 — FUNDAMENTOS DE RED/12-1.16 🧠 Autoevaluación/index.html">1.16 🧠 Autoevaluación</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">03</span>
+                    <h2 class="mtitle">M2 — CIDR Y SUBNETTING</h2>
+                    <span class="mcount" data-module-count="3-M2 — CIDR Y SUBNETTING">0/7</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="3-M2 — CIDR Y SUBNETTING"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ffa1b815699a4921b78e4abac95f387f" data-module="3-M2 — CIDR Y SUBNETTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M2 — CIDR Y SUBNETTING/1-2.1 📏 CIDR/index.html">2.1 📏 CIDR</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="04f71027685f4bf29e6cfa328d294b34" data-module="3-M2 — CIDR Y SUBNETTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M2 — CIDR Y SUBNETTING/2-2.2 🧠 Tabla CIDR/index.html">2.2 🧠 Tabla CIDR</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="45d9215db76f40a3899c2d2f8403441d" data-module="3-M2 — CIDR Y SUBNETTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M2 — CIDR Y SUBNETTING/3-2.3 ➖ IPs reservadas en AWS/index.html">2.3 ➖ IPs reservadas en AWS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1960b820428543d08668fdba69194966" data-module="3-M2 — CIDR Y SUBNETTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M2 — CIDR Y SUBNETTING/4-2.4 🧱 Segmentación de redes/index.html">2.4 🧱 Segmentación de redes</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="86c66e2dccbc4bbbb93f73502f159035" data-module="3-M2 — CIDR Y SUBNETTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M2 — CIDR Y SUBNETTING/5-2.5 🔀 Subnetting/index.html">2.5 🔀 Subnetting</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5296ccefccb845c6a34db2813fc7d549" data-module="3-M2 — CIDR Y SUBNETTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M2 — CIDR Y SUBNETTING/6-2.9 🧮 Calculadora de subnetting/index.html">2.9 🧮 Calculadora de subnetting</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="28cebf98f1e647789e5bf921fc7c218d" data-module="3-M2 — CIDR Y SUBNETTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-M2 — CIDR Y SUBNETTING/7-2.10 🧪 Práctica en la comunidad/index.html">2.10 🧪 Práctica en la comunidad</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">04</span>
+                    <h2 class="mtitle">M3 — SEGURIDAD Y CONTROL</h2>
+                    <span class="mcount" data-module-count="4-M3 — SEGURIDAD Y CONTROL">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="4-M3 — SEGURIDAD Y CONTROL"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c5a385d62f36473594799f76e574e028" data-module="4-M3 — SEGURIDAD Y CONTROL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M3 — SEGURIDAD Y CONTROL/1-3.1 🚔 Firewalls/index.html">3.1 🚔 Firewalls</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5340e4693dcf46d1805c82a0b28d9730" data-module="4-M3 — SEGURIDAD Y CONTROL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M3 — SEGURIDAD Y CONTROL/2-3.2 ☁️ Security Groups vs. NACLs/index.html">3.2 ☁️ Security Groups vs. NACLs</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="50d61e4ad86c47bd9e3105a980ff20fc" data-module="4-M3 — SEGURIDAD Y CONTROL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M3 — SEGURIDAD Y CONTROL/3-3.3 ⚠️ Solapamiento de CIDRs/index.html">3.3 ⚠️ Solapamiento de CIDRs</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">05</span>
+                    <h2 class="mtitle">M4 — NETWORKING EN CONTENEDORES</h2>
+                    <span class="mcount" data-module-count="5-M4 — NETWORKING EN CONTENEDORES">0/5</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="5-M4 — NETWORKING EN CONTENEDORES"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e8a2bcd2d9a84e22a57ab32212665701" data-module="5-M4 — NETWORKING EN CONTENEDORES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M4 — NETWORKING EN CONTENEDORES/1-4.1 🐳 Redes en Docker/index.html">4.1 🐳 Redes en Docker</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fa77b91b188644cd856975c094cef014" data-module="5-M4 — NETWORKING EN CONTENEDORES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M4 — NETWORKING EN CONTENEDORES/2-4.2 🔁 Comunicación entre servidores/index.html">4.2 🔁 Comunicación entre servidores</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="287950bad8d24d74b8c83d55aabfca4e" data-module="5-M4 — NETWORKING EN CONTENEDORES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M4 — NETWORKING EN CONTENEDORES/3-4.3 🔗 VPC Peering/index.html">4.3 🔗 VPC Peering</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b3743736e35244ddb33e05c6942af43d" data-module="5-M4 — NETWORKING EN CONTENEDORES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M4 — NETWORKING EN CONTENEDORES/4-4.4 🏢 Conectividad híbrida/index.html">4.4 🏢 Conectividad híbrida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b3ba3c43c6aa4658be99d03e8cd36f3c" data-module="5-M4 — NETWORKING EN CONTENEDORES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M4 — NETWORKING EN CONTENEDORES/5-4.5 🚪 NAT Gateway/index.html">4.5 🚪 NAT Gateway</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">06</span>
+                    <h2 class="mtitle">M5 — ARQUITECTURA DE RED</h2>
+                    <span class="mcount" data-module-count="6-M5 — ARQUITECTURA DE RED">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="6-M5 — ARQUITECTURA DE RED"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c3c3bdadeda148a2b5e01751802fe2ad" data-module="6-M5 — ARQUITECTURA DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M5 — ARQUITECTURA DE RED/1-5.1 🧩 Arquitectura de red/index.html">5.1 🧩 Arquitectura de red</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1c162bc04e6544748c129a23c1700538" data-module="6-M5 — ARQUITECTURA DE RED" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M5 — ARQUITECTURA DE RED/2-5.2 📋 Checklist de networking/index.html">5.2 📋 Checklist de networking</a>
+                </li></ul>
+            </article>
+    </section>
+</main>
+<footer class="foot">Backup local de 🌐 Networking para DevOps. El progreso se guarda en este navegador (localStorage); no se envía a ningún lado.</footer>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+(function () {
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-lesson]'));
+
+    function refresh() {
+        var total = boxes.length, done = 0;
+        var byModule = {};
+        boxes.forEach(function (b) {
+            var id = b.getAttribute('data-lesson');
+            var key = b.getAttribute('data-module');
+            var isDone = Progress.isDone(id);
+            b.checked = isDone;
+            if (!byModule[key]) byModule[key] = { done: 0, total: 0 };
+            byModule[key].total++;
+            if (isDone) { byModule[key].done++; done++; }
+            var row = b.closest ? b.closest('.lesson') : null;
+            if (row) row.classList.toggle('is-done', isDone);
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-bar]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-bar')] || { done: 0, total: 0 };
+            el.style.width = (m.total ? Math.round((m.done / m.total) * 100) : 0) + '%';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-count]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-count')] || { done: 0, total: 0 };
+            el.textContent = m.done + '/' + m.total;
+        });
+
+        var pct = total ? Math.round((done / total) * 100) : 0;
+        var op = document.querySelector('[data-overall-bar]'); if (op) op.style.width = pct + '%';
+        var opct = document.querySelector('[data-overall-pct]'); if (opct) opct.textContent = pct + '%';
+        var oc = document.querySelector('[data-overall-count]');
+        if (oc) oc.textContent = done + ' de ' + total + ' lecciones completadas';
+    }
+
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            Progress.set(b.getAttribute('data-lesson'), b.checked);
+            refresh();
+        });
+    });
+
+    var reset = document.querySelector('[data-reset]');
+    if (reset) reset.addEventListener('click', function () {
+        if (window.confirm('¿Borrar todo el progreso de este curso?')) { Progress.reset(); refresh(); }
+    });
+
+    Progress.load(refresh);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

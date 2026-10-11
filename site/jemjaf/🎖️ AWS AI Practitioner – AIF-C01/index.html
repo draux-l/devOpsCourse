@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>🎖️ AWS AI Practitioner – AIF-C01 — jemjaf</title>
+<style>
+    :root {
+        --bg: #f3f4f1;
+        --surface: #ffffff;
+        --ink: #15181c;
+        --muted: #5c636b;
+        --line: #dfe2df;
+        --track: #e7e9e6;
+        --accent: #1e7a4d;
+        --accent-ink: #14502f;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+    }
+    a { color: var(--ink); }
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(243,244,241,0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+    }
+    .topbar .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+    }
+    .crumb { font-size: 0.85rem; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .crumb a:hover { color: var(--accent); }
+    .crumb .here { color: var(--ink); }
+    .overall { display: flex; align-items: center; gap: 12px; }
+    .overall .track { width: 220px; }
+    .pct { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 700; font-size: 1rem; color: var(--accent-ink); min-width: 3.2rem; text-align: right; }
+    .ocount { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 40px 24px 80px; max-width: 900px; margin: 0 auto; }
+    .lead { margin-bottom: 34px; }
+    .lead h1 {
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px 0;
+    }
+    .lead .sub { color: var(--muted); margin: 0 0 18px 0; }
+    .lead .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ghost {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+    }
+    .ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .module {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px 22px 14px;
+        margin-bottom: 18px;
+    }
+    .module-head { display: flex; align-items: baseline; gap: 12px; }
+    .mnum {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.85rem;
+        color: var(--accent-ink);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 2px 7px;
+        flex: none;
+    }
+    .mtitle { flex: 1; font-size: 1.12rem; margin: 0; letter-spacing: -0.005em; }
+    .mcount {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--muted);
+        flex: none;
+    }
+    .track {
+        height: 6px;
+        background: var(--track);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 14px 0 18px;
+    }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .lessons { list-style: none; margin: 0; padding: 0; }
+    .lesson { display: flex; align-items: flex-start; gap: 11px; padding: 7px 0; border-top: 1px solid var(--line); }
+    .lesson:first-child { border-top: none; }
+    .lesson input[type="checkbox"] {
+        width: 17px; height: 17px; margin: 3px 0 0 0; flex: none;
+        accent-color: var(--accent);
+        cursor: pointer;
+    }
+    .lesson .ltitle { text-decoration: none; }
+    .lesson .ltitle:hover { color: var(--accent-ink); text-decoration: underline; }
+    .lesson.is-done .ltitle { color: var(--muted); }
+    footer.foot { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; color: var(--muted); font-size: 0.8rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+    @media (max-width: 600px) {
+        .topbar .wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .overall .track { width: 150px; }
+    }
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="wrap">
+        <div class="crumb">
+            <a href="../index.html">jemjaf</a> <span>/</span> <span class="here">🎖️ AWS AI Practitioner – AIF-C01</span>
+        </div>
+        <div class="overall">
+            <div class="track" role="progressbar" aria-label="Progreso del curso"><div class="fill" data-overall-bar></div></div>
+            <span class="pct" data-overall-pct>0%</span>
+        </div>
+    </div>
+</div>
+<main>
+    <section class="lead">
+        <h1>🎖️ AWS AI Practitioner – AIF-C01</h1>
+        <p class="sub">Comunidad jemjaf · 16 módulos · 106 lecciones</p>
+        <div class="tools">
+            <button class="ghost" data-reset type="button">Reiniciar progreso de este curso</button>
+        </div>
+        <p class="ocount"><span data-overall-count>0 de 106 lecciones</span></p>
+    </section>
+    <section class="modules">
+        
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">01</span>
+                    <h2 class="mtitle">Lessons</h2>
+                    <span class="mcount" data-module-count="__root__">0/6</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="__root__"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6b484e70943b4c408e7306878919f01c" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="1-📍 [INICIO]/index.html">📍 [INICIO]</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="89769949016343b6aef91e2456ce0256" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎓 MIEMBROS CERTIFICADOS AIF - C01/index.html">🎓 MIEMBROS CERTIFICADOS AIF - C01</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a1ea1d234d56478288b41af5ef3cfe39" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-🎓 MIEMBROS CERTIFICADOS AIF - C01 II/index.html">🎓 MIEMBROS CERTIFICADOS AIF - C01 II</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="175773374a834d73be8fbc7cc0914f9a" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🎓 MIEMBROS CERTIFICADOS AIF - C01 III/index.html">🎓 MIEMBROS CERTIFICADOS AIF - C01 III</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="11b73aedf57e450f9168d64889e0bae6" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🎉 Bienvenida/index.html">🎉 Bienvenida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="30ea8661b2df47309733d000953510f3" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-👋 Cierre/index.html">👋 Cierre</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">02</span>
+                    <h2 class="mtitle">🎬🔵 SESIONES COMPLETAS</h2>
+                    <span class="mcount" data-module-count="2-🎬🔵 SESIONES COMPLETAS">0/12</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="2-🎬🔵 SESIONES COMPLETAS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4f4deeb3fc9340f1b17eb8a58b915d9a" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/1-🔵🤖 [M0] Bienvenida y Ruta de Estudio/index.html">🔵🤖 [M0] Bienvenida y Ruta de Estudio</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9ff38fa0fd164225865f14fac71d038b" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/2-🔵🤖 [M1] Examen AIF-C01 — Dominios y Logística/index.html">🔵🤖 [M1] Examen AIF-C01 — Dominios y Logística</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="19308f78841547f588e0cf20c7d05ab9" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/3-🔵🤖 [M2] Fundamentos de AI y Machine Learning/index.html">🔵🤖 [M2] Fundamentos de AI y Machine Learning</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ced82792c62347be82af378aec0d7a67" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/4-🔵🤖 [M3] Pipeline, Training y Evaluación/index.html">🔵🤖 [M3] Pipeline, Training y Evaluación</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1eb094640a24479893dff9923f74fcf0" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/5-🔵🤖 [M4] IA Generativa/index.html">🔵🤖 [M4] IA Generativa</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0cde239cafd849afbc077820f4567cdb" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/6-🔵🤖 [M5] Amazon Bedrock/index.html">🔵🤖 [M5] Amazon Bedrock</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6dc694d839964b5094a68bb34fb3817d" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/7-🔵🤖 [M6] Foundation Models - RAG - Agents/index.html">🔵🤖 [M6] Foundation Models - RAG - Agents</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7411f4c8af444db88eed0678a03fe4ab" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/8-🔵🤖 [M7] Servicios AI-ML - SageMaker/index.html">🔵🤖 [M7] Servicios AI/ML - SageMaker</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8a6603a8551848819dd9378f783c3287" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/9-🔵🤖 [M8] IA Responsable/index.html">🔵🤖 [M8] IA Responsable</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b05c8bf42121420a835136496c64a851" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/10-🔵🤖 [M9] Seguridad, Gobernanza y Cumplimiento/index.html">🔵🤖 [M9] Seguridad, Gobernanza y Cumplimiento</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a7b08e3ba8314f398a1de0cb73f3a02d" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/11-🔵🤖 [M10] Preparación Final y Simulacro AIF-C01/index.html">🔵🤖 [M10] Preparación Final y Simulacro AIF-C01</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="675ae5cc6d0d49fc90b5c3b61b2c71f2" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/12-🔵🤖 [M11] Programar el Examen AIF-C01/index.html">🔵🤖 [M11] Programar el Examen AIF-C01</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">03</span>
+                    <h2 class="mtitle">📚 Recursos</h2>
+                    <span class="mcount" data-module-count="3-📚 Recursos">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="3-📚 Recursos"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8de86a827c0b467fab07eee346877b34" data-module="3-📚 Recursos" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-📚 Recursos/1-📚 PDFs y Material de Apoyo/index.html">📚 PDFs y Material de Apoyo</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">04</span>
+                    <h2 class="mtitle">M0 — INTRODUCCIÓN AL AIF-C01</h2>
+                    <span class="mcount" data-module-count="4-M0 — INTRODUCCIÓN AL AIF-C01">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="4-M0 — INTRODUCCIÓN AL AIF-C01"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1ea58eaf95154abe906cb97371a383dc" data-module="4-M0 — INTRODUCCIÓN AL AIF-C01" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M0 — INTRODUCCIÓN AL AIF-C01/1-0.1 👋 Bienvenida y enfoque del curso/index.html">0.1 👋 Bienvenida y enfoque del curso</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c9850fae14bf4fcfa579f3e8bd622d5b" data-module="4-M0 — INTRODUCCIÓN AL AIF-C01" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M0 — INTRODUCCIÓN AL AIF-C01/2-0.2 🗺️ Ruta hacia la certificación/index.html">0.2 🗺️ Ruta hacia la certificación</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">05</span>
+                    <h2 class="mtitle">M1 — EL EXAMEN AIF-C01</h2>
+                    <span class="mcount" data-module-count="5-M1 — EL EXAMEN AIF-C01">0/4</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="5-M1 — EL EXAMEN AIF-C01"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="60ef60f735204246866a9eb073e90dad" data-module="5-M1 — EL EXAMEN AIF-C01" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — EL EXAMEN AIF-C01/1-1.1 🎯 Examen AIF-C01/index.html">1.1 🎯 Examen AIF-C01</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d114e6e103d64893974336d5d1e7e9ae" data-module="5-M1 — EL EXAMEN AIF-C01" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — EL EXAMEN AIF-C01/2-1.2 📊 Dominios del examen/index.html">1.2 📊 Dominios del examen</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c81ed1d7351e4e618de143e58b3083fa" data-module="5-M1 — EL EXAMEN AIF-C01" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — EL EXAMEN AIF-C01/3-1.3 🌐 Idioma y ESL +30/index.html">1.3 🌐 Idioma y ESL +30</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a7ea42b703c74df8adf34a1eda6eff92" data-module="5-M1 — EL EXAMEN AIF-C01" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — EL EXAMEN AIF-C01/4-1.4 💳 Precios, modalidades y retakes/index.html">1.4 💳 Precios, modalidades y retakes</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">06</span>
+                    <h2 class="mtitle">M2 — FUNDAMENTOS DE AI Y ML</h2>
+                    <span class="mcount" data-module-count="6-M2 — FUNDAMENTOS DE AI Y ML">0/5</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="6-M2 — FUNDAMENTOS DE AI Y ML"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d6ca456dbccf4ca19d4feac8d368aa47" data-module="6-M2 — FUNDAMENTOS DE AI Y ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — FUNDAMENTOS DE AI Y ML/1-2.1 🧠 AI, ML y Deep Learning/index.html">2.1 🧠 AI, ML y Deep Learning</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a9317961976149b9b28f890fe215b480" data-module="6-M2 — FUNDAMENTOS DE AI Y ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — FUNDAMENTOS DE AI Y ML/2-2.2 🎯 Tipos de aprendizaje en ML/index.html">2.2 🎯 Tipos de aprendizaje en ML</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e252b985283b42db8389d0678171d02e" data-module="6-M2 — FUNDAMENTOS DE AI Y ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — FUNDAMENTOS DE AI Y ML/3-2.3 🧩 Algoritmos de Machine Learning/index.html">2.3 🧩 Algoritmos de Machine Learning</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bf04cb38bc234f199d390ecf51e52bd6" data-module="6-M2 — FUNDAMENTOS DE AI Y ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — FUNDAMENTOS DE AI Y ML/4-2.4 🔄 Transfer Learning y tipos de datos/index.html">2.4 🔄 Transfer Learning y tipos de datos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="032036b2d2514eb4b4d5f1c208f5a220" data-module="6-M2 — FUNDAMENTOS DE AI Y ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — FUNDAMENTOS DE AI Y ML/5-2.5 🤖 Agentic AI (IA Agéntica)/index.html">2.5 🤖 Agentic AI (IA Agéntica)</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">07</span>
+                    <h2 class="mtitle">M3 — CICLO DE VIDA ML</h2>
+                    <span class="mcount" data-module-count="7-M3 — CICLO DE VIDA ML">0/7</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="7-M3 — CICLO DE VIDA ML"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="88e5a56a117d4bd28e3ff9d65f0d5d17" data-module="7-M3 — CICLO DE VIDA ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — CICLO DE VIDA ML/1-3.1 🔄 ML Pipeline/index.html">3.1 🔄 ML Pipeline</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0c5e68693deb44dc8d7ec816215e9812" data-module="7-M3 — CICLO DE VIDA ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — CICLO DE VIDA ML/2-3.2 ⚙️ Training vs. Inference/index.html">3.2 ⚙️ Training vs. Inference</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="be91acb9b7a4407f8f7ea3be62793580" data-module="7-M3 — CICLO DE VIDA ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — CICLO DE VIDA ML/3-3.3 📊 Métricas de evaluación/index.html">3.3 📊 Métricas de evaluación</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9136323873d344719ab1c100949cb769" data-module="7-M3 — CICLO DE VIDA ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — CICLO DE VIDA ML/4-3.4 📈 Overfitting y Underfitting/index.html">3.4 📈 Overfitting y Underfitting</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9afd73d133c94893b5e28283d06d3521" data-module="7-M3 — CICLO DE VIDA ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — CICLO DE VIDA ML/5-3.5 🎯 Confusion Matrix y AUC-ROC/index.html">3.5 🎯 Confusion Matrix y AUC-ROC</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6f754d4274d64a7eb907ead2185cf8e3" data-module="7-M3 — CICLO DE VIDA ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — CICLO DE VIDA ML/6-3.6 🔧 Feature Engineering y MLOps/index.html">3.6 🔧 Feature Engineering y MLOps</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5a4f449f61c64ecca660d54e14c3f8a3" data-module="7-M3 — CICLO DE VIDA ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — CICLO DE VIDA ML/7-3.7 💼 Métricas técnicas vs. negocio/index.html">3.7 💼 Métricas técnicas vs. negocio</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">08</span>
+                    <h2 class="mtitle">M4 — IA GENERATIVA</h2>
+                    <span class="mcount" data-module-count="8-M4 — IA GENERATIVA">0/9</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="8-M4 — IA GENERATIVA"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cf0969b91bfc4e01a5663ec23d730686" data-module="8-M4 — IA GENERATIVA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — IA GENERATIVA/1-4.1 🧠 IA tradicional vs. generativa/index.html">4.1 🧠 IA tradicional vs. generativa</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1a6de9540ee143bdbaa45609e6749c1f" data-module="8-M4 — IA GENERATIVA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — IA GENERATIVA/2-4.2 🧩 Foundation Models y LLMs/index.html">4.2 🧩 Foundation Models y LLMs</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d009c4f609484730bbc55fdfdbdc10c1" data-module="8-M4 — IA GENERATIVA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — IA GENERATIVA/3-4.3 🔤 Tokens y Context Window/index.html">4.3 🔤 Tokens y Context Window</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e14b7d61366a4b35893400774dfe6945" data-module="8-M4 — IA GENERATIVA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — IA GENERATIVA/4-4.4 🔢 Embeddings y Vector Databases/index.html">4.4 🔢 Embeddings y Vector Databases</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c215addb3dce4a03ad04739a8db7a132" data-module="8-M4 — IA GENERATIVA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — IA GENERATIVA/5-4.5 🎨 Diffusion Models/index.html">4.5 🎨 Diffusion Models</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="078df71bbefc4e70bdbcfbb5d1b98db1" data-module="8-M4 — IA GENERATIVA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — IA GENERATIVA/6-4.6 ⚙️ Transformers y modelos generativos/index.html">4.6 ⚙️ Transformers y modelos generativos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c186baf7cd684c21b8adc1fe0bf392b4" data-module="8-M4 — IA GENERATIVA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — IA GENERATIVA/7-4.7 🗄️ Vector Databases en AWS/index.html">4.7 🗄️ Vector Databases en AWS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9144389e4f7143e3b0fe47aeb15a198d" data-module="8-M4 — IA GENERATIVA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — IA GENERATIVA/8-4.8 📊 ROUGE, BLEU y Perplexity/index.html">4.8 📊 ROUGE, BLEU y Perplexity</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="861d1359270749eeba47cd9c37efddd6" data-module="8-M4 — IA GENERATIVA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — IA GENERATIVA/9-4.9 🎲 No determinismo y Latent Space/index.html">4.9 🎲 No determinismo y Latent Space</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">09</span>
+                    <h2 class="mtitle">M5 — BEDROCK Y MODELOS</h2>
+                    <span class="mcount" data-module-count="9-M5 — BEDROCK Y MODELOS">0/8</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="9-M5 — BEDROCK Y MODELOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3d02fdb5d3a6405d8493171fe92abe58" data-module="9-M5 — BEDROCK Y MODELOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — BEDROCK Y MODELOS/1-5.1 🪨 Amazon Bedrock/index.html">5.1 🪨 Amazon Bedrock</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c9f102eece99423986998d80caf07f41" data-module="9-M5 — BEDROCK Y MODELOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — BEDROCK Y MODELOS/2-5.2 🤖 Modelos de Bedrock/index.html">5.2 🤖 Modelos de Bedrock</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="360bed8d659344e6b54b4bf9dfbf982e" data-module="9-M5 — BEDROCK Y MODELOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — BEDROCK Y MODELOS/3-5.3 🚀 SageMaker JumpStart/index.html">5.3 🚀 SageMaker JumpStart</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9ac8e36e069149bdb196848597eb95fc" data-module="9-M5 — BEDROCK Y MODELOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — BEDROCK Y MODELOS/4-5.4 🧠 Trainium e Inferentia/index.html">5.4 🧠 Trainium e Inferentia</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d9190b4fc1c643d4a0f291add2fd2d93" data-module="9-M5 — BEDROCK Y MODELOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — BEDROCK Y MODELOS/5-5.5 💰 Precios de Bedrock/index.html">5.5 💰 Precios de Bedrock</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0bf6c8139f5440d3bd3b16246e84f26a" data-module="9-M5 — BEDROCK Y MODELOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — BEDROCK Y MODELOS/6-5.6 ✨ Amazon Nova/index.html">5.6 ✨ Amazon Nova</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fc4aadf0c8f14cdcba6d56207d7e0728" data-module="9-M5 — BEDROCK Y MODELOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — BEDROCK Y MODELOS/7-5.7 🤖 Bedrock AgentCore/index.html">5.7 🤖 Bedrock AgentCore</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="607e79045f3b4a96922d2672a293a89e" data-module="9-M5 — BEDROCK Y MODELOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — BEDROCK Y MODELOS/8-🌟 Stack GenAI v1.1/index.html">🌟 Stack GenAI v1.1</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">10</span>
+                    <h2 class="mtitle">M6 — FM APLICATIONS</h2>
+                    <span class="mcount" data-module-count="10-M6 — FM APLICATIONS">0/13</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="10-M6 — FM APLICATIONS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bf0958aa841b48df973e44b6a1cae5e3" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/1-6.1 💬 Prompt Engineering/index.html">6.1 💬 Prompt Engineering</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6bb07edbdde94995902175ce6a6451dd" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/2-6.2 🔎 RAG/index.html">6.2 🔎 RAG</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="97f7ec2e410149edbfbe637623ce9b12" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/3-🌟 Context, Chunk &amp; Cache/index.html">🌟 Context, Chunk &amp; Cache</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f3fa06c14f904285975d41398d03e201" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/4-6.3 🤖 Agents/index.html">6.3 🤖 Agents</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a6c58797b2604d719811708accb38cc5" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/5-🌟 MCP + Agentic/index.html">🌟 MCP + Agentic</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f995115e6b31459abded4ce8a5ef4ff0" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/6-6.4 🟣 Amazon Q/index.html">6.4 🟣 Amazon Q</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="de5716aaa2aa4ca7ab2862d25c71b60d" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/7-6.5 🧠 Técnicas de Prompting/index.html">6.5 🧠 Técnicas de Prompting</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f4019830ff37457ab090d4bd8a1eb64c" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/8-6.6 🎛️ Temperature, Top-K y Top-P/index.html">6.6 🎛️ Temperature, Top-K y Top-P</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7a1b7d52fcce41d9bfdde72a7c047122" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/9-6.7 🛠️ Personalización de FMs/index.html">6.7 🛠️ Personalización de FMs</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="96dfa71bb6414e8b993c950120cff5a1" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/10-🌟 INSTRUCTION TUNING, ICL y RLHF/index.html">🌟 INSTRUCTION TUNING, ICL y RLHF</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ed2bfdc9b0584cebb05c2d6a7dd05072" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/11-6.8 🟣 Amazon Q y PartyRock/index.html">6.8 🟣 Amazon Q y PartyRock</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9914292ab7554475a6f0c15cac46a0f3" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/12-6.9 🪨 Features de Amazon Bedrock/index.html">6.9 🪨 Features de Amazon Bedrock</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ce4cf8c9db3d40e8b012d3c06279ad3c" data-module="10-M6 — FM APLICATIONS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — FM APLICATIONS/13-6.10 🎨 Parámetros de imágenes/index.html">6.10 🎨 Parámetros de imágenes</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">11</span>
+                    <h2 class="mtitle">M7 — SERVICIOS AI/ML</h2>
+                    <span class="mcount" data-module-count="11-M7 — SERVICIOS AI-ML">0/10</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="11-M7 — SERVICIOS AI-ML"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c456252d3385468baf91930b0b5b3ebf" data-module="11-M7 — SERVICIOS AI-ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — SERVICIOS AI-ML/1-7.1 👁️ Rekognition y Textract/index.html">7.1 👁️ Rekognition y Textract</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="646178cdea2e49f09d81d35cd986f257" data-module="11-M7 — SERVICIOS AI-ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — SERVICIOS AI-ML/2-7.2 🎙️ Transcribe, Polly y Translate/index.html">7.2 🎙️ Transcribe, Polly y Translate</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b44e08574fe44d02bd75f0694328902f" data-module="11-M7 — SERVICIOS AI-ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — SERVICIOS AI-ML/3-7.3 💬 Lex, Kendra y Personalize/index.html">7.3 💬 Lex, Kendra y Personalize</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8f412b388a31498faef771364e6ae641" data-module="11-M7 — SERVICIOS AI-ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — SERVICIOS AI-ML/4-7.4 👤 Amazon A2I y SageMaker/index.html">7.4 👤 Amazon A2I y SageMaker</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3ce40773930e49a5bf18845e9475530b" data-module="11-M7 — SERVICIOS AI-ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — SERVICIOS AI-ML/5-7.5 🧹 Data Wrangler y Ground Truth/index.html">7.5 🧹 Data Wrangler y Ground Truth</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="77ee7c629b324aaba56ed03e9590065c" data-module="11-M7 — SERVICIOS AI-ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — SERVICIOS AI-ML/6-7.6 🧩 Canvas, Autopilot y Tuning/index.html">7.6 🧩 Canvas, Autopilot y Tuning</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7cf3c3eb96e943e380a2714a9ceb0270" data-module="11-M7 — SERVICIOS AI-ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — SERVICIOS AI-ML/7-7.7 📊 Model Registry y Model Monitor/index.html">7.7 📊 Model Registry y Model Monitor</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b5d5cf1bc9bb46e19eeed1ada0ecc8dd" data-module="11-M7 — SERVICIOS AI-ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — SERVICIOS AI-ML/8-7.8 🚀 Opciones de inferencia/index.html">7.8 🚀 Opciones de inferencia</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fe4c582eae1442c9a9d1349c64b10c18" data-module="11-M7 — SERVICIOS AI-ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — SERVICIOS AI-ML/9-7.9 🏥 Servicios AI especializados/index.html">7.9 🏥 Servicios AI especializados</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f104acc892e94d7bbe5290a2bc8eda1d" data-module="11-M7 — SERVICIOS AI-ML" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — SERVICIOS AI-ML/10-7.10 ☸️ EKS, Fraud Detector y DeepRacer/index.html">7.10 ☸️ EKS, Fraud Detector y DeepRacer</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">12</span>
+                    <h2 class="mtitle">M8 — IA RESPONSABLE</h2>
+                    <span class="mcount" data-module-count="12-M8 — IA RESPONSABLE">0/8</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="12-M8 — IA RESPONSABLE"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a8884b1726504d6c836de88e2404cb6a" data-module="12-M8 — IA RESPONSABLE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IA RESPONSABLE/1-8.1 ⚖️ Fairness y sesgo/index.html">8.1 ⚖️ Fairness y sesgo</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="77559d22c34c4e12b3f025ff44e8a064" data-module="12-M8 — IA RESPONSABLE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IA RESPONSABLE/2-8.2 🔎 Explicabilidad/index.html">8.2 🔎 Explicabilidad</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0c0aa9d103d149f4b69784d7543d3bfb" data-module="12-M8 — IA RESPONSABLE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IA RESPONSABLE/3-8.3 🔐 Privacidad y seguridad/index.html">8.3 🔐 Privacidad y seguridad</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b50e0b2ecc814e01893ca26528b85fa7" data-module="12-M8 — IA RESPONSABLE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IA RESPONSABLE/4-8.4 ⚠️ Alucinaciones y toxicidad/index.html">8.4 ⚠️ Alucinaciones y toxicidad</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="252645d8a9254b29a4e8374d909dd409" data-module="12-M8 — IA RESPONSABLE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IA RESPONSABLE/5-🌟 Detección de alucinaciones/index.html">🌟 Detección de alucinaciones</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2bc888293d1a4fd5a56178df5c96fe86" data-module="12-M8 — IA RESPONSABLE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IA RESPONSABLE/6-8.5 📊 Clarify y Model Cards/index.html">8.5 📊 Clarify y Model Cards</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0e70d351ec7a4f0f874a4d22ac3c2b1c" data-module="12-M8 — IA RESPONSABLE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IA RESPONSABLE/7-8.6 🛡️ Guardrails y Watermarking/index.html">8.6 🛡️ Guardrails y Watermarking</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6ecdb7b27947460284611ab1b07dc86b" data-module="12-M8 — IA RESPONSABLE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IA RESPONSABLE/8-8.7 🧠 Tipos de sesgo e ISO/index.html">8.7 🧠 Tipos de sesgo e ISO</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">13</span>
+                    <h2 class="mtitle">M9 — SEGURIDAD Y GOBERNANZA</h2>
+                    <span class="mcount" data-module-count="13-M9 — SEGURIDAD Y GOBERNANZA">0/10</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="13-M9 — SEGURIDAD Y GOBERNANZA"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2b6a63458f0346789abee97410285d55" data-module="13-M9 — SEGURIDAD Y GOBERNANZA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — SEGURIDAD Y GOBERNANZA/1-9.1 🤝 Responsabilidad compartida/index.html">9.1 🤝 Responsabilidad compartida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4254254dad7d4ea78db96f561d12229a" data-module="13-M9 — SEGURIDAD Y GOBERNANZA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — SEGURIDAD Y GOBERNANZA/2-9.2 🔐 IAM y KMS/index.html">9.2 🔐 IAM y KMS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d3fc22d0c5c1470199908d48b466e45d" data-module="13-M9 — SEGURIDAD Y GOBERNANZA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — SEGURIDAD Y GOBERNANZA/3-9.3 📋 CloudTrail y Config/index.html">9.3 📋 CloudTrail y Config</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9dae4635ab004ea288e849903cb7931a" data-module="13-M9 — SEGURIDAD Y GOBERNANZA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — SEGURIDAD Y GOBERNANZA/4-🌟 CloudWatch, Inspector &amp; Secrets/index.html">🌟 CloudWatch, Inspector &amp; Secrets</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cb9b54b5a81844efa576f4e64e1708be" data-module="13-M9 — SEGURIDAD Y GOBERNANZA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — SEGURIDAD Y GOBERNANZA/5-9.4 🛡️ Macie, Artifact y Audit Manager/index.html">9.4 🛡️ Macie, Artifact y Audit Manager</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1a83471a4f0c4745baa540d887e7d614" data-module="13-M9 — SEGURIDAD Y GOBERNANZA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — SEGURIDAD Y GOBERNANZA/6-9.5 🔒 PrivateLink y aislamiento/index.html">9.5 🔒 PrivateLink y aislamiento</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cba41c758768412ca7ac143ee32201da" data-module="13-M9 — SEGURIDAD Y GOBERNANZA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — SEGURIDAD Y GOBERNANZA/7-9.6 🔄 Ciclo de vida de datos/index.html">9.6 🔄 Ciclo de vida de datos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="099d9ba830fe4bbba1915e386c8bf9d4" data-module="13-M9 — SEGURIDAD Y GOBERNANZA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — SEGURIDAD Y GOBERNANZA/8-9.7 🌐 Federated Learning/index.html">9.7 🌐 Federated Learning</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e4e479b9ba8d435e8f1df476eaa3d4f0" data-module="13-M9 — SEGURIDAD Y GOBERNANZA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — SEGURIDAD Y GOBERNANZA/9-9.8 ⚠️ Prompt Injection y Jailbreaking/index.html">9.8 ⚠️ Prompt Injection y Jailbreaking</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="87e911753f794971b0802208bc54544b" data-module="13-M9 — SEGURIDAD Y GOBERNANZA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — SEGURIDAD Y GOBERNANZA/10-9.9 🏗️ Trusted Advisor y Well-Architected/index.html">9.9 🏗️ Trusted Advisor y Well-Architected</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">14</span>
+                    <h2 class="mtitle">M10 — PREPARACIÓN FINAL</h2>
+                    <span class="mcount" data-module-count="14-M10 — PREPARACIÓN FINAL">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="14-M10 — PREPARACIÓN FINAL"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7fc30f0b045c4ef9aa4320960fbfad46" data-module="14-M10 — PREPARACIÓN FINAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — PREPARACIÓN FINAL/1-10.1 🎯 Tácticas de descarte/index.html">10.1 🎯 Tácticas de descarte</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c4c04867fb5d46cfa4531e54c901d76f" data-module="14-M10 — PREPARACIÓN FINAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — PREPARACIÓN FINAL/2-10.2 ⚖️ Desempates clásicos/index.html">10.2 ⚖️ Desempates clásicos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d91fde3822884ce28144fac89d7aece5" data-module="14-M10 — PREPARACIÓN FINAL" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — PREPARACIÓN FINAL/3-10.3 📝 Simulacro AIF-C01/index.html">10.3 📝 Simulacro AIF-C01</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">15</span>
+                    <h2 class="mtitle">M11 — PROGRAMAR EL EXAMEN</h2>
+                    <span class="mcount" data-module-count="15-M11 — PROGRAMAR EL EXAMEN">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="15-M11 — PROGRAMAR EL EXAMEN"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="dbf3498afde14bcb97fd1593c42f9bf1" data-module="15-M11 — PROGRAMAR EL EXAMEN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — PROGRAMAR EL EXAMEN/1-11.1 📅 Agendar en Pearson VUE/index.html">11.1 📅 Agendar en Pearson VUE</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3719ee8195464f6d8a37d0a25d3f6e83" data-module="15-M11 — PROGRAMAR EL EXAMEN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — PROGRAMAR EL EXAMEN/2-11.2 🖥️ Reglas de OnVUE/index.html">11.2 🖥️ Reglas de OnVUE</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">16</span>
+                    <h2 class="mtitle">M12 — EXAMEN Y CERTIFICACIÓN</h2>
+                    <span class="mcount" data-module-count="16-M12 — EXAMEN Y CERTIFICACIÓN">0/6</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="16-M12 — EXAMEN Y CERTIFICACIÓN"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2bf223d03de84de3abae59952dc93acc" data-module="16-M12 — EXAMEN Y CERTIFICACIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — EXAMEN Y CERTIFICACIÓN/1-🌟 Cuenta de certificación/index.html">🌟 Cuenta de certificación</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="775bf4a03fad42a0afa132c9bc670136" data-module="16-M12 — EXAMEN Y CERTIFICACIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — EXAMEN Y CERTIFICACIÓN/2-🌟 ESL/index.html">🌟 ESL</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="dc797bb8182e44e08df85c901d89fc62" data-module="16-M12 — EXAMEN Y CERTIFICACIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — EXAMEN Y CERTIFICACIÓN/3-🌟 System Test/index.html">🌟 System Test</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f54504a2a60b4626b8f61d68429b25b7" data-module="16-M12 — EXAMEN Y CERTIFICACIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — EXAMEN Y CERTIFICACIÓN/4-🌟 Jean programa su examen/index.html">🌟 Jean programa su examen</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="372f7cece0014f5ba85a71ca0211431c" data-module="16-M12 — EXAMEN Y CERTIFICACIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — EXAMEN Y CERTIFICACIÓN/5-🌟 El día [D]el examen/index.html">🌟 El día [D]el examen</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4eec8d8c6e0a486c9096063c240e185c" data-module="16-M12 — EXAMEN Y CERTIFICACIÓN" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — EXAMEN Y CERTIFICACIÓN/6-🌟 Certificación/index.html">🌟 Certificación</a>
+                </li></ul>
+            </article>
+    </section>
+</main>
+<footer class="foot">Backup local de 🎖️ AWS AI Practitioner – AIF-C01. El progreso se guarda en este navegador (localStorage); no se envía a ningún lado.</footer>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+(function () {
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-lesson]'));
+
+    function refresh() {
+        var total = boxes.length, done = 0;
+        var byModule = {};
+        boxes.forEach(function (b) {
+            var id = b.getAttribute('data-lesson');
+            var key = b.getAttribute('data-module');
+            var isDone = Progress.isDone(id);
+            b.checked = isDone;
+            if (!byModule[key]) byModule[key] = { done: 0, total: 0 };
+            byModule[key].total++;
+            if (isDone) { byModule[key].done++; done++; }
+            var row = b.closest ? b.closest('.lesson') : null;
+            if (row) row.classList.toggle('is-done', isDone);
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-bar]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-bar')] || { done: 0, total: 0 };
+            el.style.width = (m.total ? Math.round((m.done / m.total) * 100) : 0) + '%';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-count]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-count')] || { done: 0, total: 0 };
+            el.textContent = m.done + '/' + m.total;
+        });
+
+        var pct = total ? Math.round((done / total) * 100) : 0;
+        var op = document.querySelector('[data-overall-bar]'); if (op) op.style.width = pct + '%';
+        var opct = document.querySelector('[data-overall-pct]'); if (opct) opct.textContent = pct + '%';
+        var oc = document.querySelector('[data-overall-count]');
+        if (oc) oc.textContent = done + ' de ' + total + ' lecciones completadas';
+    }
+
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            Progress.set(b.getAttribute('data-lesson'), b.checked);
+            refresh();
+        });
+    });
+
+    var reset = document.querySelector('[data-reset]');
+    if (reset) reset.addEventListener('click', function () {
+        if (window.confirm('¿Borrar todo el progreso de este curso?')) { Progress.reset(); refresh(); }
+    });
+
+    Progress.load(refresh);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

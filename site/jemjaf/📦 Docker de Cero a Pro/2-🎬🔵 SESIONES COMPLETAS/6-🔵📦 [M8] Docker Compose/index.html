@@ -1,0 +1,199 @@
+
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <meta charset="UTF-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1">
+                                <title>[M8] DOCKER: DE CERO A PRODUCCIÓN 🚀</title>
+                                <style>
+                                    :root {
+                                        --bg: #f6f3ee;
+                                        --panel: #ffffff;
+                                        --panel-2: #f6f7fb;
+                                        --text: #14161d;
+                                        --muted: #5b6271;
+                                        --accent: #3b82f6;
+                                        --ring: rgba(20,22,29,0.08);
+                                        --shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
+                                    }
+                                    * { box-sizing: border-box; }
+                                    body {
+                                        margin: 0;
+                                        font-family: "Space Grotesk", "Manrope", "Segoe UI", sans-serif;
+                                        background: linear-gradient(160deg, #fdfdfd 0%, #eff2fb 100%);
+                                        color: var(--text);
+                                        line-height: 1.7;
+                                    }
+                                    .page { max-width: 980px; margin: 48px auto 80px; padding: 0 22px; }
+                                    .breadcrumb {
+                                        font-size: 0.95rem;
+                                        color: var(--muted);
+                                        margin-bottom: 16px;
+                                        display: flex;
+                                        flex-wrap: wrap;
+                                        gap: 8px;
+                                        align-items: center;
+                                    }
+                                    .breadcrumb a { color: var(--accent); text-decoration: none; font-weight: 600; }
+                                    .breadcrumb span { color: var(--muted); }
+                                    .container {
+                                        background: var(--panel);
+                                        padding: 34px;
+                                        border-radius: 20px;
+                                        border: 1px solid rgba(20,22,29,0.05);
+                                        box-shadow:
+                                            0 25px 45px rgba(15, 23, 42, 0.18),
+                                            0 10px 20px rgba(15, 23, 42, 0.08);
+                                    }
+                                    h1 { margin: 0 0 16px 0; font-size: clamp(1.8rem, 3vw, 2.6rem); }
+                                    video {
+                                        width: 100%;
+                                        border-radius: 14px;
+                                        margin: 10px 0 26px;
+                                        display: block;
+                                        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
+                                        background: #000;
+                                    }
+                                    img { max-width: 100%; border-radius: 10px; height: auto; margin: 14px 0; }
+                                    .content { font-size: 1.05rem; }
+                                    .content p { margin-bottom: 1.2em; }
+                                    .resources {
+                                        background: var(--panel-2);
+                                        padding: 18px;
+                                        border-radius: 14px;
+                                        border: 1px solid var(--ring);
+                                        margin-top: 28px;
+                                    }
+                                    .resources h3 { margin: 0 0 10px 0; color: var(--accent); }
+                                    .resources ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+                                    .resources a {
+                                        color: #1f3d7a;
+                                        font-weight: 600;
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 8px;
+                                        text-decoration: none;
+                                    }
+                                    .resources a::before { content: "📁"; }
+                                    a { color: var(--accent); text-decoration: none; word-break: break-word; }
+                                    a:hover { text-decoration: underline; }
+                                    .nav { margin-top: 28px; padding-top: 16px; border-top: 1px solid rgba(20,22,29,0.08); }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="page">
+                                    <div class="breadcrumb">
+                                        <a href="../../../index.html">jemjaf</a>
+                                        <span>/</span>
+                                        <a href="../../index.html">📦 Docker de Cero a Pro</a>
+                                        <span>/</span><span>🎬🔵 SESIONES COMPLETAS</span>
+                                        <span>/</span>
+                                        <span>[M8] DOCKER: DE CERO A PRODUCCIÓN 🚀</span>
+                                    </div>
+                                    <div class="container">
+                                        <h1>[M8] DOCKER: DE CERO A PRODUCCIÓN 🚀</h1>
+                                        <video controls src="/media/jemjaf/📦 Docker de Cero a Pro/2-🎬🔵 SESIONES COMPLETAS/6-🔵📦 [M8] Docker Compose/video.mp4"></video>
+                                        <div class="content">
+                                            Llegamos al módulo final de nuestro curso. Cerramos con broche de oro aprendiendo a orquestar múltiples servicios sin volvernos locos con comandos interminables en la terminal.</p><p>Aquí el resumen de lo que cubrimos:<br><ul><li>Docker Compose: Dejamos de levantar contenedores uno por uno y aprendimos a definir un stack completo \(como una API y su Base de Datos\) usando un solo archivo YAML declarativo.</li><li>Moderno vs Legacy: Le dijimos adiós definitivo al antiguo comando docker-compose \(con guion\) y eliminamos la directiva version: de nuestros archivos, adaptándonos al estándar moderno.</li><li>Variables y Resiliencia: Vimos cómo proteger nuestros secretos inyectando variables a través de un archivo .env. También configuramos la política restart: unless-stopped para garantizar que nuestras aplicaciones se recuperen solas en producción si algo falla.</li><li>Anti-patrones: Revisamos las malas prácticas clásicas que debemos evitar a toda costa, como colocar contraseñas en texto plano dentro del YAML o usar depends_on sin asegurarnos de validar el estado con un healthcheck \(condition: service_healthy\).</p><p>Para validar lo aprendido y que sigan ensuciándose las manos, les dejo estos dos súper recursos oficiales de Docker:<br>📖 Glosario de Docker: Ideal para validar todo el vocabulario técnico del curso: [https://docs.docker.com/reference/glossary/](https://docs.docker.com/reference/glossary/)<br>🛠️ Ejemplos Oficiales: El repositorio de oro con plantillas listas de Dockerfiles y Compose en múltiples lenguajes, frameworks y bases de datos: [https://docs.docker.com/reference/samples/](https://docs.docker.com/reference/samples/)</p><p>Gracias a todos por llegar hasta aquí. Espero que este curso les haya dado una nueva forma de pensar y construir aplicaciones. Mi mayor éxito será que sigan practicando y que, algún día, sean mejores que yo.</p><p>¡Pero esto no termina! Nos vemos mañana para integrar todo esto en el proyecto de CI/CD completo.</p><p>Saludos y, como siempre... ¡a seguir rompiendo y levantando contenedores! 🚀</li></ul>
+                                        </div>
+                                        
+                                        <div class="resources">
+                                            <h3>Resources / Attachments</h3>
+                                            <ul>
+                                                <li><a href="/media/jemjaf/📦 Docker de Cero a Pro/2-🎬🔵 SESIONES COMPLETAS/6-🔵📦 [M8] Docker Compose/resources/docker-compose.png" target="_blank">docker-compose.png</a></li><li><a href="/media/jemjaf/📦 Docker de Cero a Pro/2-🎬🔵 SESIONES COMPLETAS/6-🔵📦 [M8] Docker Compose/resources/docker-compose.zip" target="_blank">docker-compose.zip</a></li><li><a href="/media/jemjaf/📦 Docker de Cero a Pro/2-🎬🔵 SESIONES COMPLETAS/6-🔵📦 [M8] Docker Compose/resources/DOCKER%20M8%20-%20I.pdf" target="_blank">DOCKER M8 - I.pdf</a></li><li><a href="/media/jemjaf/📦 Docker de Cero a Pro/2-🎬🔵 SESIONES COMPLETAS/6-🔵📦 [M8] Docker Compose/resources/DOCKER%20M8%20-%20II.pdf" target="_blank">DOCKER M8 - II.pdf</a></li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div class="nav">
+                                            <a href="../../index.html">Back to Course Index</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <!--skool-nav-start-->
+<style>
+    body { padding-bottom: 76px; }
+    .lessonnav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: rgba(255,255,255,0.94); backdrop-filter: blur(8px); border-top: 1px solid #dfe2df; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .lessonnav a, .lessonnav span, .lessonnav button { font: inherit; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; border: 1px solid #dfe2df; border-radius: 8px; padding: 8px 14px; color: #15181c; background: #fff; cursor: pointer; }
+    .lessonnav a:hover { border-color: #1e7a4d; color: #14502f; }
+    .lessonnav .disabled { opacity: 0.35; }
+    .lessonnav button { margin-left: auto; }
+    .lessonnav button.done-on { background: #1e7a4d; border-color: #1e7a4d; color: #fff; }
+</style>
+<nav class="lessonnav" aria-label="Navegación de lecciones">
+    <a class="prev" href="../5-🔵📦 [M7] Networking en Docker/index.html" rel="prev">← Anterior</a>
+    <button type="button" data-complete data-id="1c83df7954284231a929c1be0710d045">Marcar completada</button>
+    <a class="next" href="../7-🔵📦 [M9] Proyecto Final/index.html" rel="next" data-next data-id="1c83df7954284231a929c1be0710d045">Siguiente →</a>
+</nav>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+(function () {
+    var id = "1c83df7954284231a929c1be0710d045";
+    var btn = document.querySelector('[data-complete]');
+    function paint() {
+        if (!btn) return;
+        var done = Progress.isDone(id);
+        btn.textContent = done ? '✓ Completada' : 'Marcar completada';
+        btn.classList.toggle('done-on', done);
+    }
+    if (btn) btn.addEventListener('click', function () { Progress.toggle(id); paint(); });
+    var next = document.querySelector('[data-next]');
+    if (next) next.addEventListener('click', function () { Progress.set(id, true); });
+    Progress.load(paint);
+})();
+</script>
+<!--skool-nav-end-->
+<script src="/app.js"></script>
+</body>
+                            </html>
+                        

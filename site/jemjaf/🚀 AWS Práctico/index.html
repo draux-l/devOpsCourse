@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>🚀 AWS Práctico — jemjaf</title>
+<style>
+    :root {
+        --bg: #f3f4f1;
+        --surface: #ffffff;
+        --ink: #15181c;
+        --muted: #5c636b;
+        --line: #dfe2df;
+        --track: #e7e9e6;
+        --accent: #1e7a4d;
+        --accent-ink: #14502f;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+    }
+    a { color: var(--ink); }
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(243,244,241,0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+    }
+    .topbar .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+    }
+    .crumb { font-size: 0.85rem; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .crumb a:hover { color: var(--accent); }
+    .crumb .here { color: var(--ink); }
+    .overall { display: flex; align-items: center; gap: 12px; }
+    .overall .track { width: 220px; }
+    .pct { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 700; font-size: 1rem; color: var(--accent-ink); min-width: 3.2rem; text-align: right; }
+    .ocount { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 40px 24px 80px; max-width: 900px; margin: 0 auto; }
+    .lead { margin-bottom: 34px; }
+    .lead h1 {
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px 0;
+    }
+    .lead .sub { color: var(--muted); margin: 0 0 18px 0; }
+    .lead .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ghost {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+    }
+    .ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .module {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px 22px 14px;
+        margin-bottom: 18px;
+    }
+    .module-head { display: flex; align-items: baseline; gap: 12px; }
+    .mnum {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.85rem;
+        color: var(--accent-ink);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 2px 7px;
+        flex: none;
+    }
+    .mtitle { flex: 1; font-size: 1.12rem; margin: 0; letter-spacing: -0.005em; }
+    .mcount {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--muted);
+        flex: none;
+    }
+    .track {
+        height: 6px;
+        background: var(--track);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 14px 0 18px;
+    }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .lessons { list-style: none; margin: 0; padding: 0; }
+    .lesson { display: flex; align-items: flex-start; gap: 11px; padding: 7px 0; border-top: 1px solid var(--line); }
+    .lesson:first-child { border-top: none; }
+    .lesson input[type="checkbox"] {
+        width: 17px; height: 17px; margin: 3px 0 0 0; flex: none;
+        accent-color: var(--accent);
+        cursor: pointer;
+    }
+    .lesson .ltitle { text-decoration: none; }
+    .lesson .ltitle:hover { color: var(--accent-ink); text-decoration: underline; }
+    .lesson.is-done .ltitle { color: var(--muted); }
+    footer.foot { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; color: var(--muted); font-size: 0.8rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+    @media (max-width: 600px) {
+        .topbar .wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .overall .track { width: 150px; }
+    }
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="wrap">
+        <div class="crumb">
+            <a href="../index.html">jemjaf</a> <span>/</span> <span class="here">🚀 AWS Práctico</span>
+        </div>
+        <div class="overall">
+            <div class="track" role="progressbar" aria-label="Progreso del curso"><div class="fill" data-overall-bar></div></div>
+            <span class="pct" data-overall-pct>0%</span>
+        </div>
+    </div>
+</div>
+<main>
+    <section class="lead">
+        <h1>🚀 AWS Práctico</h1>
+        <p class="sub">Comunidad jemjaf · 13 módulos · 105 lecciones</p>
+        <div class="tools">
+            <button class="ghost" data-reset type="button">Reiniciar progreso de este curso</button>
+        </div>
+        <p class="ocount"><span data-overall-count>0 de 105 lecciones</span></p>
+    </section>
+    <section class="modules">
+        
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">03</span>
+                    <h2 class="mtitle">📚 RECURSOS</h2>
+                    <span class="mcount" data-module-count="3-📚 RECURSOS">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="3-📚 RECURSOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1c8fd25ed0214b4a840bdbc145d5634f" data-module="3-📚 RECURSOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-📚 RECURSOS/1-🧰 AWS Local/index.html">🧰 AWS Local</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="dbe8a64bf3294345b1cfd7c16a894e74" data-module="3-📚 RECURSOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-📚 RECURSOS/2-🧪 Microcredenciales AWS/index.html">🧪 Microcredenciales AWS</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">01</span>
+                    <h2 class="mtitle">Lessons</h2>
+                    <span class="mcount" data-module-count="__root__">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="__root__"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ed8ebc553db94b4083b0d4b1033e1d96" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="1-📍 [INICIO]/index.html">📍 [INICIO]</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="06f6a6e3d1d44de4a47d266bcfc64775" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎉 Bienvenida/index.html">🎉 Bienvenida</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">02</span>
+                    <h2 class="mtitle">🎬🟠 SESIONES COMPLETAS</h2>
+                    <span class="mcount" data-module-count="2-🎬🟠 SESIONES COMPLETAS">0/5</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="2-🎬🟠 SESIONES COMPLETAS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b053be7d3a174204913d830a5bbaa4b6" data-module="2-🎬🟠 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🟠 SESIONES COMPLETAS/1-🎥🟠 [M4] Amazon EC2/index.html">🎥🟠 [M4] Amazon EC2</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ea9077d3d63644739d038393e38dac5e" data-module="2-🎬🟠 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🟠 SESIONES COMPLETAS/2-🎥🟠 [M5] AWS Lambda I/index.html">🎥🟠 [M5] AWS Lambda I</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bbf96ea3b22a4c13a8c3824482352def" data-module="2-🎬🟠 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🟠 SESIONES COMPLETAS/3-🎥🟠 [M5] AWS Lambda II/index.html">🎥🟠 [M5] AWS Lambda II</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="dac1945b2bce44f29b1569b738efa553" data-module="2-🎬🟠 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🟠 SESIONES COMPLETAS/4-🎥🔴 [M6] Application Load Balancer/index.html">🎥🔴 [M6] Application Load Balancer</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8266ac39d2984ef4bf901a3f18115b59" data-module="2-🎬🟠 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🟠 SESIONES COMPLETAS/5-🎥🟢 [M8] Amazon S3/index.html">🎥🟢 [M8] Amazon S3</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">04</span>
+                    <h2 class="mtitle">🧪 [CLF-C02] - CLOUD PRACTITIONER</h2>
+                    <span class="mcount" data-module-count="4-🧪 [CLF-C02] - CLOUD PRACTITIONER">0/13</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="4-🧪 [CLF-C02] - CLOUD PRACTITIONER"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="285f721b608649df84b759104d4f6927" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/1-🟠 AWS SimuLearn CLF-C02 — 12 Labs/index.html">🟠 AWS SimuLearn CLF-C02 — 12 Labs</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e34cdd796c3040348524baaac52753dc" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/2-LAB 1 ☁️ Cloud Computing Essentials/index.html">LAB 1 ☁️ Cloud Computing Essentials</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="075442f384b54fc0960b1b3962aa9c41" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/3-LAB 2 🖥️ Cloud First Steps/index.html">LAB 2 🖥️ Cloud First Steps</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6df607dba0d043d68b52322aad7bac2b" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/4-LAB 3 📈 Computing Solutions/index.html">LAB 3 📈 Computing Solutions</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ce8a55f0448c437187098063f4854511" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/5-LAB 4 🗄️ First NoSQL Database/index.html">LAB 4 🗄️ First NoSQL Database</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4a8401dc17d24b0e8201cb0c7c6817a0" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/6-LAB 5 🌐 Networking Concepts/index.html">LAB 5 🌐 Networking Concepts</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="42ecc80887354ad682308798e9e230d9" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/7-LAB 6 💰 Cloud Economics/index.html">LAB 6 💰 Cloud Economics</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a47a52e18090413fa2d30ae202f179b5" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/8-LAB 7 📁 File Systems in the Cloud/index.html">LAB 7 📁 File Systems in the Cloud</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1228c25c9cc04e9c83398bdc3256f22c" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/9-LAB 8 🗄️ Databases in Practice/index.html">LAB 8 🗄️ Databases in Practice</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="26e178f987804b269dd538434b039ec8" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/10-LAB 9 🔐 Core Security Concepts/index.html">LAB 9 🔐 Core Security Concepts</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d1f421684cf6439b9aa18c89e7496d70" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/11-LAB 10 📈 Auto-Healing and Scaling Applications/index.html">LAB 10 📈 Auto-Healing and Scaling Applications</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0a9bce64337d45058f2b3b9ef6bec769" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/12-LAB 11 🌐 Highly Available Web Applications/index.html">LAB 11 🌐 Highly Available Web Applications</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="870bc52a82744ed9b517516a83dc1660" data-module="4-🧪 [CLF-C02] - CLOUD PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-🧪 [CLF-C02] - CLOUD PRACTITIONER/13-LAB 12 🔗 Connecting VPCs/index.html">LAB 12 🔗 Connecting VPCs</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">05</span>
+                    <h2 class="mtitle">🤖 [AIF-C01] - AI PRACTITIONER</h2>
+                    <span class="mcount" data-module-count="5-🤖 [AIF-C01] - AI PRACTITIONER">0/12</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="5-🤖 [AIF-C01] - AI PRACTITIONER"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e32a0df0ddc7462a9601e06f1d14a1f2" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/1-🟠 AWS SimuLearn AIF-C01 — 10 Labs/index.html">🟠 AWS SimuLearn AIF-C01 — 10 Labs</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4cb0d7d6152e42c3b14f80024095476a" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/2-🎬 Introducción a AWS SimuLearn — AI Practitioner/index.html">🎬 Introducción a AWS SimuLearn — AI Practitioner</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cc1932cf67bf4c1d8d2194a21cc8f1b9" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/3-LAB 1 ☁️ Cloud Computing Essentials/index.html">LAB 1 ☁️ Cloud Computing Essentials</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bf23a49e5fef4a79b5ed4c089756e6d1" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/4-LAB 2 🖥️ Cloud First Steps/index.html">LAB 2 🖥️ Cloud First Steps</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="29840c0665e64bf49110986d00eb4eeb" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/5-LAB 3 🤖 Explore the Amazon Bedrock Playgrounds/index.html">LAB 3 🤖 Explore the Amazon Bedrock Playgrounds</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bf9e3457171b4f74bb284284ef783c90" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/6-LAB 4 💻 Generate Code for a Webpage/index.html">LAB 4 💻 Generate Code for a Webpage</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f7af7dc0873e4712b9e8338f2137dc42" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/7-LAB 5 ✨ Get Started with Generative AI/index.html">LAB 5 ✨ Get Started with Generative AI</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bcfea842a05847639ecf0ff3d4dce4b6" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/8-LAB 6 🛡️ Secure Conversational AI with Guardrails/index.html">LAB 6 🛡️ Secure Conversational AI with Guardrails</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5f6aef5c26fd4b5e9b2e28eb23969866" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/9-LAB 7 📚 Create an Enterprise Knowledge Assistant/index.html">LAB 7 📚 Create an Enterprise Knowledge Assistant</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2555a65ec9564baf9eb9f0c8b6ad6f54" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/10-LAB 8 🤖 Create an AI Smart Assistant/index.html">LAB 8 🤖 Create an AI Smart Assistant</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d576a2957e564870bc090353cba28615" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/11-LAB 9 🧠 Use AI Services with Amazon SageMaker/index.html">LAB 9 🧠 Use AI Services with Amazon SageMaker</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="99e24abd1b5c4411b24899c068ced938" data-module="5-🤖 [AIF-C01] - AI PRACTITIONER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-🤖 [AIF-C01] - AI PRACTITIONER/12-LAB 10 💻 Build and Understand Code with Amazon Q/index.html">LAB 10 💻 Build and Understand Code with Amazon Q</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">06</span>
+                    <h2 class="mtitle">🌟 PROYECTOS DE LA COMUNIDAD</h2>
+                    <span class="mcount" data-module-count="6-🌟 PROYECTOS DE LA COMUNIDAD">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="6-🌟 PROYECTOS DE LA COMUNIDAD"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b103e0caf3904304ad2dfb1198edafaf" data-module="6-🌟 PROYECTOS DE LA COMUNIDAD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-🌟 PROYECTOS DE LA COMUNIDAD/1-🚀 CI-CD hacia EC2 con GitHub Actions y SSM/index.html">🚀 CI/CD hacia EC2 con GitHub Actions y SSM</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0d089f14278e40c8be6b43b2e7b9d127" data-module="6-🌟 PROYECTOS DE LA COMUNIDAD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-🌟 PROYECTOS DE LA COMUNIDAD/2-🔐 Acceso SSH-less con AWS Systems Manager/index.html">🔐 Acceso SSH-less con AWS Systems Manager</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="435676b778b9492b940c1233401ba970" data-module="6-🌟 PROYECTOS DE LA COMUNIDAD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-🌟 PROYECTOS DE LA COMUNIDAD/3-🌐 Sitio web con S3, CloudFront, ACM y Route 53/index.html">🌐 Sitio web con S3, CloudFront, ACM y Route 53</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">07</span>
+                    <h2 class="mtitle">M1 — AWS CLI</h2>
+                    <span class="mcount" data-module-count="7-M1 — AWS CLI">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="7-M1 — AWS CLI"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="866c3bc588f64a058da829b5ebb86dd3" data-module="7-M1 — AWS CLI" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M1 — AWS CLI/1-1.1 ⚙️ AWS Configure/index.html">1.1 ⚙️ AWS Configure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="23ac451cde3846759a458b4582a4f117" data-module="7-M1 — AWS CLI" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M1 — AWS CLI/2-1.2 ⌨️ Uso de AWS CLI/index.html">1.2 ⌨️ Uso de AWS CLI</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e8cfc25a357849c58f4992a77d6a0320" data-module="7-M1 — AWS CLI" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M1 — AWS CLI/3-1.3 🗂️ Perfiles de AWS CLI/index.html">1.3 🗂️ Perfiles de AWS CLI</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">08</span>
+                    <h2 class="mtitle">M4 — AMAZON EC2</h2>
+                    <span class="mcount" data-module-count="8-M4 — AMAZON EC2">0/34</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="8-M4 — AMAZON EC2"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2f6fc6def9d44a4893407c9c1173048a" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/1-4.1 ☁️ Tu servidor en la nube/index.html">4.1 ☁️ Tu servidor en la nube</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b86b2da9652e400a895c0fc24ff4d55d" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/2-4.2 🚀 Demo- Primera EC2/index.html">4.2 🚀 Demo: Primera EC2</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="67bae78b7b044a25afd2829b37abb778" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/3-4.3 ❓ ¿Qué es EC2-/index.html">4.3 ❓ ¿Qué es EC2?</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4d820bc4577c4e788e9eb81b7466a194" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/4-4.4 🧩 Anatomía de una EC2/index.html">4.4 🧩 Anatomía de una EC2</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d1d37e4ce31047d7adb8df2199a56f0e" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/5-4.5 🖥️ Familias de instancias/index.html">4.5 🖥️ Familias de instancias</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7eee56455e144fb380691a250b79030d" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/6-4.6 💰 Modelos de precios/index.html">4.6 💰 Modelos de precios</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d62aa10198a9406ab11fe422a6b5cec6" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/7-4.7 💿 ¿Qué es una AMI-/index.html">4.7 💿 ¿Qué es una AMI?</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3fa0eeb0a9f047b1b900a837e30e61cd" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/8-4.8 📚 AMIs más comunes/index.html">4.8 📚 AMIs más comunes</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1bf71192847948a78b9c128d54cdb298" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/9-🌟 EC2 Image Builder/index.html">🌟 EC2 Image Builder</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d2c147e8fef14a1494b76bbb93a0a4cb" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/10-4.9 🔑 ¿Qué es un Key Pair-/index.html">4.9 🔑 ¿Qué es un Key Pair?</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b6c071b282f5444a9e40a471134281cf" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/11-4.10 🧪 Demo- Crear un Key Pair/index.html">4.10 🧪 Demo: Crear un Key Pair</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c587e3cb8dde46b695a50fe29f89b2be" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/12-4.11 🛡️ ¿Qué es un Security Group-/index.html">4.11 🛡️ ¿Qué es un Security Group?</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7a298dee150049ff97ee619f7d6d371c" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/13-4.12 🔗 Security Groups compartidos/index.html">4.12 🔗 Security Groups compartidos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8d0acbd508b941d1be93f8eb56ed417d" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/14-4.13 📏 IP-CIDR vs. Security Group ID/index.html">4.13 📏 IP/CIDR vs. Security Group ID</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="43c873c561d545759e5019c0a5f09398" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/15-4.14 🧪 Demo- Crear Security Groups/index.html">4.14 🧪 Demo: Crear Security Groups</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f68c70b52ff64cb7952e6196fa7acd43" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/16-4.15 💾 ¿Qué es EBS-/index.html">4.15 💾 ¿Qué es EBS?</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a30869be82594ebfb0c05733ccee7aac" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/17-4.16 💿 Tipos de volúmenes EBS/index.html">4.16 💿 Tipos de volúmenes EBS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b2806f248b2b4d9db32c364fa5af1f8c" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/18-4.17 📐 Dimensionamiento de discos/index.html">4.17 📐 Dimensionamiento de discos</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e9f730a9d70e421da91604331493c230" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/19-4.18 📜 User Data/index.html">4.18 📜 User Data</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b385bb6a50a348b4b1228742f46da421" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/20-4.19 🐧 Demo- Ubuntu y SSH I/index.html">4.19 🐧 Demo: Ubuntu y SSH I</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8c22855e68d2444f9b6180a969512d44" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/21-4.20 🐧 Demo- Ubuntu y SSH II/index.html">4.20 🐧 Demo: Ubuntu y SSH II</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f7bbe10920f54e35a9480e2dfb745bdd" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/22-4.21 🎩 Demo- Amazon Linux y SSH I/index.html">4.21 🎩 Demo: Amazon Linux y SSH I</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6ab51a447d1348aa96f9d69c7b2cee57" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/23-4.22 🎩 Demo- Amazon Linux y SSH II/index.html">4.22 🎩 Demo: Amazon Linux y SSH II</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="28185a58831c4f34b45d2a1b1ee4be56" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/24-4.23 🪟 Demo- Windows y RDP I/index.html">4.23 🪟 Demo: Windows y RDP I</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="65572ccf0ba6425f9a64e9b3445b5398" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/25-4.24 🪟 Demo- Windows y RDP II/index.html">4.24 🪟 Demo: Windows y RDP II</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2ac7039c3ad84fb48788861467a5f105" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/26-4.25 🔌 Comunicación entre servidores/index.html">4.25 🔌 Comunicación entre servidores</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="dc5b4776cfb6483288711a896bcf75e2" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/27-4.26 🧪 Demo- Referencia por SG ID/index.html">4.26 🧪 Demo: Referencia por SG ID</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="815cb9e4c00b47b1b305836464da4fde" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/28-4.27 📌 ¿Qué es una Elastic IP-/index.html">4.27 📌 ¿Qué es una Elastic IP?</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="013659c31b844298836577c0ac525ac0" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/29-4.28 🧪 Demo- Asociar una Elastic IP/index.html">4.28 🧪 Demo: Asociar una Elastic IP</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e33b5432a36b44109b3cec9413c60aaf" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/30-4.29 🖥️ Session Manager/index.html">4.29 🖥️ Session Manager</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="96bbf02ce5164269be9e80a3c22ccdbf" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/31-4.30 🔗 AWS CLI y SSM/index.html">4.30 🔗 AWS CLI y SSM</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="adaa468153e14a5897070f29b02a5bac" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/32-4.31 🎭 IAM Roles e Instance Profiles/index.html">4.31 🎭 IAM Roles e Instance Profiles</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8fe8a482a0e049b3b9e4b2467ee184b8" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/33-4.32 🧪 Demo- IAM Role y SSM/index.html">4.32 🧪 Demo: IAM Role y SSM</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="03759bb7a0ab43d49a6bc40a2c19246a" data-module="8-M4 — AMAZON EC2" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — AMAZON EC2/34-4.33 👋 Cierre de EC2/index.html">4.33 👋 Cierre de EC2</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">09</span>
+                    <h2 class="mtitle">M5 — AWS LAMBDA</h2>
+                    <span class="mcount" data-module-count="9-M5 — AWS LAMBDA">0/15</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="9-M5 — AWS LAMBDA"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="59e2a919c4ce47918df3abbbe2f3b45e" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/1-5.1 ⚡ Introducción/index.html">5.1 ⚡ Introducción</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4a7340602aa04780be31c5683bb35ec5" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/2-5.2 🗂️ Agenda/index.html">5.2 🗂️ Agenda</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a2034313e21741db8840314bd8d36fe5" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/3-5.3 🧪 Sandbox de AWS/index.html">5.3 🧪 Sandbox de AWS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d326a1553d4b4c139a4722b3e1d9c945" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/4-5.4 🧠 ¿Qué es AWS Lambda-/index.html">5.4 🧠 ¿Qué es AWS Lambda?</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f9945feb695b4a72be7d81d2da9c314a" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/5-5.5 🔄 Evento, Lambda y efecto/index.html">5.5 🔄 Evento, Lambda y efecto</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="723a4ad1cd6b47d39ed97993031fe639" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/6-5.6 ❄️ Cold Start vs. Warm Start/index.html">5.6 ❄️ Cold Start vs. Warm Start</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6d41f670e0734755b8b1184e99d34d10" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/7-5.7 🔗 Triggers y Event Sources/index.html">5.7 🔗 Triggers y Event Sources</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="100c9408d7224b819c8d12466c09cb4e" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/8-5.8 🧩 Anatomía de una Lambda/index.html">5.8 🧩 Anatomía de una Lambda</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="92a69c54953a4dc98715d050a342421c" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/9-5.9 🌐 Lambda por defecto/index.html">5.9 🌐 Lambda por defecto</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="26e1eb6accf04aca9a81bdfb750cfb24" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/10-5.10 🧑‍💻 Handler y Function URL/index.html">5.10 🧑‍💻 Handler y Function URL</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4548d3f94acc42c48a95d9c37f90447b" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/11-5.11 📊 CloudWatch Logs/index.html">5.11 📊 CloudWatch Logs</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f50b08221e7e41919d195b3318660a75" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/12-5.12 🪪 Demo- Rol IAM y S3/index.html">5.12 🪪 Demo: Rol IAM y S3</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8201a4cdae4a45e3a27ba50b756fb62d" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/13-5.13 📦 Versiones de Lambda/index.html">5.13 📦 Versiones de Lambda</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4174a82aa3644e8c8e3b2308a9770830" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/14-5.14 🎯 Alias de Lambda/index.html">5.14 🎯 Alias de Lambda</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="20562abb89c7472fa50b5b4fccce2009" data-module="9-M5 — AWS LAMBDA" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — AWS LAMBDA/15-5.15 ⚖️ $LATEST vs. versión vs. alias/index.html">5.15 ⚖️ $LATEST vs. versión vs. alias</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">10</span>
+                    <h2 class="mtitle">M6 — APPLICATION LOAD BALANCER</h2>
+                    <span class="mcount" data-module-count="10-M6 — APPLICATION LOAD BALANCER">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="10-M6 — APPLICATION LOAD BALANCER"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f25967ff551645c7b7a3227c2c42c4e9" data-module="10-M6 — APPLICATION LOAD BALANCER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — APPLICATION LOAD BALANCER/1-6.1 ⚡ ALB con Lambda/index.html">6.1 ⚡ ALB con Lambda</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="47c45a5f76ab48b1ab8a88bc2418952e" data-module="10-M6 — APPLICATION LOAD BALANCER" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — APPLICATION LOAD BALANCER/2-6.2 🖥️ ALB con EC2/index.html">6.2 🖥️ ALB con EC2</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">11</span>
+                    <h2 class="mtitle">M7 — AMAZON ECS</h2>
+                    <span class="mcount" data-module-count="11-M7 — AMAZON ECS">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="11-M7 — AMAZON ECS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="01e48870bd754582889682a19aeacf07" data-module="11-M7 — AMAZON ECS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AMAZON ECS/1-7.1 📦 Amazon ECS Fargate/index.html">7.1 📦 Amazon ECS Fargate</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">12</span>
+                    <h2 class="mtitle">M8 — S3 Y CLOUDFRONT</h2>
+                    <span class="mcount" data-module-count="12-M8 — S3 Y CLOUDFRONT">0/12</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="12-M8 — S3 Y CLOUDFRONT"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4dbdebb3f25c4cdf9737c0cccc5a4006" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/1-8.1 🌐 Introducción/index.html">8.1 🌐 Introducción</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bfdc530ef4174655a6f24035b86b18d5" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/2-8.2 🔐 Crear usuario IAM/index.html">8.2 🔐 Crear usuario IAM</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6be942ccf592443dac6b6f34a4d4002e" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/3-8.3 🪣 Crear bucket S3/index.html">8.3 🪣 Crear bucket S3</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="18affb0e9c714db7a70b13ef2a46aff9" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/4-8.4 🧩 Static Website Hosting/index.html">8.4 🧩 Static Website Hosting</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d408a7eb37cd4d55b56f6f8ecc155ac9" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/5-8.5 🌍 Acceso público en S3/index.html">8.5 🌍 Acceso público en S3</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="30c5df4c8ee7478bb45cf1b821a66dcc" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/6-8.6 🛡️ Corregir configuraciones inseguras/index.html">8.6 🛡️ Corregir configuraciones inseguras</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6214de471f9b4c67a7868fe2fc153569" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/7-8.7 ☁️ Introducción a CloudFront/index.html">8.7 ☁️ Introducción a CloudFront</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d8cdf29f9dad425598c75c4f3cc3d472" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/8-8.8 ⚙️ Crear distribución CloudFront/index.html">8.8 ⚙️ Crear distribución CloudFront</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="298f3765644c40c29f19603209fbb01d" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/9-8.9 🚫 Resolver Access Denied/index.html">8.9 🚫 Resolver Access Denied</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b07dee568130495c86e36b52c6997ca4" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/10-8.10 ♻️ Invalidación de caché/index.html">8.10 ♻️ Invalidación de caché</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c07d189679f04d58acdd401bdf2187a7" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/11-8.11 🌎 Dominio personalizado/index.html">8.11 🌎 Dominio personalizado</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="76daa38ecada450ba7a49a4a315fe56d" data-module="12-M8 — S3 Y CLOUDFRONT" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — S3 Y CLOUDFRONT/12-🌟 AWS CloudFront + S3 + GitHub Actions/index.html">🌟 AWS CloudFront + S3 + GitHub Actions</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">13</span>
+                    <h2 class="mtitle">M9 — PROYECTOS</h2>
+                    <span class="mcount" data-module-count="13-M9 — PROYECTOS">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="13-M9 — PROYECTOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8df4505737034fe380cf8cba182aa5c3" data-module="13-M9 — PROYECTOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — PROYECTOS/1-9.1 🧪 EC2 + S3/index.html">9.1 🧪 EC2 + S3</a>
+                </li></ul>
+            </article>
+    </section>
+</main>
+<footer class="foot">Backup local de 🚀 AWS Práctico. El progreso se guarda en este navegador (localStorage); no se envía a ningún lado.</footer>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+(function () {
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-lesson]'));
+
+    function refresh() {
+        var total = boxes.length, done = 0;
+        var byModule = {};
+        boxes.forEach(function (b) {
+            var id = b.getAttribute('data-lesson');
+            var key = b.getAttribute('data-module');
+            var isDone = Progress.isDone(id);
+            b.checked = isDone;
+            if (!byModule[key]) byModule[key] = { done: 0, total: 0 };
+            byModule[key].total++;
+            if (isDone) { byModule[key].done++; done++; }
+            var row = b.closest ? b.closest('.lesson') : null;
+            if (row) row.classList.toggle('is-done', isDone);
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-bar]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-bar')] || { done: 0, total: 0 };
+            el.style.width = (m.total ? Math.round((m.done / m.total) * 100) : 0) + '%';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-count]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-count')] || { done: 0, total: 0 };
+            el.textContent = m.done + '/' + m.total;
+        });
+
+        var pct = total ? Math.round((done / total) * 100) : 0;
+        var op = document.querySelector('[data-overall-bar]'); if (op) op.style.width = pct + '%';
+        var opct = document.querySelector('[data-overall-pct]'); if (opct) opct.textContent = pct + '%';
+        var oc = document.querySelector('[data-overall-count]');
+        if (oc) oc.textContent = done + ' de ' + total + ' lecciones completadas';
+    }
+
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            Progress.set(b.getAttribute('data-lesson'), b.checked);
+            refresh();
+        });
+    });
+
+    var reset = document.querySelector('[data-reset]');
+    if (reset) reset.addEventListener('click', function () {
+        if (window.confirm('¿Borrar todo el progreso de este curso?')) { Progress.reset(); refresh(); }
+    });
+
+    Progress.load(refresh);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

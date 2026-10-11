@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>jemjaf — Cursos</title>
+<style>
+    :root {
+        --bg: #f3f4f1;
+        --surface: #ffffff;
+        --ink: #15181c;
+        --muted: #5c636b;
+        --line: #dfe2df;
+        --track: #e7e9e6;
+        --accent: #1e7a4d;
+        --accent-ink: #14502f;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+    header.head { padding: 56px 24px 12px; max-width: 960px; margin: 0 auto; }
+    header.head h1 {
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: clamp(2rem, 4vw, 2.9rem);
+        line-height: 1.08;
+        letter-spacing: -0.01em;
+        margin: 0 0 8px 0;
+    }
+    header.head .sub { color: var(--muted); margin: 0; }
+    .overall { display: flex; align-items: center; gap: 12px; margin-top: 20px; max-width: 420px; }
+    .courses {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 16px;
+        padding: 28px 24px 70px;
+        max-width: 960px;
+        margin: 0 auto;
+    }
+    .course-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+    }
+    .course-image {
+        aspect-ratio: 16 / 9;
+        background: #eef0ed;
+        border-bottom: 1px solid var(--line);
+        overflow: hidden;
+    }
+    .course-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .course-fallback { height: 100%; display: grid; place-items: center; color: var(--muted); font-size: 0.85rem; }
+    .course-body { padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+    .course-body h2 { margin: 0; font-size: 1.06rem; line-height: 1.3; }
+    .course-meta { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    .course-card .track { margin: 4px 0 2px; }
+    .track { height: 6px; background: var(--track); border-radius: 999px; overflow: hidden; }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .course-progress { display: flex; justify-content: space-between; align-items: baseline; }
+    .ccount { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 0.8rem; color: var(--accent-ink); font-weight: 700; }
+    .cupdated { font-size: 0.75rem; color: var(--muted); }
+    .pct { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 700; color: var(--accent-ink); min-width: 3rem; text-align: right; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+</style>
+</head>
+<body>
+<header class="head">
+    <h1>jemjaf</h1>
+    <p class="sub">21 cursos · 1370 lecciones. Progreso guardado en este navegador.</p>
+    <div class="overall">
+        <div class="track" style="flex:1" role="progressbar" aria-label="Progreso total"><div class="fill" data-overall-bar></div></div>
+        <span class="pct" data-overall-pct>0%</span>
+    </div>
+</header>
+<section class="courses">
+    
+                <a class="course-card" href="%F0%9F%9A%80%20AWS%20Pr%C3%A1ctico/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%9A%80%20AWS%20Pr%C3%A1ctico/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🚀 AWS Práctico</h2>
+                        <p class="course-meta">13 módulos · 105 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🚀 AWS Práctico"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🚀 AWS Práctico">0/105</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%94%B7%20Azure%20Start/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%94%B7%20Azure%20Start/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🔷 Azure Start</h2>
+                        <p class="course-meta">8 módulos · 34 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🔷 Azure Start"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🔷 Azure Start">0/34</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%94%90%20AWS%20Networking/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%94%90%20AWS%20Networking/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🔐 AWS Networking</h2>
+                        <p class="course-meta">8 módulos · 53 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🔐 AWS Networking"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🔐 AWS Networking">0/53</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%93%A6%20Docker%20de%20Cero%20a%20Pro/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%93%A6%20Docker%20de%20Cero%20a%20Pro/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>📦 Docker de Cero a Pro</h2>
+                        <p class="course-meta">14 módulos · 116 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="📦 Docker de Cero a Pro"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="📦 Docker de Cero a Pro">0/116</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%91%A8%E2%80%8D%F0%9F%92%BB%20Dev%20Para%20DevOps/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%91%A8%E2%80%8D%F0%9F%92%BB%20Dev%20Para%20DevOps/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>👨‍💻 Dev Para DevOps</h2>
+                        <p class="course-meta">12 módulos · 38 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="👨‍💻 Dev Para DevOps"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="👨‍💻 Dev Para DevOps">0/38</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%91%94%20Hackea%20tu%20Perfil%20Profesional/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%91%94%20Hackea%20tu%20Perfil%20Profesional/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>👔 Hackea tu Perfil Profesional</h2>
+                        <p class="course-meta">11 módulos · 79 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="👔 Hackea tu Perfil Profesional"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="👔 Hackea tu Perfil Profesional">0/79</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%90%A7%20Linux%20desde%20Cero/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%90%A7%20Linux%20desde%20Cero/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🐧 Linux desde Cero</h2>
+                        <p class="course-meta">17 módulos · 45 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🐧 Linux desde Cero"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🐧 Linux desde Cero">0/45</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%8F%97%EF%B8%8F%20Terraform/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%8F%97%EF%B8%8F%20Terraform/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🏗️ Terraform</h2>
+                        <p class="course-meta">7 módulos · 50 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🏗️ Terraform"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🏗️ Terraform">0/50</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%8E%96%EF%B8%8F%20Terraform%20Associate%20%E2%80%93%20HCTA0-004/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%8E%96%EF%B8%8F%20Terraform%20Associate%20%E2%80%93%20HCTA0-004/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🎖️ Terraform Associate – HCTA0-004</h2>
+                        <p class="course-meta">3 módulos · 9 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🎖️ Terraform Associate – HCTA0-004"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🎖️ Terraform Associate – HCTA0-004">0/9</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%8E%96%EF%B8%8F%20Azure%20Fundamentals%20%E2%80%94%20AZ-900/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%8E%96%EF%B8%8F%20Azure%20Fundamentals%20%E2%80%94%20AZ-900/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🎖️ Azure Fundamentals — AZ-900</h2>
+                        <p class="course-meta">18 módulos · 154 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🎖️ Azure Fundamentals — AZ-900"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🎖️ Azure Fundamentals — AZ-900">0/154</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%8E%96%EF%B8%8F%20AWS%20Cloud%20Practitioner%20%E2%80%93%20CLF-C02/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%8E%96%EF%B8%8F%20AWS%20Cloud%20Practitioner%20%E2%80%93%20CLF-C02/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🎖️ AWS Cloud Practitioner – CLF-C02</h2>
+                        <p class="course-meta">19 módulos · 180 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🎖️ AWS Cloud Practitioner – CLF-C02"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🎖️ AWS Cloud Practitioner – CLF-C02">0/180</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%8E%96%EF%B8%8F%20AWS%20AI%20Practitioner%20%E2%80%93%20AIF-C01/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%8E%96%EF%B8%8F%20AWS%20AI%20Practitioner%20%E2%80%93%20AIF-C01/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🎖️ AWS AI Practitioner – AIF-C01</h2>
+                        <p class="course-meta">16 módulos · 106 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🎖️ AWS AI Practitioner – AIF-C01"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🎖️ AWS AI Practitioner – AIF-C01">0/106</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%E2%99%BE%EF%B8%8F%20DevOps%20desde%20Cero/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%E2%99%BE%EF%B8%8F%20DevOps%20desde%20Cero/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>♾️ DevOps desde Cero</h2>
+                        <p class="course-meta">12 módulos · 46 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="♾️ DevOps desde Cero"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="♾️ DevOps desde Cero">0/46</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%E2%98%B8%EF%B8%8F%20Kubernetes/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%E2%98%B8%EF%B8%8F%20Kubernetes/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>☸️ Kubernetes</h2>
+                        <p class="course-meta">19 módulos · 103 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="☸️ Kubernetes"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="☸️ Kubernetes">0/103</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%E2%98%81%EF%B8%8F%20Cloud%20Computing/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%E2%98%81%EF%B8%8F%20Cloud%20Computing/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>☁️ Cloud Computing</h2>
+                        <p class="course-meta">7 módulos · 24 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="☁️ Cloud Computing"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="☁️ Cloud Computing">0/24</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%E2%98%81%EF%B8%8F%20AWS%20Essentials/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%E2%98%81%EF%B8%8F%20AWS%20Essentials/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>☁️ AWS Essentials</h2>
+                        <p class="course-meta">13 módulos · 104 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="☁️ AWS Essentials"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="☁️ AWS Essentials">0/104</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%E2%96%B6%EF%B8%8F%20GitHub%20Actions/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%E2%96%B6%EF%B8%8F%20GitHub%20Actions/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>▶️ GitHub Actions</h2>
+                        <p class="course-meta">1 módulos · 4 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="▶️ GitHub Actions"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="▶️ GitHub Actions">0/4</span>
+                            <span class="cupdated">10/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%94%97%20DNS%20&amp;%20DOMINIOS/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%94%97%20DNS%20&amp;%20DOMINIOS/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🔗 DNS &amp; DOMINIOS</h2>
+                        <p class="course-meta">7 módulos · 35 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🔗 DNS &amp; DOMINIOS"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🔗 DNS &amp; DOMINIOS">0/35</span>
+                            <span class="cupdated">9/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%8C%90%20Networking%20para%20DevOps/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%8C%90%20Networking%20para%20DevOps/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🌐 Networking para DevOps</h2>
+                        <p class="course-meta">6 módulos · 33 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🌐 Networking para DevOps"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🌐 Networking para DevOps">0/33</span>
+                            <span class="cupdated">9/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%9B%A0%EF%B8%8F%20Herramientas%20DevOps/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%9B%A0%EF%B8%8F%20Herramientas%20DevOps/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>🛠️ Herramientas DevOps</h2>
+                        <p class="course-meta">4 módulos · 45 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="🛠️ Herramientas DevOps"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="🛠️ Herramientas DevOps">0/45</span>
+                            <span class="cupdated">9/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+                <a class="course-card" href="%F0%9F%93%8D%20EMPIEZA%20AQUI-%20Tu%20Onboarding/index.html">
+                    <div class="course-image"><img src="/media/jemjaf/%F0%9F%93%8D%20EMPIEZA%20AQUI-%20Tu%20Onboarding/assets/course-cover.jpg" alt=""></div>
+                    <div class="course-body">
+                        <h2>📍 EMPIEZA AQUI: Tu Onboarding</h2>
+                        <p class="course-meta">1 módulos · 7 lecciones</p>
+                        <div class="track"><div class="fill" data-course-bar="📍 EMPIEZA AQUI- Tu Onboarding"></div></div>
+                        <div class="course-progress">
+                            <span class="ccount" data-course-count="📍 EMPIEZA AQUI- Tu Onboarding">0/7</span>
+                            <span class="cupdated">9/10/2026</span>
+                        </div>
+                    </div>
+                </a>
+            
+</section>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+window.__COURSES__ = [{"dir":"🚀 AWS Práctico","ids":["f25967ff551645c7b7a3227c2c42c4e9","47c45a5f76ab48b1ab8a88bc2418952e","01e48870bd754582889682a19aeacf07","4dbdebb3f25c4cdf9737c0cccc5a4006","b07dee568130495c86e36b52c6997ca4","c07d189679f04d58acdd401bdf2187a7","76daa38ecada450ba7a49a4a315fe56d","bfdc530ef4174655a6f24035b86b18d5","6be942ccf592443dac6b6f34a4d4002e","18affb0e9c714db7a70b13ef2a46aff9","d408a7eb37cd4d55b56f6f8ecc155ac9","30c5df4c8ee7478bb45cf1b821a66dcc","6214de471f9b4c67a7868fe2fc153569","d8cdf29f9dad425598c75c4f3cc3d472","298f3765644c40c29f19603209fbb01d","8df4505737034fe380cf8cba182aa5c3","b053be7d3a174204913d830a5bbaa4b6","ea9077d3d63644739d038393e38dac5e","bbf96ea3b22a4c13a8c3824482352def","dac1945b2bce44f29b1569b738efa553","8266ac39d2984ef4bf901a3f18115b59","1c8fd25ed0214b4a840bdbc145d5634f","dbe8a64bf3294345b1cfd7c16a894e74","285f721b608649df84b759104d4f6927","26e178f987804b269dd538434b039ec8","d1f421684cf6439b9aa18c89e7496d70","0a9bce64337d45058f2b3b9ef6bec769","870bc52a82744ed9b517516a83dc1660","e34cdd796c3040348524baaac52753dc","075442f384b54fc0960b1b3962aa9c41","6df607dba0d043d68b52322aad7bac2b","ce8a55f0448c437187098063f4854511","4a8401dc17d24b0e8201cb0c7c6817a0","42ecc80887354ad682308798e9e230d9","a47a52e18090413fa2d30ae202f179b5","1228c25c9cc04e9c83398bdc3256f22c","e32a0df0ddc7462a9601e06f1d14a1f2","2555a65ec9564baf9eb9f0c8b6ad6f54","d576a2957e564870bc090353cba28615","99e24abd1b5c4411b24899c068ced938","4cb0d7d6152e42c3b14f80024095476a","cc1932cf67bf4c1d8d2194a21cc8f1b9","bf23a49e5fef4a79b5ed4c089756e6d1","29840c0665e64bf49110986d00eb4eeb","bf9e3457171b4f74bb284284ef783c90","f7af7dc0873e4712b9e8338f2137dc42","bcfea842a05847639ecf0ff3d4dce4b6","5f6aef5c26fd4b5e9b2e28eb23969866","b103e0caf3904304ad2dfb1198edafaf","0d089f14278e40c8be6b43b2e7b9d127","435676b778b9492b940c1233401ba970","866c3bc588f64a058da829b5ebb86dd3","23ac451cde3846759a458b4582a4f117","e8cfc25a357849c58f4992a77d6a0320","2f6fc6def9d44a4893407c9c1173048a","d2c147e8fef14a1494b76bbb93a0a4cb","b6c071b282f5444a9e40a471134281cf","c587e3cb8dde46b695a50fe29f89b2be","7a298dee150049ff97ee619f7d6d371c","8d0acbd508b941d1be93f8eb56ed417d","43c873c561d545759e5019c0a5f09398","f68c70b52ff64cb7952e6196fa7acd43","a30869be82594ebfb0c05733ccee7aac","b2806f248b2b4d9db32c364fa5af1f8c","e9f730a9d70e421da91604331493c230","b86b2da9652e400a895c0fc24ff4d55d","b385bb6a50a348b4b1228742f46da421","8c22855e68d2444f9b6180a969512d44","f7bbe10920f54e35a9480e2dfb745bdd","6ab51a447d1348aa96f9d69c7b2cee57","28185a58831c4f34b45d2a1b1ee4be56","65572ccf0ba6425f9a64e9b3445b5398","2ac7039c3ad84fb48788861467a5f105","dc5b4776cfb6483288711a896bcf75e2","815cb9e4c00b47b1b305836464da4fde","013659c31b844298836577c0ac525ac0","67bae78b7b044a25afd2829b37abb778","e33b5432a36b44109b3cec9413c60aaf","96bbf02ce5164269be9e80a3c22ccdbf","adaa468153e14a5897070f29b02a5bac","8fe8a482a0e049b3b9e4b2467ee184b8","03759bb7a0ab43d49a6bc40a2c19246a","4d820bc4577c4e788e9eb81b7466a194","d1d37e4ce31047d7adb8df2199a56f0e","7eee56455e144fb380691a250b79030d","d62aa10198a9406ab11fe422a6b5cec6","3fa0eeb0a9f047b1b900a837e30e61cd","1bf71192847948a78b9c128d54cdb298","59e2a919c4ce47918df3abbbe2f3b45e","26e1eb6accf04aca9a81bdfb750cfb24","4548d3f94acc42c48a95d9c37f90447b","f50b08221e7e41919d195b3318660a75","8201a4cdae4a45e3a27ba50b756fb62d","4174a82aa3644e8c8e3b2308a9770830","20562abb89c7472fa50b5b4fccce2009","4a7340602aa04780be31c5683bb35ec5","a2034313e21741db8840314bd8d36fe5","d326a1553d4b4c139a4722b3e1d9c945","f9945feb695b4a72be7d81d2da9c314a","723a4ad1cd6b47d39ed97993031fe639","6d41f670e0734755b8b1184e99d34d10","100c9408d7224b819c8d12466c09cb4e","92a69c54953a4dc98715d050a342421c","ed8ebc553db94b4083b0d4b1033e1d96","06f6a6e3d1d44de4a47d266bcfc64775"]},{"dir":"🔷 Azure Start","ids":["91c8a7713a5b48138e151aba148584a8","303968982a984d6e9bb3991f77206b43","563e2e490aad4db8bdce48f6598f7d1f","c84251b3a4f54511932931806b2a84c2","ec172f000024425cb07a4538b0d309e3","8e72a19f2e4f4e91bd0ff0f4af4d4fb9","f4c3850f2a8b472dafb961b2efc1ebf7","49eb7e287d64453a9157fc61b3f503ec","0a37d667ba4a4077a6d12d205a21a38b","06c09a8038e142178d8de49f5683ed9f","a85d4ed2849f4aa5ab715b30c422ff2a","63530129bb56494aa64d66775ce46158","d4a1c6b409194fd4adc1621de32cffd8","110935c661d14965ac3b7156a56f6d02","52ce9d6686a341ec9c9257950afe5a32","97d4877ca1ba494c9269d3417fff9aa5","ca3f32372c4a4a009f4f3f154ac7c9ab","616dd62725774ddfb6eeab2e1553ebac","f9354fc1745e4c2a93da967656ea28ce","a2e6cd41cca64091af0bf468970be770","8962eb028a4045bfa9e965e404078bf5","10bbad6c7b00448389a76b80e239b823","2540ce10af1241eaa45f8aa24af38800","93236aa9fe214f95b3c698293326e8f5","eeae990d31ef40799cdbaef41126b9f6","1dfca25dc1c04a828d8a070cafda4c12","d85131f062b34668a63abef3ffcc68b1","768b9eaf4d3f444a9757236349157b30","840586e20a574ffaac469252545b6929","950df7bd6d394527ba49251c3a1615e5","fe098f6be7804bcda5c87598eb121880","4d66df204996477ab6a3fe3ed924619a","a16553442eee4ed1ad8f24a6895034de","d515ba7e3b2f474092dba21fa1ad3307"]},{"dir":"🔐 AWS Networking","ids":["58ff5f71db19466abf48ce3deea07a5f","fe90ace4c30a454d9beb0c4c501813de","4f1b939f0d964ff48236e698c3c411f8","b6ff251118344738adc7c0bca078450c","ebbe3f709b884749ba9ecdf41fb2493d","68b5057487a4495383fb49ddf007fdf0","30f8a712473540408260e719e2db1429","3a79365bbed04e29aeafd6d2265c1074","4d4d1c36d4f44d098085084675ef920d","3315544885bb4843a56ac0bc79671251","086398b988d54f779a51b34a464fa649","5c8e6c9df8514f54a95592fbd880e519","ed288f5d33954d1fbde1c723f6b75e3d","0da87c3048444ebda4c4bbfad404c7ad","434f0ffb6ed54d248eb4aaa17ab3307e","777e66e335024ee296ee985c911da11b","187e6c5bbed247da9666746af75458a5","0a71d0ee47e948fba43566b479e1af85","92663b8d3a6c4ac4853c6fd281b4a7df","d3cfc9febd9d4985bdd6c24dae5664e6","f4e9ec33f2d049c58a8d507d3986b24b","c44da3e549ed4939bbe03dceb6a0e349","c0be5500da2f47ddbf8e6d61eac50cda","2f6d5062515b454297d980858801b5dd","c34890e5cfcb4c86bdb792657c724b98","7bd24d8d15de41f8ae264a55e527d014","92f0173965af4e3a8bdc91a4c27ecf36","873db5ae36ba4439949f8633104efb1f","72f2218a98b24a409e30b4136cecb0d1","7a35d87adca74888ab0ae7c3390fb829","abc8d92d45c44195bfbde52ef6db6c29","92ee8fd543064d2ab5d62bcf272580ef","ae0c6f4f6aee4199bd9162c425961670","ac1a354a730d4aa597a0aae5d699e600","8c3136ed062041d0b2c63541fcede020","29924199c9c04b70b6561840c2481ac6","399e1a5e31644bee87bfe07785ec5642","f0aa9dadf3d240459320cc0f936610ce","bfc5e47e10d9483db4db690718d77519","68fec56575a04e78ab4ad013765829a8","95215a1dbd964d3090b7bf3cf6e86b3d","576f73a8de8f485bb8d54bfb84dcc5ef","184b5246106c441d85d9926e98134968","8d6b44df4a2e4a11948f42faed4f2db8","03d3af3e5274420aadcfdbb5c842aa10","8b76f4e00c23433680a92c596052f06a","c3db25a8230e4a76bacffe6f86b76338","52ae49116b0a45d4a417081236753b70","ad2bf949dfa24022864b429396a40864","0caca0be511a4b90adb13a6baa03ec5f","ca8012c4d00d4266b32caf3753532085","5486f46357a749ad9d83146a144a0192","de017ab3131741b9a98baae9f55927a8"]},{"dir":"📦 Docker de Cero a Pro","ids":["a82b728fddfe4dbf9e48525dfcb4cc31","31fc2c573f2748d891cdfc45b4968c8d","1a696a6e6e2243f0bfb5926b2ea4b8c2","af215c434c4c4e1095e3a5dfb3f0b2a3","f3344228d9984080b33f96a9ccec09cd","a0aa231b7b28402c99016db7f67033f1","719e44bbc37d415cbaaa4f00413097e6","bb8733af9efd4884ad4ef40872b87320","e286d166061f4f22b4511776dd5b08ea","14524fb0ff234161926a097d630500f6","1fb5e3af06fb4498940a3c33e74112f8","ea8cdb2c40374b8d926480a82ee64d15","c4049b9a30f44ff3aceac1b0041e9b0b","52be42df9c6f436786bb0da967e1a5e2","071d578ee66c4832815c9e0e3934064e","481870a956b84f459f1c7187fe116929","7eca56c234084fadba4eb05c5b19c28a","7b532e97eefe44db845f637e27bbeedb","e226ae6e898242d6b54834a9f854b825","80fd409dc64949afbd8595a1c3f859f7","fafcf092c5f44ee9aa7f042c7af67471","15930498d1d342769d0fdc89ccb79f24","375e550dd845427c81b5f8e0385704f3","4b14eeeb98534c97aae9e670118a4649","633cdf1bfaa842abba0382f77aab2da7","4eab72fec0fb41b59f6bf5512545e954","e838597c03b74d5db96a0a0b4f29e617","a82b30fb16464b9ba507d130993b8208","4d1caf1f29f349b6b979401059029ffa","d039c47101bf4632868b7caaaf94ca35","d0ece4b36fd047a5990deb32c849e326","b79a58591c5f4126bdad97a45b03a6f3","c11682b7120542f9b1935c104bec1dff","93a1c6eaac764a639a13e8750e1262f0","9cbb06022d194d5880464732290c69b2","680d584b92f442fd9bd6d2d8ea8117cf","b5abfcdb0f2b4ce79d1e57d97951aa5e","f0995c3012e14c90848f006b113a8069","446fc3d49e734766b02478cdf0253c6a","5593dc8cf7594055b335605063b203db","1c83df7954284231a929c1be0710d045","9476d55d207a4e2cb592c36ac2cdd621","8818b91274284b2db01c665806facc8f","5ebcc0f5597d46e491cb4bd13507017a","256ecc15b248445ca3259a7d48a1cda2","ff3d4c6c1bf94a8eac509359f0bd9d41","05dd0f304448469d8ba89435b69cbdf9","859972468468408d832630a992d5059a","6aea03171bc749b18b5c14cb63177668","78c76ded16284971a9c74b863fded66d","00e3461cd42247eba310eef4a67b0ab3","022f3e62784f4ffb88509e843fd40e06","453e95f0ff3b4b6290729e2f7967054d","8c1fce066b6347d389400858442db76d","384c1ef665164fb1b1747a9bc150da28","f95c96b94b7f4bca9dd95969f87a1eb2","f76e2895af4e47529e5802d97498f239","2c20471c7ab3441ab589a8c3ae1461ba","668e767103e44af2a329d3ccf1fc9c47","49f96787c55e45c4953f8180ea1be86f","2557d9c0f9aa47aba5a239af0e03e89c","b2da9cd73c474499afd17f4090ea36bb","ef5b254219404bc9b761a5e185bd2d42","8b093d5033b74095ae64844f25bd9346","6a4b2ccbadf5402e85c726be64172bfb","4c849949daaa44a594a2bc9251918d74","098b0c8950b74509aaa373032bb6af64","9d1d3b6794884e5684382bcd185b7766","f2cdb883dfaf47d7a530053cd382b0ac","e5449166c2bf4402a416901308382ad9","4974a140ed9d479b85f7b6458c67fec8","15d2ce03d15a466fb377a8a16c5fb977","392bf8e4f2b54c24ad1d246057ce2d70","e59b37eec90444ac8a913009a83a3715","417ae585d8f942b1b18a69159c333d48","6d1c624ee57e4515a449c515e818e2df","15ac347a63f6404a8c925279a59155b3","e1337093c2534531ad1cc09930dd29b2","0461efb76d654de28142e85fc8df71c4","5d1591569e434a15b34f8646d374a05d","efd5b6189ea3424c8588900b48b7733d","ba79af6895254429815fca8af040245d","934e8b655df3465fa27962cd0e895a9a","25e0d3872749494db3487b96bd146542","f659a71d7df6492ea4a683346040cbb9","8e2ddb41bfed465a97d50b9c5fc86058","4a45cb6872434f0db9bbaae37b756ecf","2ca6ade17be74be9bd4933396889e090","93395707506c4f4697e5bd4b57715166","3388b181bb66488e89304243a9c19065","f6e961c1004c4f8292696966bef01598","391da8b7acea475099a8e820dff4d578","0a0d3694712f409babc6e4fae79d89c6","bd0fd6c87c50486f9cc8aaa2908d91eb","2c93ae979c274336bc116acee3522bd0","ce72c48e75eb460690dd4395054a21f0","e2454df351cf4417ac7b59854d31a6bf","a9cffca0ea944d8d8546eefb9c942347","78a26682e6134422893addb5e808b7cc","2546e193e66e49b7ac2f168f4bbf27f8","03c81cf3eea5412381dca971c66d9773","1e6859e58977488d9d9b55d457380aba","0368e72804484cb1b0675662e553e68c","770a652810df44ffa36e1740dddf1ad1","41202d4a047e44119b7660a9f2c191bc","e3aa0b51144b4a3ebcae0f606aefe9c7","03281e095a0f44ddae0bd7bebf9412bb","c4fbe1c4080d4f608744687eb7bc2f01","6ba96c7833f04842878fe8ffd43677e9","8b5496ac14984fdea24c3ba811386134","80b33c31f946411fa7fbdfc935f8da4b","291be56ab2734a87b9c1e34f0ec12c88","0afdf2c55afb460aa4d38c241dc50c29","179da8d6e6d14eb0b3c1d048a58695bd","9698026da98c4bfbb22a02d4acf28cdb","feb3da56b9dc40b39f40692f85b0e359"]},{"dir":"👨‍💻 Dev Para DevOps","ids":["eedb9b80ee74463baaf409bac7002377","bcdd0108287d4a9b8c3094dc6efb88ba","68fa252631f04aa5ab9e4ac3a64b2a7c","efac73aef87f464eb4e1a80fc7ec3c28","40b17e08f5ea4640a0b5e01fea63d967","77e794c3c6b14c29a71ef81ae823321d","431bfcf06a4940ecaf837121d5fb72e5","a8e02b4b1e8e42bfb417668f10f7b4ad","5e9fb6aaa4ea43ef98635646f257181d","f6d3c3c77cfb4ca3b9b58357fb672c49","5725f270cb8b44eaab0d912b1b3299ff","18c1763315ea4fddaff45cb38997ebdf","ba8a2c4da6644cd483d7fd0ccd00456f","19618585886f41149abc8d541b005e75","77df8d6d5d9d499caa8c2c42240dbe2d","3361e7c237504b8ba3860978e0a6b171","8a82b6da96ce4a689df194d3f75ae97b","ee820140a9024427b381855977f4a178","1e9a44244d76437e9682330fe67a4987","0de59cafbf6f4bb6be699d755f54e3cb","ff60985d6b82448eb0a81a5eb71db0d4","6e8adcd1ed724d38b4b86ec7912590e1","71ea0e8c2ab641b8bdf0ae9a9a55e85b","16cf7083563945d8aff6f109e73c8e04","c9ffda5133b84563a3d4ee0c7b78b830","fa5a717138904bc29716c2395341246b","fede38436b5f428ba36895464ad55194","2f3d65f0b9f14b0db95fd041741b4db9","75f7f475aa1b4dd1b945e810e5c1a279","6422490b69af49b59f396ada87b6540a","64e3e4df8a0e41379e13d66fcd421add","be1a889c199c47ca9ee9747877bea58e","636651672f8c4d6dbcf65f5f1c1605c1","343457ab9402423eae8bce75d5b9a73b","31a9f67bec4c439aac7b1a98e7ba1eb4","aef2714a970f4dbe8ababb92ef8bcb04","539a1354958d4078ae6b39c806ab986d","60ec899cb900472e8f129ffc3107a6e0"]},{"dir":"👔 Hackea tu Perfil Profesional","ids":["b7975ff79c664ae0a640010b7695f669","a6a53786b0b748728075cf45d14b403e","69f02f2a65824f889caf188a0c1eefac","3d9d87921fe3458ba2a0f0c19a85943f","6d9e862f26624b9baf7326e7d963a639","28173ebc65884ea3bff7bb7da6394341","2e98df0c388b4f71856f8a04a7dbbfc4","fe2b14147f45404e97c8c525b988323a","4666b7c82b20412a889b0d6d0f55afec","58a8f0ffd8694d8d88c3942165f45835","3e950dbea7d34e9ba52b5d1feb628e0f","a80a304294474861a605085b3fa67bed","edf88ea371e243a9aaa99d17f1a80ef6","31aa8852aa3b41128f438511c8c57aa9","ac2e9382c642447b85030bd0d8769cd3","a4afe73d30ff412b8adc6ea4d26a5ca3","aa5d036ebd494a1894df03b591d7c89d","3d6762556cca445c81c174ad633e57a6","d9a0e09862b544c7b309c90a8d04f883","2574396621d34b8c93a9ad37977aeb47","457e5f0fa38e4d62887fd2934028c037","cd9257e50be846a18d73fea48938a0a2","f0caa71dfb1e4ad78fddc9b6df87f4f5","7e79cb2420ad484cb97a140fb14e867f","b76093020d5d49209bd41e126dfdef47","85e7f860e2a6422faa04bc72d071b1fd","ffd06974f367473ba8765e870ff4cc0f","f997dda16f0140a295aaf3c8cdea5945","cfba8a9b237a428f8907a9d34837d382","b1207298bf4d40928649ebb7ce7ee0f4","53363533ec30496aa7c692a0a855046f","a63582aea67b42b28e924fec0c20f892","ea189b0aed234b058e8116bb4d9196a6","f30ac153381b466ca4dce6a56676447f","02eb8ede6e2c451d9a565873e81d6588","5bab02dbe6184d4db5957c8e382681c2","874af2f3f64446f69ba7d8ebd18b10f0","0619b9bfb4ab4289b0606db429eff8d1","92ca6ffec62b4514bd19795a5bc11508","56b77b21c14a4e5d93dbb584d405380e","f0f7a0df9a33457ba443cf4ae097db23","89441310fc694f9399f4a8d74cf9b800","88562387a1bf4e7e87e5e8f1bf101cb3","802a019b34384f3f983f9d7b94bdfca4","4a9bc9ad54064b5f95e1858ad3144faa","02d0ca50d85b4b29b5d73cfaefe75bc8","874a2b07ee3b42809a3a93e59196884b","fa8ef6ab238a4f569013fd84533d65fe","4d8c3a18a99647188eea1e8f4131deaa","33a37b40c7f54f57bfc00c6603373f4a","b0901a9514224b589c7011de8ee1ca0c","893b226415be416582937fcd4f2efeb0","2606936687464ba6ae7746a1a407a40f","42689128784b45cfbdcd9469b4b1cfaa","698d45d7731e44cab3181ab6a9869d9b","5fd81aad68d9476e96aa44d910f6a58e","222a3b4d3b794d119fdfe4cb90ac304d","ef88cfe434f24e1e99d41a389597b282","37b1f26b97314a79aceda559331e00a6","576682b5d7b74303a16f7f68bd184bb9","b7d418dcf54c4ff384324ddcb83c3e58","53aa9761bd57477f9f597e4fed31ead3","0f63a61e7878460ab4e33080a3019bdd","a19d5051159440529e2573b6c919c42c","769ba36478644f00a6918d8f2128dfa3","861a0104e6e1420d9af03f40bd131f28","76b37c2f420b465e8769af32e997127b","ff97b8e23988451995ce74bcd4e7afbc","7de9210242de48a6827343ec45ff0da8","57228f3e57384e12b10e41bfd2d78dfb","16cd7a91ec72424998d22063a1ec1564","7e36f59189384b67b5d104e19c88431a","7a0d234acdec41ab897330ccfc6d3660","3535cd901b444431b0d903fa5ddd8817","b8d6ee3e488e482fa9d48e4742d3e640","76956bae6ccb417ab9e7a90c806a9c72","d0bac10f5ac44a85befd2bee8bc70bc6","1b960f18a32148c3aef7e817f0fdbda4","b03842bbf4e7450d96f2443e0e20c817"]},{"dir":"🐧 Linux desde Cero","ids":["b72fa32f44984a17a12d1457902ab127","240b3409d62e4ba4bd84ad8c4e9dd93a","8c2fdae51546441292008c54559c916e","a3dbe9fd03c64374ae40f252eb1fc0ae","d6f6e6d3541b422ca4ff7c03e58ac09f","9596c2393f1741ba8209aa8db344f217","8a0e886d931c4988a85e6daeb7a08932","fa562eba404a4ffb9d279dc863127e96","00c9b491fd5a413b82265d4246055d90","c04f85524bcc4a44a100d4113f580d71","72a25d2264f640fdb56e66d371f80d5f","9dfab05e8c2f49b28807e8f998dc77e9","421c47037c84464da3b753d2c21282ef","83b2c10ff9a247cebbb6fd4c7f30b1bd","77935233e9274669ae60fd56c99c4cc3","e36eea35c9654660b4fc1edd39d386aa","b6a50798c1fa444091011d94962cb954","1a6260d79b4b4f80aa46c2001fb9d6d0","9460781464df4f3a8a21ba4e035cdf5d","991452cd76324ebb805aed332c050755","763a27fcdc7f4875ae1f42f93ef0b455","b233c27121eb418398b9254150e32a4d","01dbd9e2d83b45bc8872d5ed073f45e7","4c078547cc4e486ba8293af6c5988bef","e2944df4d88c4133972c818484f4ebc6","ba9e419502134d068ca7c2370a2901f7","b86e5359d7d5463b81004580febe7dd7","6f94cbc047cc439bbdc02679d8e468a9","67d998fd187146979937d7c9313aad26","fe04b94af7ef4b39907e816adb6e716c","56f70a40f6dc41b2bdc9c1bfc57ae5db","0bcf9623c42047af90bc57306276fd2f","361f384133d84bbfb39e56d1e3e51ffb","a630f3d163c04665a691f204dacec38f","7a17637039894562bd4039ee00463499","5c08769f795a45d39cc3a52f18e90e98","e1a65a87d92249c8be5f8fabaec61b42","e00753f27d9843cf93e0290f446063ad","32dbdf580ee649518ea1d153b205e6d9","b1d4dd48335c40189d6d765f9e702683","5df937abc9984be2beeab79a7e3f069e","bc089397c43746fabe4f6a92bf7000a7","85d633daaed74a6998befc5ea80297a9","deb3f1c2ade744448a647a8b26b98456","b165aa5ff22a432ba5040072af1ce49d"]},{"dir":"🏗️ Terraform","ids":["a1b8b3099fb741839ac8592ffca2644a","d6de8454c7df4836b1c85e57ff83c801","5110af5c13b14935ab7aacb0346e33a3","c46f2f948b3147e697aba49db8139433","745b9e9243c741faafea9de4967bc1b5","d0c12cfbd3984164a38c440c4db577cc","a6d68778a2504626aceb9d176d363989","a24376d737104f889530141c2e4efd1c","4e7a4c6df06d43ef92a1b8f21e9c939a","79c9fe23d38e4487b2d03aede4f129b0","0db8ab5136a4486e917b57d27fb07bfe","fadc975026e243d280994c16b0f3e2d8","f354be866831409db8342b1890a3a8c3","fbbe5386993240fab39d1a3fd0cbaad8","22cdf1fa283b4b0e8ac73b480736466e","4685e8c7a3634521974cab5d661b97b0","43c06a7265ce4baabd42d600b4c55799","9f8ff9b44e694923be2a3dfcf6a9742e","95fc838748124df1a58685dbcebc4774","e2c9ee2cfba8438895971ecebf6053cd","616e6279c0474fdfac981ae224791cf9","bf34b1f7fe8e4dff8ba7b8ee73dd9cc5","0420bc89143247f1875264f15b8011bf","6b9bb7d7b0654cd3b99fac0d607690cd","21a6e4c500b64695a5bf93b170dabe93","b8c52b2e6da149948a5c825357e503b3","2f82289fffb34894b07f071ae2bb5ba3","37622c784c0144638025bfaf0a89f4dd","667a3561e3094e38bd6f088a393608d1","f5ed4a099eeb4fc6a373b097abc529c6","e4251dfbfad747cb949d085ed9f446c4","99f6ffda86324c25ab6bfe4982af599b","133a5097cfa14eb8b837f682dce8808c","0cb0f91782e847bd9f0e4b91a6399d23","22e36d5b1d26404c8a2f3477d9b65bd9","4895f01d1d584dcab19577d6d2b61948","3daf9286c92e46ef83bd683b7c80cd91","11db96358d974ad7bd1cd1c751355d4c","cced56fc48da4b3b8b77b93f52f37f17","9484aa74876346b28850dbbcf33cd0fd","53877232346741739c9d587491f98a52","889adfbcb5694c94b93c9b589128beb8","dbe548fde0704dea9ed4f22ab257aff1","7b2565f8d46a422e9d096df800dd1161","4abc4581d2a24c2ba55128fce990276d","49a327fdc79f4bd58d69c069f64eced8","e64170e9cc344587b4a2ecb8903e3d90","979ca25c746b461eaa467e305d923e18","f6a7bb78ac974ec38b22ea2f9179324b","fd9a5f49f7f9427faa3cb395907985d0"]},{"dir":"🎖️ Terraform Associate – HCTA0-004","ids":["d9a25028ac674318a3306b7ffe6cc095","661f4af8dcd84e338529a82d19a37100","669598614d1244c7ac7bff8ca0b0b6b1","2e4ac7a5cc4c4d7cb6164b6eef157ec7","a59dd34ffc734257b3ba6df2a1f0b898","d072f0cdce624b24a3b38848829c20f9","2f12776dc879495c8022e97afdb58080","7a5fd238a4c04746ba731f7e4ad8d433","3a286ecb882a47f1a8f9a163058bad67"]},{"dir":"🎖️ Azure Fundamentals — AZ-900","ids":["271fe458f95747408b3f268a6423b934","33b8fd3623d84c1a93fa7dcfee7f2d7e","92c6d953667043a4af6ae83d92d8a2e4","1360484d98754957a898f0d993497880","9eb7a81da0db4adbb6aa90214a9eb522","b60e23bcec444a2db12d2bff0473a581","8903a266f89645f697780f0bdc5f25d1","bfa8ff279fa646c08682dfdbf8a5ac37","26a475705d0f4233bc21c45740a34496","f3a066ac94cf4518aa6d9131365119d5","37b891dca69c466a92700a45b61c7019","efb27ffa461c429a9853c0cc61292b81","ce9e89902e4d45acbe2d6051bae65edf","fd1af341381d4cd28623112a96e8a5c9","cf574299832d43a1892a2911ddf09465","cb911dcdd3d6445ea1d015e00ec8cb5f","1cd0df8f7dbd4e068b77b913c327585a","6d28ec0cf8c64c29a190c2ae209b7c84","f6ec8f450245428693a1191a012c0078","b9812d55e1bd43228e79384aecfcdeda","f590132b7019407f93e2efd8bcb69b76","acde0b08318a494c952445612f068d89","66a6f797e836492fa019f48a5abe58b5","f0dfb79922f246968680720acf1ca6b3","59240d45a44d47d5aaa9300a653ff437","85997b391f4a42099642389931344874","f4e4aaeadb3841629654cb40afe5571a","61f2d4f438a84ff6920ce7f4f07c657f","e7129519c5c141c8afb7cf737fc496c3","cc678b61b06240ef9a50698cc31f34c7","42b1147d1518404fbdbea142bb9134b8","c22f71f2e7004183950c23a28a97ff1c","3018662ee4594990941becb389f98b9f","c45f561e3a234cda97132fd72cde0459","ed3a589cb7ce4504a52a3444472358d1","9409fa1d87bb4233bb1ffef2a717d2e0","178e6e17de934a688e204b143148c686","a5bd52423af7449f90680147ebd0cd46","fc00e9c4b9fa4040a8579df27896b15b","93e2f5c5e2314510aabc8fd5fc25e0d2","6b2429c082d6484196aa0c9daf9926ed","d06ab834c3e840c8983acd15cc897e1b","123072bbb3e141a296cad7bedea90f60","75de6430297e4be7b5704e88a6933227","0b8a1e1810d146ff9461fc62cac6cd0f","894eb441e8b94e71b4f6fc4a607a2f6e","feb2caab8294427484e9350ab40089f6","534e9c5b6b28447f8f930c9b30ac6f3a","399d264a871b4f09bef1e2620945807b","b129bfad7c8049c194ec1332f5b5e0b5","9ead88d34a2346de91e0c6583617b306","94af90575d02494caaa3e428ba9679d8","190c99d217724c498f30e4c0e49f12d0","c50f7049b4a248e4955c8a489b238bad","4a043e013fae41f0b69c2b668085f1a6","f7bc11d2f1d9499baa30c9335b94d6ea","835e0e6b13f3402a8354e6677fb1fda3","3437b34947eb45f09dd92a5b03297b75","ca46e69c37f54ee38b09fe617d274710","72c7715b476e4bd68a39d5a92fe48921","7e28ddad57f240158eaeabe60174b3f5","6cc041f45d194d90b4b0d69120578152","0196a38c73f046f0a91e213659c366a2","96f33cd8322946de9bc3b425a866213a","daa251be9aa848e5bbaf7e0ff6d9acc8","f6fc990772e24f9c9183b03219862488","a24fd6236d294482a322f17a6b1321c0","fd83249067ab4184aba754f9991543bd","b29b42e3b25d4ce597f43af9081ad012","39cbd89914664ade86fe8693b0d1f37a","d6f6d33b4ec1453ea623f3cd9fce12eb","326130d771574dff92c040f362897d41","3df1723760da406ba37c51a7d602343f","316d4d2689664b0cadc6c7dba6a20890","adfbcba2af85467580b12b8ec643d837","dd8f0766d86541b49dcbd2ffc1fd98ed","c362add8e3dc4c0580a1543bf3273868","234a1a9ecedf408e9c730c984dd5c3bc","e9b8fdeaea9542d38daeea3b9935849c","333a0c09baaf4126a3d82b148e3f4bd6","a91b6dfccb8949138421a35d9cc2a7ee","cad59867d4e844598c7c67387f945f25","98b60d7ef88f47a8ab195792600c9d51","2c92ebf5934c42b9863ff563937c26fc","fb52093397904536983b22b442498898","ea68d64004c34e3f94f488da58c1c21c","89da3e5f22f24eaf9d58a60c8997b580","6f6b654dce2e40c5a7265e886e0a128f","46d506655de14399b01d427634aef1db","e898ae1127f64b3694413873831362cb","be451a09e3144369bca2208aa84071fb","362d343297b74b28a64cf7cf959a7fa6","8fa7286353e3446f86a5fa71609a0921","2f05a315096c476ab8783adc8b157ef0","737f592a81034610b3cf68821e644b0e","86a4099b943d4f64a4f7586af65b52f8","c6078ec9bef04511995a97a6f569836b","5581a1fc5f9f452cb92f75cb63a7f19b","84c03381ad5643209d7783c73e79f24a","509bacac103a4cf9aa3061d2ba03e689","c49275ad6a1d41128a16587999ff4c04","0b71be7cfc0545ccb22dd9c5976ce568","60c6ba4f460844228f6a7bfca6969585","aefb00626b634690b626b650a856e4e6","2a5a85fa9ff04078a0154c62f9517640","75c40559b8134c038d77a388cc5834cf","42b19bf111344a518c051b94bca5ec4e","83521e62b8374bce8e9fa666b4adeb5a","f73456935f954fe9831f2c21d8273384","7b700d101ece4b7680f75bc1fd4ff586","1b425a585e1d4cc8b2e4223347fd83a7","04b35821d2314526acdd71f48f62ccb9","10a19f585faa47228424144e6ada0404","413486d92f16433d8cd106df34047ad3","cf2a61ad345449f4a0d8e69ff25e9e90","4bb80f49cfea41a48aa05df5fd784d6c","2f79865d9be64b20a9dc13ee5a7276b1","71d235de727a4342b9094ccbc2441218","7dea03dfe2a44f719da9b76dd48de3ea","c627e9b9928d473abab07c06bd412f56","e4f43754559a4e89bf06e999edb98dbf","e05bd4b9bed74a2a9c45eadf5ca7f9a1","6b946841137645ab9f899c0c011c6d25","8c4b8af057ea41719989a150d99a68a7","60683f78ae94478aa7018bb33e3c36d8","810d31626abc4280993a48cc1ef208f0","d325f095026f4792b32a31bb5b85bb8b","f5e4f9b624114492bb407516920c367f","ab70afe16bd64c7f8abd7a4c7297e9b5","f71ca80cba4045a088b719108a0121ab","cbc430274a7b44ae92915bc63fad8c23","bdeed6aa1acb4047837ddf651e75212c","75e85a19d4924195be14d1b87991538f","9af403ddd6ba4afa87f563271e904701","6d9fb2e91399436b90c839a10f4c7e4c","e57a7cc733084936ac766ca99e4b7e9a","8e6a1d5acc3642efbbfcec7a48f5d469","0fabc43097b149c8b1e94cd287bb3ba8","a6fde25edcf842788ad10beab02ed515","e859a20c9ded4c2da15632de61446729","243e012a00884cd2a709f6236b97ba32","35fbd67ad5a2420494b481ca76b1d45d","78287ff103cd4347ba0b13613f2e4dc1","7664bfd553e642ecb28d11b4309a3406","33d462ea75f84b829c624f76ed8c5f1b","0607bd49e0b04956ac0f186b53e08328","310c5cfc1c21494098f8e57bbcfd8fd2","efcb43d323f84477b853a405420f3426","54d5ddc8cc114dae9bcffa7709c98c3c","45bf40859ea14686885c41b899dd34f6","09408300fbd44bb589667acc8e17fb86","8d3ec824cd88430e9fda1f59208838bf","60d89c49e4cf43b7b7e8a56263364574","d918d7c014ab46b4936394f748de2a0e"]},{"dir":"🎖️ AWS Cloud Practitioner – CLF-C02","ids":["c0cb5f417b4945249b7b72b014519941","ff146caefc9d4dd4b263b9b0a7355d92","95a652daed3d4e5798f09f62d7626351","e7d1296bb0294318a5c9a4dd695479c8","0c9ae1a8521e4f4aadbb856a547e837b","a1ce154599f84df7a892338f2778040d","78693e593bd647e9b467f8e7cf450712","1c62c9bc9d994d8889c77f40fad903cb","b25e101e44bf4d0f8cde3de6657574e5","8e06dc71b57845789fbbe0f81e01c0b5","c8a09cfea6be4d37807c635a8a5ea3c9","e1e804a7dc7d43cb9314a95af4acce47","5d42fd53dc6947b6b9b84bf110efbb26","00dbbba879354d08bc26044027b58fd4","74d9a541a8fe43dcb6301d83a73cca67","13c27f23950c44b7ba7e058de1c21c68","2eb4b3157b0b4d5e8d915c34aab29250","9c89b2529492438a97b47bcca65f2850","daa393841dc441c88599e351173fe330","62f22d8d19854986ba0eb37cb5cad7cb","c9432f25b54d4854aec0f253ae6b9791","3a7da1db271743d897d0ca049af5c1f5","765a269c38b34fdbb4a863e3a52090f2","b3ca4e77ab3644d5b811a2d44c32a811","6370d0c281744d989d360c8f7f0db30c","8fbb29841940405aa6d779f34417b086","6a19a36218524e4a887070a93cd50683","a50034df246d447bb5f19b3da337c361","44113a59881240bfbc8d2cb349894bcd","4cd97b4751c149bc890d59c6aded9ab1","62df7bc8c6e74dc9a79a6e2a6fc26f58","7a85a2e68da648ee93c5932f28780572","cb9108b2a64940b3a667cd872f6cdc05","b3290ce6b8e44d188bf69ab54f9585fe","3159d4c3e1f54c49b1a1318564ccca42","8f354c5ae29b4e53958d1ab1f9a33c44","64446c2a9a154cd8928b988654831b8d","1797563d1d8843c3b4e20356681251d3","c603898d72dc4c2aad4d3cdeff8095c0","b4800c319b434cbdb473d249576a99be","df62dd8a8db342b2b70f44a1b470567a","6d7359ccf02b401f89f0a7a6357dfa35","8ebcf86fb43841c6a45db3e1e94cc0fe","f056d5803b7641eb9e00f74083b35e4d","165d2c7fe8624ec58b09c6b8779cf614","3c176e53baf14943be44baefc4d108b5","133cf64490844aa5840f950ddc22cd1a","3280ce8e7cfe4be3a45fdbbda8a234af","f1edc0b5a0cb4fc4950f7d1d9acf9303","08b2bc308417476fa5e6ff29f4c3c2cf","004d0a8ac87f4f89a75ac843dd9481b1","8df338be40e049cb8f6359bc22002c5d","9e9e6a9b8b25464f8a3347e69f50cd46","7ae2ae4ca2fc4af79b6bd09d1f215f50","05dcc6b86ffe4f3c836fe1f23f4b2c88","c124c3913280451684e3d0e95886cf36","74bc92372e4342f6bd88a5bb1bf6d6aa","b3f5fad7ecb94cfab95ecd9f0d612598","b4515476dd7a4b79996bf7ddc02092ca","7306382218734d3ea405adbbd37abb4e","14143410daab4ff5ad6e3473a40dffac","0c01e2eda49a472ebf20f6a808322a90","3d65764bce8241d7a844dc1fe8ee6323","dd709dba65c34b4396b15adc60e53a01","3444035450f848cd9197cd26a2b5576d","4d9a291b4ca7446988089d6deb61552e","48c890f4d76d4669b5310215fd6c9919","1f576f700a7b47ca851f84912cc66abc","9e68bc6360cc4afbb06d42c67748c17d","3793e077a49c4387a2adde5c8755ee90","139be4e6eb594a06ac2e30b1f6b54e1b","a599f9203baf493dac20984f4c734a0f","8e448ffc4d4f4615b5d6c84eadfa6297","3ca9538eaca14204977d10b5726c01a6","5bb6491851c041f598bd953434bb4661","a0544b422e024f43b4fab07bb350f5f2","fb6671b8d81d48b8ba43f5a0e2ac3d15","715befbcbee14376ae204e464c2cbcd1","a6a66fcd65bf4a8fb799d432e08bebe4","d5f8c965d20f47448be13ca31f93f6dc","06ed2ee1ab27428183959c467b3c88a7","321faad7a8434f85b47324e551856c72","4b334e587c1e4d7096213d1bc71812a5","cbd4c05fc488411f9ea33a623437a8e9","233c41766c164e67ab8d436363b7d9d4","ad54964bb4b24a6a81c72774455f9afe","c50345fa9f854fd0bb90e74b66212ede","2356c98a1bbd4c3f8485f369741be701","fc57a77a74514978a25e17c65f8a699b","3ee6f115f84a4f079039f71de0adb8a8","5e8929cb037240f98a012bfe5a60799a","d27c3d30503f4690b7e1005578176caa","77ee4d0df0d44f17a6b799da39076c11","2189bbe10ac04526b9d117d9603ccc02","57a84c0eb9eb4746a70eebe45ea83d72","690deb8c200b4453a3d77d4123678df8","c30c5d27726645a895bef4577e7348b4","ea4d9940353c4b8889ceaf8a3c65e2f0","5ecf66e9c56a413ab93f590a09d8545a","48334d7968d24eaa913acd64ec336185","2718e5b59f704ecab87ce345fa2657f5","2facd93c392849c48c60f5c915ae5df3","a9ef84b5a2be41a1a55e3879bd6395ca","96549c45dbe8475c93605d111b208967","499b96272b164c90a8a502ba616b11ff","707cad14780b4b8a840dcd3b9fd23893","08fb65d69687473fb027a2c3fd681a1a","83d1c2409bc243a39929436f0d4ff16a","23e31fdbf9774577a7bcb35c7e88e665","0d2c209a51334cea87c0f87ee831bcd6","ef519a54e159472c80ce1018a7a7ac16","8d6c4d6a93ec47e696982d2f984198c3","6a5445011dcc4bed9a9aaee2bb95daa9","64ec1d5a9b164921a74a479b4d37e010","1f4087d271854a26b421d0c7155dbab5","fd16ec28ecad448486675810ed57bca8","9ea7dd1a5f244dbaa31645f56a1e20e8","99db7c1810804e66972a66c775865411","8fb8f165f05b4b649159f011b2ef92ac","11676ed9ad804f0081fe5e8a93830e37","de183423ed914be4b6b7229b66861934","be7308e0ad9b4f5c982ca93e01d1bce1","c987b17407194af0a5e40feb7b91fe4c","0ca4fcfe445e4a6b8d38c83f84f4c305","7e28a555f1d648e0b9a0278a768cc82b","c90538ee141a44939ad3c67265305e8a","0c6c2064a2cc46c299d78b737d385af9","9d31d277b17b424a937b781d24fbda76","4e5927cd5163459aaea0cfeaabf88c6c","158de664feee42da923deeb703215a17","6fe57788d416464299b7ee78ffd124d9","b6016ed9378048e1837599ccae513f2b","0cc2c1577e974324af726dffe10f8aca","83549c3d4e2f45d0bc9b5bfc8d0e00e5","bf388c38c32b40f48a8a0d362aade4d1","f67324d60d9c431da606511bc9164def","a8baae3f335849a3a6e5aeb15bd872b1","60289863639f42a0889a727cf97840b3","3dc34e5494eb42c988582217b0402ade","4a867b47a6a7425b95d3be1f3d90acd9","eb9e8c5d05cf4304b3991cec50b8feb9","96a72491ddea4a0c949d21cf5ee5e2c5","fde9acfe30b347d8bd82b2a680f5a5f3","318d97b1f0d04dabac9e282cb17ac2af","05a4b3c61de54514890097b596dceffe","8d642930393b4005a91e8672c8024d1f","26de4760a0be4c57a6feafca7ba295d1","ea9f4c3f26ba4781b518289bf6bb508e","e88bcf07a5c8422083a1c3afb159bd2f","79b336261af34a66857bb0d1e2699567","1592990da20f465fb359997711b4ec6c","92b3c1da72dc4b989a3c6c0dec585620","7ef2edfe504540899badc709258a9289","1130b740558b4128b5cc21fdc5720ff8","612192fed910462faa229b4a36cc6d27","c2ffb0e413494148898d5daebe9e3df9","e6405591245a44f3b4f4eac248c37734","2d1535890fba4a9699ec1cabf906e79b","771b74d239554260b078c8cd86ab8c17","2d1f205fbf1645bba725946bf4495ca5","28577d2e83d54969b08c9a0a68914546","2ce9a0e73a304e0cbbc45ea5e57028db","4d01c0389f3c479691fa37d684af0250","880e1ee56f65402bba1a4942bad0411b","d808f3dd50d84b3aab7eae7813ab4ec4","41a7eec30fb34c5497271ad3566b0a60","4aee70eda5e446339c1c4cec35692490","b10dea7ffeb24baaa705765be5ded530","bba53f6f92bd44cb94ac239ec9eeff38","b0b3f6435b0c4518a732de0f7c4e91fa","9ecd935cf3ce4b3eaaa224f80cf5b9a7","bfc8f822238e44d4b06139eef87b2c12","2667310d2f3541b78767947288782577","a4945554b4a54738a31acf1febe3f4e2","625c3a2a669c4c6f94c7311fa278ccd6","6bca4bca781f49f08cd81787944720ff","6f35a8a65c7a4a2eab89c23d7be1d559","844eda3fa64f4673a67fe21f20b9b636","e62386920d4d4d95a49d19a8643a86a9","4a1302bc44ce4b08b48416d38a2c5fa2"]},{"dir":"🎖️ AWS AI Practitioner – AIF-C01","ids":["bf0958aa841b48df973e44b6a1cae5e3","96dfa71bb6414e8b993c950120cff5a1","ed2bfdc9b0584cebb05c2d6a7dd05072","9914292ab7554475a6f0c15cac46a0f3","ce4cf8c9db3d40e8b012d3c06279ad3c","6bb07edbdde94995902175ce6a6451dd","97f7ec2e410149edbfbe637623ce9b12","f3fa06c14f904285975d41398d03e201","a6c58797b2604d719811708accb38cc5","f995115e6b31459abded4ce8a5ef4ff0","de5716aaa2aa4ca7ab2862d25c71b60d","f4019830ff37457ab090d4bd8a1eb64c","7a1b7d52fcce41d9bfdde72a7c047122","c456252d3385468baf91930b0b5b3ebf","f104acc892e94d7bbe5290a2bc8eda1d","646178cdea2e49f09d81d35cd986f257","b44e08574fe44d02bd75f0694328902f","8f412b388a31498faef771364e6ae641","3ce40773930e49a5bf18845e9475530b","77ee7c629b324aaba56ed03e9590065c","7cf3c3eb96e943e380a2714a9ceb0270","b5d5cf1bc9bb46e19eeed1ada0ecc8dd","fe4c582eae1442c9a9d1349c64b10c18","a8884b1726504d6c836de88e2404cb6a","77559d22c34c4e12b3f025ff44e8a064","0c0aa9d103d149f4b69784d7543d3bfb","b50e0b2ecc814e01893ca26528b85fa7","252645d8a9254b29a4e8374d909dd409","2bc888293d1a4fd5a56178df5c96fe86","0e70d351ec7a4f0f874a4d22ac3c2b1c","6ecdb7b27947460284611ab1b07dc86b","2b6a63458f0346789abee97410285d55","87e911753f794971b0802208bc54544b","4254254dad7d4ea78db96f561d12229a","d3fc22d0c5c1470199908d48b466e45d","9dae4635ab004ea288e849903cb7931a","cb9b54b5a81844efa576f4e64e1708be","1a83471a4f0c4745baa540d887e7d614","cba41c758768412ca7ac143ee32201da","099d9ba830fe4bbba1915e386c8bf9d4","e4e479b9ba8d435e8f1df476eaa3d4f0","7fc30f0b045c4ef9aa4320960fbfad46","c4c04867fb5d46cfa4531e54c901d76f","d91fde3822884ce28144fac89d7aece5","dbf3498afde14bcb97fd1593c42f9bf1","3719ee8195464f6d8a37d0a25d3f6e83","2bf223d03de84de3abae59952dc93acc","775bf4a03fad42a0afa132c9bc670136","dc797bb8182e44e08df85c901d89fc62","f54504a2a60b4626b8f61d68429b25b7","372f7cece0014f5ba85a71ca0211431c","4eec8d8c6e0a486c9096063c240e185c","4f4deeb3fc9340f1b17eb8a58b915d9a","b05c8bf42121420a835136496c64a851","a7b08e3ba8314f398a1de0cb73f3a02d","675ae5cc6d0d49fc90b5c3b61b2c71f2","9ff38fa0fd164225865f14fac71d038b","19308f78841547f588e0cf20c7d05ab9","ced82792c62347be82af378aec0d7a67","1eb094640a24479893dff9923f74fcf0","0cde239cafd849afbc077820f4567cdb","6dc694d839964b5094a68bb34fb3817d","7411f4c8af444db88eed0678a03fe4ab","8a6603a8551848819dd9378f783c3287","8de86a827c0b467fab07eee346877b34","1ea58eaf95154abe906cb97371a383dc","c9850fae14bf4fcfa579f3e8bd622d5b","60ef60f735204246866a9eb073e90dad","d114e6e103d64893974336d5d1e7e9ae","c81ed1d7351e4e618de143e58b3083fa","a7ea42b703c74df8adf34a1eda6eff92","d6ca456dbccf4ca19d4feac8d368aa47","a9317961976149b9b28f890fe215b480","e252b985283b42db8389d0678171d02e","bf04cb38bc234f199d390ecf51e52bd6","032036b2d2514eb4b4d5f1c208f5a220","88e5a56a117d4bd28e3ff9d65f0d5d17","0c5e68693deb44dc8d7ec816215e9812","be91acb9b7a4407f8f7ea3be62793580","9136323873d344719ab1c100949cb769","9afd73d133c94893b5e28283d06d3521","6f754d4274d64a7eb907ead2185cf8e3","5a4f449f61c64ecca660d54e14c3f8a3","cf0969b91bfc4e01a5663ec23d730686","1a6de9540ee143bdbaa45609e6749c1f","d009c4f609484730bbc55fdfdbdc10c1","e14b7d61366a4b35893400774dfe6945","c215addb3dce4a03ad04739a8db7a132","078df71bbefc4e70bdbcfbb5d1b98db1","c186baf7cd684c21b8adc1fe0bf392b4","9144389e4f7143e3b0fe47aeb15a198d","861d1359270749eeba47cd9c37efddd6","3d02fdb5d3a6405d8493171fe92abe58","c9f102eece99423986998d80caf07f41","360bed8d659344e6b54b4bf9dfbf982e","9ac8e36e069149bdb196848597eb95fc","d9190b4fc1c643d4a0f291add2fd2d93","0bf6c8139f5440d3bd3b16246e84f26a","fc4aadf0c8f14cdcba6d56207d7e0728","607e79045f3b4a96922d2672a293a89e","6b484e70943b4c408e7306878919f01c","89769949016343b6aef91e2456ce0256","a1ea1d234d56478288b41af5ef3cfe39","175773374a834d73be8fbc7cc0914f9a","11b73aedf57e450f9168d64889e0bae6","30ea8661b2df47309733d000953510f3"]},{"dir":"♾️ DevOps desde Cero","ids":["a06f1c92980b458ea1f5aaab7afe20c3","81e24b6b6275407791f4893ba05cf049","df90c375c0914a488a83420a8b1ab333","b1550426e6c442a6932e00ed8e4134b1","c0c580feddc147e2adf7781f994544e9","d02c712db018498894fb088e2e8ea595","cec82d3052fa4bf48ed54cd3b44b1eae","656f9327093c403d8d394eeb0592e60a","14ff2b183a90448baaf82d55cb2e1c04","c9a5237f8bb748ce82a38a6d1f4f1e31","49dae11602224be5bc5f9708e602b670","60b1b49369304470aff4995341524363","97bd29bfc026493f9ef4a103e3e0130b","de8370747408422a9a359deda5175aa0","be7c7211b52b42d0a6aae63065ac17cf","3b47ec644f434f0c837f574a5fe1ad4f","474b0a19740d4466a44814046c5ddfc7","36d570f6c3074bf9bc2ad279423f7fad","2c8113a5b91440b79abe5927f66d6656","05e930eb38234e89800a130658baf56d","a4856011bb934b64a81cbe5656bb3ec5","2763a75378c740d9acb2cf807390e313","54bd0750d4fd475c8e77d7c1dfdbfb5c","c76357d06dd14e6bb63b34f19b5ad17d","6994e3896df648bebc46ea62d1a063ce","097d8ede0d1f4ff5a7288a9c719ec9c6","19b69e69228d4dde8829aa14736d00b1","b87fd453734f44ef8c6a1d334b148704","b2c525c9ebb746369f77e4595157a294","8b3e33eb4a254687a23bc0e9a48ee1f2","db0e1045ddde4a5a8d48a11099bc497a","e4df24a5e36445e5aeb9403d709eadff","361f8e3136a045128839a02617258a8f","a373734a41774eea8a10563cce6b8af0","7ab8d575d377441d9afb03c9c05374f3","49fd0f99e6bb4feda21f903462ffa12a","70c9eaecdec443c7a7cffe3162e3cb1d","c7d011aaeb5b4550ab87db8c4c534698","a551218bb82b4d12a3205c15b3b80a97","dbb1009c6b2549cc888550d1e4ebf10d","e97fd65c6d4449bfbb76e45fe0d055c8","35f06a9d67e34e21955e0aca0aa76cea","6a38ba739e424c9aa69d88e29e6bb5fa","b2e5db2527234bd0973eed8e565b080d","4ca642f2f20746759a8d9d42d8e4da6e","788a8a4ef1254bcc9c5ff717435dfefe"]},{"dir":"☸️ Kubernetes","ids":["bb10a99d09aa45e9955ba6baa1149eca","44a9a925fe584ef3ae72b30f593d0c73","d7bb3f35dc87404683638432bf1e2b58","bfd14d27e0c2448e809e5c0030de9da6","18e377908cb64d9ca483305d61f65019","c410c3dfd80d4f78bb5572df7e1fce9a","c80217804f2a401ca9257ee5e174466a","b64ac1196c374d8abbdff4c57c9f12ab","eb92245e40f64b45a970f8e67f909036","b0a2e7e6de6e4fc381096c445637dbce","7e9cce2b6d2d47fa8020f26db68df95b","f4df9d3b85d34066a99a7b6c84732e3a","9f779ca194564eb3abfe22b3b5a81d52","7727ee896f194d08b33306b746743c6a","136e865552d142538a172df01ff6cb19","967d9c8bdc6b43579eec9e4525e0d8c4","6dee8268270a444f989a96976fb59862","cb2b5547aab54e3091e8d9012070e121","d08348a1185340f9883fd67cb84a4440","5fc05c0e1b1c4fe9a7dd26efeed0a3c7","7ab74829b3434aba94eb6729ae7d9f1b","38bac90f6fc447bea5c7eac1423f7d77","c38f83307d1a4454a7487dce0962ca4d","9b1acc7b4efd4e879ff92fda2a742f43","ac3390b914e4426a8503e95b5e3d0aab","632b7fd5ca4e4e6d82eb4cf478131534","0b41c6289b624fbeadf293b63d7efd79","f1b0588c107d4b5eb17a605fb515cdbb","2c1acaa700b742cfba89a872c0174b77","219a04dedc8041e6a8211825c77d9729","72a614ac229745e5b3bd3144f642db29","57c99c327cab4a379d0c7085bfa392ce","e7e8d00a67694912a3217b6d95cc20ee","43025659bf114141bbcdb2e3ebc6378e","bc302182f8024ba7822be20bdf9e96f9","53c05333327e4b1380547738701de2b5","af8df9182ee049ad8579ef29f29593ef","beb2eeecff194b1b8f0bc225fee2459f","33fcb853ba9746198b8fe935de0eb888","ca0e236c56054116a645f42baabe2844","c9352a3a814c4cf2a9ee74320a9bb33a","a09a500cd8b44b0f8032a477811d7d33","cfd75e740ed74f6e922d570915061585","2578356a2fa4424a8dac6411e70414fa","31c431ad671145869abb5f5868590c52","828bbd41851940c1b6cae0b9347d7c85","befcfdf1f0b14360af8a8d2a61f3b119","822c40b32322469faf0802a9a811fae3","66f9d1f121574d7e8b989f8fe73581ba","1d2db3621db84564a498caf34b9de7b2","9725c06b38d34f8b9f2441f617a211c1","259a5b43db63484bb7dd1608fe6f7959","6533c1cf22004e979c3375e84e6b5817","cd96c1b7582b4a71b7d006c0f12fbe6c","057556d92b8740e8ab2b46ef972ff6b9","46872d44704748dabe1cb8bb88d2b3c2","f4c71e30f8bc4be58743fcb21fafd2f8","d435ba19f0d344dca16b500d83fc69dc","e3867a91e39841fb9dbe089c6ceda4dd","c6c81823902341d2a151c5a25c11230b","41f4b1224e9c41c69c41abf874b8cf4d","b785ddd8db564f1bb9d07032dd9727d5","7dab188e8abf4d7bb53e0649dbf87479","6e3e0cc294a24d9a8c06ba714e9c8daf","7e1d08c3a1f44917925246f40f6390fe","3aaca67088234a0e86821f3dc3c87433","3eae4c7e01bd4348b2ff89007e5cb2f0","93d623f883eb434687c198eb0ce98bd2","55780aec23464c878b52a045ca69e051","0b36e6aac5364c99922fbe84e6f9f39f","90d1676ff9054c7f980b004048fa10b5","548685a6c58f4eaeaa1b2bd6395c33f4","e2c8c9d2b8bd4eb29e2a04e9340f9221","8789dfc1c8a845a39854577d46a043a3","fd3f187073c347d990e25578369e961f","61fca8724a014daa8a2ea93ce104d9cc","c5f336db1ccb404a8586fe6f9ff3dab8","7236e2f0cbe9477393a1d9004d959416","1d954e888feb4a7eb5ee9ec093b7986f","1ce7096304dd4ff885c13f910d1b7422","acf30f2009a44182a9f492252d185209","bf96806bfb114e76a1de0f02a565c091","a38f1afedba54b2ab2bd34ceab690bd8","2d59b773c16b4dc191972b383dc08fc2","69f255410ae847aabb7f2d0b527644d3","87553030d28640428935fc04e14b7dee","39c18118411743e9b134998fa09c2239","7e5d10078bc1410887c57d383368496d","badd7916ef4a4465b4ec4910717b3a85","bb683796fcbf45bbbc0a4c62d346b382","cb08850a17154bc9b1ae16b1c396a31f","a9c4f72cc9b9420bb2487ae694ce1117","5a0b3d92d03749019b8c0eecc59ed82f","524f3caba35e4d19a7b7917337581b40","28eeb25bf6a9412682e246ab441dc4b9","f8b453b1930b40098d27dfd04ed0c106","c48e66f237ff482a9d85b9376d7bb71a","60cb9f28814d4e4baa6498b66d937075","ba2abf0dc5af47058cdfd18ce1cf0e42","70891360c0064a969534ba2ace978a3c","30f2c5abd6534c4485ac5e25db14745b","c1fc0cb2df984f37a7a545182ef0f1a3","b404c7f386044f749e60d72dcd0d0463"]},{"dir":"☁️ Cloud Computing","ids":["e084e16e2ae34ec98daeeacd6531e5ab","53246ad02b1a4e489cb6fdc7015d6fbc","fe7e1298c5284d44a2a661c08922d4df","6b45ef3373cd49069516e12466c99dd3","de4c2f0acdb04a2fbc01268b788e28d8","a87cfcc607434e7db877915a66ed5594","4acbcdd9741b4286ad2b67315edea9f1","007ed75b3fca454c9b4829a70c5e5e1d","04275359c9494ad1bf1db29bde571729","48b4b6d8affc49298ecec906dce01088","1a5e995d5ad04864a3324db5e8dbf181","ea8cfc4addf2434fac6260293aec3062","d96081a3362c4fecaec2d9f320d3b13f","803750ca218f4181a0eb2a38941ccff0","46332c72f5e445a3a594bc81dad665db","3b0efcd434074959b0e62e786a784a32","557658d73ad04e93a35ee1ae9fac5732","8362022e21e24ee2870732c1b1bedda1","c391a97228e745628b0e1169debd76ea","82fcc5f47676476487cfa1210914318e","ae666b88e9d54b56b4f62e169931ebd7","2e4ada7e80384c4ab0081185189fcc2e","3131e482e33d44aeba3fd37b0b837b04","4ee9e083969541c89c9b0d2da3dcb57b"]},{"dir":"☁️ AWS Essentials","ids":["0fea477f4dc64b159b5e67943b07a22d","34444561e4b14ac488d3c3582e54071c","d64ed84bfd9740dab0a8506ed0e828ea","6a65e0a3d86f4449af8c21f54227a481","d73b2ea3258842cf8f95043b723c498b","9766caada7a14eef85dda2115b4e1769","deb9947cc7a049eda4eba15a19c25550","b65144c9a426467eb5f546e7f27aac04","179ccae7a88444599b066a15711b0ead","98d4ac9acc5e4a08bf3990ff111a3311","8b28ec0cd12a40e5b085c4afdc7d9cc5","8a7deb97ff00486697a728cb39476807","eedf8576eee9495bb2f60a93dcd4fab0","4e60175ff5fc49db829c7a295f9e6b02","f35e749dc19a4c1ea9b66c5f91b3038d","8d2e5e60338548199943eb7f1a46e2e5","509e0e26c5c446f6bbd1602c2dec42e9","90cd3e528fab45fca2d3de5e19cd959f","116e745d63a94c46ac4ca333b1f63f35","51ad3f78b2ee4a289aa828ee926fbfe1","89b24600088345c8ac06acf705e55d2c","feb471319b4b490da9f76e4a0a6eb870","6311f570910040499176b676a37eec17","173aab1c1958496b9fb256e012ffe482","b6df15360ad44b81af388927a9ee63d8","4240e897fac94207a4c1a413c2397a2e","76f786d5a2cb4733908449c8006b4412","49f6cac580d848cda9b720f9bf9e81f8","2dd42dd3014c47358d1fbe4bf4ceae68","55c64517617942708ffa9f4b9f98c362","4679d0092070429888e4fdbf2821a907","6a2c66474ae44056ab8d3e126624c368","ce365a48ea6e47568ab084709db66f10","c0ecbf988b82497a9d1dd6d45492150c","96eaecb1bb7a421c8ed85b5d1b737be4","b4c3ccc0a8ec4618862207096b0fdd0e","7f94d75a6fe044feb475dbc20849ef66","e11b43207e76489bb123ccc17c655fd5","9bddbb1f8e5a4b07b6e7c11de8fbc173","9c00b50664cd445489e87a453c8fd8a8","b45a535946a54f28b035d8021bde23a9","b78579eb151646bbacb7b00cc5645622","f480483c036d4aac98fbf6a70df2efa7","2994a8a35dbb4a548cbe6f10e0586428","1d1ab193eb544922b2232cec214ac5f2","ef48f5451ac3440584753892d1af2c9a","437cc015772f4ebf9957e8d0fe73979f","1e93ee50bda34ea3869c141a194d25c6","817b45ec974e4d5bb2ad229939b303ef","8ea7aad1e1b549508eea9756bd1c6324","eba46d38b3bc4918ba9d157aa4cfd7a8","11bd6536b0684f0584f8468cd2e60008","4f2d485fb1d54fe48fc690e902799971","9dcfbd4cfe5d414bb78a1fac3ee48d06","684416427c20485eb6e872116b79b4e4","8b21e038fb6a4c88a17a5105daaacdc3","f063cbdbc9bd4138a5d8da7e9e6d60f8","e7bd5dfa4a2345ae96930e1fb9366d2d","941a45554a4740bc9597c057accd05db","cf3908da1d55483186bb1bbf9280b443","d6ef44f6f7a742c4aacc8f4781e97884","5180eb3bef504335832f4615f232e13a","c134c098184d4cb5b2a9b2ef8e6a883b","e42ed8f508a84ef489edb946d86a3d3e","bab06c770ff34ee0860d545f5f28e52a","eeb21bad63094cd8acb43bdc50276072","24fd45039d834cab960edbca7e7c67d0","c398e62ae79544528afbb1683e241170","9963d281bce94ec8b3c0abb1d11b4eb8","7f4cc68633324399bc982a1a26daf17a","4f98f1161a3e4d1caffb12a65d3c3106","6df33f4f68c348f4bef44a0799b336bc","517a16f9cfc14a21ab170b97969b9c71","d507f328f766435cad669d77ac4b94ed","edaedbb55783475db451038df0797964","5403e0f93dad4dd9b1fd96e053abf5c0","c6bbfa3a9b2e412eba95a4d0d4f038de","d682a5498d8b408fadf8c90838f1ad02","02acbceb5f3640488490cba7e1bb6b17","e90464a2871146bcb80e9411cb76b9fa","7355839ae8cc422b95c215a183e9ad92","b320a94c5fa3450399e3f72732c200bb","2d52dc6b3e74489288cb78ef17401a95","9210f28249a5479292b591e4bd70abfb","35374c2bb4a44e6f9b487537e522d558","e507030ed0c74e4d9dd15d0753e0f74f","eff79e81b2b24e5484ab88ec3d6f159b","4b7473595ddf48f3b0115caf6b8f91dd","a7cf38bccea74562aa7521e4c23d142c","043200085ac54762828c342a1018ce27","0af910c820d747fd8e987f454fae7353","055b5c6a57bb4a2abebc78c70a14b524","6493554e32ea466fb514f82fbf2166e2","771b5d25060545f8816be00cd54d6f32","1235145d983149468b1cb09ab749d558","05fd04acd2174cdfb5efd2d9b0d81fd4","b0ccf46ecc8343d1b0074dcb5f43bd91","c16f8da58ad74ed18d53b52ac9f4a953","7bfc8856cbec4b6ea6c239028dee602b","109b0ff5323b482d90cbd7525746304d","dfbba954137c47f29f5b42eeba603d0b","9c916828feff4d09ba35158dccca38b7","bb08df1f95e94014838c3f0b3c0b45d4","b63949852b3e414e8829b12d9e90caa2"]},{"dir":"▶️ GitHub Actions","ids":["4e6e8ab1fc224c23a715bb3d7b290e78","0f73f80df65c43cea590e3bd16782f4c","f283cf8bafe743e789d4076a87083c20","1ec8b19bc6214ee6944d11507f6a0dba"]},{"dir":"🔗 DNS & DOMINIOS","ids":["3c6fc16a70364573bd7858c18b94c0db","7ffcdd1ac9ec4c168076502948119a50","60d337ad5f6a48368825fce5e3f7769d","d8d4b9c1bdca43c8bdf2fdf06ceca8b5","0e8ebad7db1d42b0857d068619c15a8a","5d0f0ddf2a7f4408a1aec639d85ec4da","5b79a1ddae4f4f9a90d2162ed1c6d8ab","43497212500b40fa9574c3cfdaffbbd8","5b4aca0dd6e545d5abf23e336ac24283","dc304e9dd7f740d0bb33f59590fb3f13","011a4701ef154022995dd4a40c34db7d","296b192f34d34ae8a666b9babbc3f355","69c2c1799c0547e88114b032aab78302","07b77cef7ba7461994ffe88664b5b48c","4d15216f7b8c4ffa8d730c671a4f75bd","8dfa60a9ec444c0299296f536f1e499c","a4d83bed161d48f5b435c43954c62b40","000b0f1e7bd74a059b3632c38afa5674","858913599a044bc391cdb9845135faa7","11bf48b5f472436bbabbf12418580f31","21c1a78b4de84df0875305c9e9bf88c0","5c2bef1163eb406089324f5a3ab10a2a","90d5a4ff382f4ca49e8fbd5e46ae3221","c9b5b1fb23ef407bb170a9c5133fefb2","fd5315373a9a47e5a276639b52be4f0a","8251857de0d0466f974e271048996813","3d0648c54bf54ce7b209199a55cbf8bd","fa88df70e99b4b16b4f12c7efea361bd","7420c9fb7930453fad4300d89c932eaf","e5dd8b9085b444628fa7685921fbc108","13d9309624d04043b8d3f8eaaca77d21","f8f56e14e11b46188517567d46ee8345","201f544a8d87446d999665a210598b15","23ebbe4792b44097977fdb225e5113ba","f5216f82327947cb97645467dafd98dc"]},{"dir":"🌐 Networking para DevOps","ids":["b6041b8bd51044469fb0c9bc6c02ec09","aede379452e44f5298aa3b0b63521098","87edbbfa39af4f308d6fe1502d048745","26d5f8d6fd0243ddaac4f141443c4885","d500d54baa7a4d079a4016398b1ca525","bb6940c16e3b46f48a7a03e1ba1a39bc","e37541831fc9410d95e5fb7f39127bbe","94331f0bd66b44bba89201beb3d0d25b","3a9892527c4444548aa3497872739962","ccedfe41725a4faba54066396dcbce13","dbbd01a2325742208f9c5fc775db329c","e7f55d2a73c34733a247cdc7a08d1e34","ffa1b815699a4921b78e4abac95f387f","04f71027685f4bf29e6cfa328d294b34","45d9215db76f40a3899c2d2f8403441d","1960b820428543d08668fdba69194966","86c66e2dccbc4bbbb93f73502f159035","5296ccefccb845c6a34db2813fc7d549","28cebf98f1e647789e5bf921fc7c218d","c5a385d62f36473594799f76e574e028","5340e4693dcf46d1805c82a0b28d9730","50d61e4ad86c47bd9e3105a980ff20fc","e8a2bcd2d9a84e22a57ab32212665701","fa77b91b188644cd856975c094cef014","287950bad8d24d74b8c83d55aabfca4e","b3743736e35244ddb33e05c6942af43d","b3ba3c43c6aa4658be99d03e8cd36f3c","c3c3bdadeda148a2b5e01751802fe2ad","1c162bc04e6544748c129a23c1700538","698930bfa0d648d1a1e27d05d60caa37","1cfac0682bf449348b4890e70904a312","19faf4b67a584c5bb6a98795a4250f8f","026d79404f294a57b8337093358b2f3e"]},{"dir":"🛠️ Herramientas DevOps","ids":["136560fe61054a89a9061a25812ebf2a","aedb5c21cda44618b604a2d9d2307164","4def8e06be6343a784f5c2b426edec88","bbfcdfc4cb664b528909e3ccda484bf6","dbfa3bf459a641c7b984ec372766ba53","f404e91dde164ea39b1ffd19fda01f11","89bcdc7d74844eb797bd05f7c86d05dd","bdc3f190adb248ca9eaac7c8f318cb88","42217765b4684b11b603eb56ffa65987","c03ecadca99042869a8bfb18eb818c2f","c8c7851293564e0e92402d54bdd1e13a","114278b0ab6141ae922ea48b3fbc4b2f","755b734def194f0ab1a1952c113711e1","7ddd59979e7f489ba66b80d632d1c458","fe116efcbc214872a2e453de22376b90","0fdc5bb16dfb428591b2c34f3c28365b","7af8884c2a7d4319a2c65801ff8246b6","f4ae99d2c28a425bb93c69ac843bce21","3eb99b6a64024d168f496ea42678359b","1b275c879e9e4712a29d29186260d764","ee773f0064cf4a168f05a0f49d1dd808","2409b0d985c14eed89db359629d60717","fa3e5465c7d4439fb01e544df6396cc9","7c7d7916dacd4cd5bc656925a41bef3b","683bf375d704468db37077683be4c743","264989feefb34cedbf77fa2781959c6b","87652b210bf9432f8480ae3188afb1a2","da7eba6ff4124bb496b8d6f32d6484dc","5d299264f6ae4193a6106bae32bf9b61","368f09f3a1e9400e9c532ff384cc95f8","5d7f3f67f28c438ea6abf24332dcee53","4cb792264d1146a59e867e09e35b6ab2","557cf14566ad41a58668465656ea3e5e","4a2c0850af4a4a9c83248f899b113b5e","b92d3f1ebde04c8d946de4eb9bdf1d80","92768faa259645568c4e518f7e789fc5","bc432b53f7254cb09269fae48ae4a369","f2827e15f2d445b4a2e681d9b0093e27","3aab308d7d2441a4a891f460eec7401e","4401c1d33e924710afd99f435b79fac5","9ec82402b7da4ce58af3649c0b401237","ab6b0d606cd04eb891695133406ab6c5","cc112ea9fea246529e811985ca50dfef","7038eb5cdaeb4babaa4c8214eef133e1","91c5ff98565e4ab38e61a097b765ce10"]},{"dir":"📍 EMPIEZA AQUI- Tu Onboarding","ids":["64881306bc814e38af669298d2e57e9e","af99a45c4c944a15bd281e7f9c4bdcc0","b2cd1f1130a04bae97f6805f37f0d2c7","7c488d6a976e40e3a29ac58349b86c05","1037708e958540a8af5c2d5862916ad6","26f86946462043c1885894c2f64020a8","be543bf93e2b4f258a1ffa5931a5bd2b"]}];
+(function () {
+    var byDir = {};
+    (window.__COURSES__ || []).forEach(function (c) { byDir[c.dir] = c.ids || []; });
+
+    function refresh() {
+        var totalDone = 0, totalLessons = 0;
+        Array.prototype.forEach.call(document.querySelectorAll('[data-course-bar]'), function (el) {
+            var ids = byDir[el.getAttribute('data-course-bar')] || [];
+            var done = 0;
+            ids.forEach(function (id) { if (Progress.isDone(id)) done++; });
+            totalDone += done;
+            totalLessons += ids.length;
+            el.style.width = (ids.length ? Math.round((done / ids.length) * 100) : 0) + '%';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-course-count]'), function (el) {
+            var ids = byDir[el.getAttribute('data-course-count')] || [];
+            var done = 0;
+            ids.forEach(function (id) { if (Progress.isDone(id)) done++; });
+            el.textContent = done + '/' + ids.length;
+        });
+        var pct = totalLessons ? Math.round((totalDone / totalLessons) * 100) : 0;
+        var ob = document.querySelector('[data-overall-bar]'); if (ob) ob.style.width = pct + '%';
+        var op = document.querySelector('[data-overall-pct]'); if (op) op.textContent = pct + '%';
+    }
+
+    Progress.load(refresh);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

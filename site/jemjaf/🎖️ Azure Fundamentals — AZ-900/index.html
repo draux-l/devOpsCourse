@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>🎖️ Azure Fundamentals — AZ-900 — jemjaf</title>
+<style>
+    :root {
+        --bg: #f3f4f1;
+        --surface: #ffffff;
+        --ink: #15181c;
+        --muted: #5c636b;
+        --line: #dfe2df;
+        --track: #e7e9e6;
+        --accent: #1e7a4d;
+        --accent-ink: #14502f;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+    }
+    a { color: var(--ink); }
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(243,244,241,0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+    }
+    .topbar .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+    }
+    .crumb { font-size: 0.85rem; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .crumb a:hover { color: var(--accent); }
+    .crumb .here { color: var(--ink); }
+    .overall { display: flex; align-items: center; gap: 12px; }
+    .overall .track { width: 220px; }
+    .pct { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 700; font-size: 1rem; color: var(--accent-ink); min-width: 3.2rem; text-align: right; }
+    .ocount { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 40px 24px 80px; max-width: 900px; margin: 0 auto; }
+    .lead { margin-bottom: 34px; }
+    .lead h1 {
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px 0;
+    }
+    .lead .sub { color: var(--muted); margin: 0 0 18px 0; }
+    .lead .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ghost {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+    }
+    .ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .module {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px 22px 14px;
+        margin-bottom: 18px;
+    }
+    .module-head { display: flex; align-items: baseline; gap: 12px; }
+    .mnum {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.85rem;
+        color: var(--accent-ink);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 2px 7px;
+        flex: none;
+    }
+    .mtitle { flex: 1; font-size: 1.12rem; margin: 0; letter-spacing: -0.005em; }
+    .mcount {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--muted);
+        flex: none;
+    }
+    .track {
+        height: 6px;
+        background: var(--track);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 14px 0 18px;
+    }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .lessons { list-style: none; margin: 0; padding: 0; }
+    .lesson { display: flex; align-items: flex-start; gap: 11px; padding: 7px 0; border-top: 1px solid var(--line); }
+    .lesson:first-child { border-top: none; }
+    .lesson input[type="checkbox"] {
+        width: 17px; height: 17px; margin: 3px 0 0 0; flex: none;
+        accent-color: var(--accent);
+        cursor: pointer;
+    }
+    .lesson .ltitle { text-decoration: none; }
+    .lesson .ltitle:hover { color: var(--accent-ink); text-decoration: underline; }
+    .lesson.is-done .ltitle { color: var(--muted); }
+    footer.foot { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; color: var(--muted); font-size: 0.8rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+    @media (max-width: 600px) {
+        .topbar .wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .overall .track { width: 150px; }
+    }
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="wrap">
+        <div class="crumb">
+            <a href="../index.html">jemjaf</a> <span>/</span> <span class="here">🎖️ Azure Fundamentals — AZ-900</span>
+        </div>
+        <div class="overall">
+            <div class="track" role="progressbar" aria-label="Progreso del curso"><div class="fill" data-overall-bar></div></div>
+            <span class="pct" data-overall-pct>0%</span>
+        </div>
+    </div>
+</div>
+<main>
+    <section class="lead">
+        <h1>🎖️ Azure Fundamentals — AZ-900</h1>
+        <p class="sub">Comunidad jemjaf · 18 módulos · 154 lecciones</p>
+        <div class="tools">
+            <button class="ghost" data-reset type="button">Reiniciar progreso de este curso</button>
+        </div>
+        <p class="ocount"><span data-overall-count>0 de 154 lecciones</span></p>
+    </section>
+    <section class="modules">
+        
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">02</span>
+                    <h2 class="mtitle">🎬🔵 SESIONES COMPLETAS</h2>
+                    <span class="mcount" data-module-count="2-🎬🔵 SESIONES COMPLETAS">0/15</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="2-🎬🔵 SESIONES COMPLETAS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6f6b654dce2e40c5a7265e886e0a128f" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/1-🔵☁️ [M0] Bienvenida y Ruta AZ-900/index.html">🔵☁️ [M0] Bienvenida y Ruta AZ-900</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="737f592a81034610b3cf68821e644b0e" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/2-🔵☁️ [M1] Examen AZ-900 y Logística/index.html">🔵☁️ [M1] Examen AZ-900 y Logística</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="86a4099b943d4f64a4f7586af65b52f8" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/3-🔵☁️ [M2] Cloud Computing y Modelos Cloud/index.html">🔵☁️ [M2] Cloud Computing y Modelos Cloud</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c6078ec9bef04511995a97a6f569836b" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/4-🔵☁️ [M3] Beneficios y Resiliencia Cloud/index.html">🔵☁️ [M3] Beneficios y Resiliencia Cloud</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5581a1fc5f9f452cb92f75cb63a7f19b" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/5-🔵☁️ [M4] IaaS, PaaS y SaaS en Azure/index.html">🔵☁️ [M4] IaaS, PaaS y SaaS en Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="84c03381ad5643209d7783c73e79f24a" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/6-🔵☁️ [M5] Arquitectura de Azure/index.html">🔵☁️ [M5] Arquitectura de Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="509bacac103a4cf9aa3061d2ba03e689" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/7-🔵☁️ [M6] Cómputo y redes en Azure/index.html">🔵☁️ [M6] Cómputo y redes en Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c49275ad6a1d41128a16587999ff4c04" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/8-🔵☁️ [M7] Azure Storage y Migración/index.html">🔵☁️ [M7] Azure Storage y Migración</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0b71be7cfc0545ccb22dd9c5976ce568" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/9-🔵☁️ [M8] Identidad y seguridad en Azure/index.html">🔵☁️ [M8] Identidad y seguridad en Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="46d506655de14399b01d427634aef1db" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/10-🔵☁️ [M9] Costos y facturación en Azure/index.html">🔵☁️ [M9] Costos y facturación en Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e898ae1127f64b3694413873831362cb" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/11-🔵☁️ [M10] Gobernanza y cumplimiento en Azure/index.html">🔵☁️ [M10] Gobernanza y cumplimiento en Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="be451a09e3144369bca2208aa84071fb" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/12-🔵☁️ [M11] Administración y despliegue en Azure/index.html">🔵☁️ [M11] Administración y despliegue en Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="362d343297b74b28a64cf7cf959a7fa6" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/13-🔵☁️ [M12] Supervisión en Azure/index.html">🔵☁️ [M12] Supervisión en Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8fa7286353e3446f86a5fa71609a0921" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/14-🔵☁️ [M13] Preparación final AZ-900/index.html">🔵☁️ [M13] Preparación final AZ-900</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2f05a315096c476ab8783adc8b157ef0" data-module="2-🎬🔵 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔵 SESIONES COMPLETAS/15-🔵☁️ [M14] Programar el examen AZ-900/index.html">🔵☁️ [M14] Programar el examen AZ-900</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">01</span>
+                    <h2 class="mtitle">Lessons</h2>
+                    <span class="mcount" data-module-count="__root__">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="__root__"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8d3ec824cd88430e9fda1f59208838bf" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="1-📍 [INICIO]/index.html">📍 [INICIO]</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="60d89c49e4cf43b7b7e8a56263364574" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎉 Bienvenida/index.html">🎉 Bienvenida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d918d7c014ab46b4936394f748de2a0e" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-👋 Cierre/index.html">👋 Cierre</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">03</span>
+                    <h2 class="mtitle">📚 Recursos</h2>
+                    <span class="mcount" data-module-count="3-📚 Recursos">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="3-📚 Recursos"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="60c6ba4f460844228f6a7bfca6969585" data-module="3-📚 Recursos" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-📚 Recursos/1-📚 Simulacros, PDFs y Material de Apoyo/index.html">📚 Simulacros, PDFs y Material de Apoyo</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">04</span>
+                    <h2 class="mtitle">M0 — BIENVENIDA AZ-900</h2>
+                    <span class="mcount" data-module-count="4-M0 — BIENVENIDA AZ-900">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="4-M0 — BIENVENIDA AZ-900"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="aefb00626b634690b626b650a856e4e6" data-module="4-M0 — BIENVENIDA AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M0 — BIENVENIDA AZ-900/1-0.1 🗺️ Ruta de estudio AZ-900/index.html">0.1 🗺️ Ruta de estudio AZ-900</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2a5a85fa9ff04078a0154c62f9517640" data-module="4-M0 — BIENVENIDA AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M0 — BIENVENIDA AZ-900/2-0.2 ☁️Azure Portal/index.html">0.2 ☁️Azure Portal</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">05</span>
+                    <h2 class="mtitle">M1 — EXAMEN AZ-900</h2>
+                    <span class="mcount" data-module-count="5-M1 — EXAMEN AZ-900">0/5</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="5-M1 — EXAMEN AZ-900"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="75c40559b8134c038d77a388cc5834cf" data-module="5-M1 — EXAMEN AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — EXAMEN AZ-900/1-1.1 🎯 Examen AZ-900 y dominios/index.html">1.1 🎯 Examen AZ-900 y dominios</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="42b19bf111344a518c051b94bca5ec4e" data-module="5-M1 — EXAMEN AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — EXAMEN AZ-900/2-1.2 🌐 Idioma y accommodations/index.html">1.2 🌐 Idioma y accommodations</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="83521e62b8374bce8e9fa666b4adeb5a" data-module="5-M1 — EXAMEN AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — EXAMEN AZ-900/3-1.3 💳 Precio, retakes y vouchers/index.html">1.3 💳 Precio, retakes y vouchers</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f73456935f954fe9831f2c21d8273384" data-module="5-M1 — EXAMEN AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — EXAMEN AZ-900/4-1.4 🖥️ Pearson VUE y OnVUE/index.html">1.4 🖥️ Pearson VUE y OnVUE</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7b700d101ece4b7680f75bc1fd4ff586" data-module="5-M1 — EXAMEN AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M1 — EXAMEN AZ-900/5-1.5 📋 FAQs del AZ-900/index.html">1.5 📋 FAQs del AZ-900</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">06</span>
+                    <h2 class="mtitle">M2 — CLOUD COMPUTING</h2>
+                    <span class="mcount" data-module-count="6-M2 — CLOUD COMPUTING">0/8</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="6-M2 — CLOUD COMPUTING"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1b425a585e1d4cc8b2e4223347fd83a7" data-module="6-M2 — CLOUD COMPUTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — CLOUD COMPUTING/1-2.1 ☁️ Cloud Computing/index.html">2.1 ☁️ Cloud Computing</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="04b35821d2314526acdd71f48f62ccb9" data-module="6-M2 — CLOUD COMPUTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — CLOUD COMPUTING/2-2.2 🔷 Microsoft Azure/index.html">2.2 🔷 Microsoft Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="10a19f585faa47228424144e6ada0404" data-module="6-M2 — CLOUD COMPUTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — CLOUD COMPUTING/3-2.3 🤝 Shared Responsibility Model/index.html">2.3 🤝 Shared Responsibility Model</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="413486d92f16433d8cd106df34047ad3" data-module="6-M2 — CLOUD COMPUTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — CLOUD COMPUTING/4-2.4 🌐 Public, Private y Hybrid Cloud/index.html">2.4 🌐 Public, Private y Hybrid Cloud</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cf2a61ad345449f4a0d8e69ff25e9e90" data-module="6-M2 — CLOUD COMPUTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — CLOUD COMPUTING/5-2.5 💰 CapEx, OpEx y Consumption/index.html">2.5 💰 CapEx, OpEx y Consumption</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4bb80f49cfea41a48aa05df5fd784d6c" data-module="6-M2 — CLOUD COMPUTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — CLOUD COMPUTING/6-2.6 💳 Modelos de precio/index.html">2.6 💳 Modelos de precio</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2f79865d9be64b20a9dc13ee5a7276b1" data-module="6-M2 — CLOUD COMPUTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — CLOUD COMPUTING/7-2.7⚡ Serverless y Azure Functions/index.html">2.7⚡ Serverless y Azure Functions</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="71d235de727a4342b9094ccbc2441218" data-module="6-M2 — CLOUD COMPUTING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M2 — CLOUD COMPUTING/8-2.8 ⚙️ Gestión de la nube/index.html">2.8 ⚙️ Gestión de la nube</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">07</span>
+                    <h2 class="mtitle">M3 — BENEFICIOS CLOUD</h2>
+                    <span class="mcount" data-module-count="7-M3 — BENEFICIOS CLOUD">0/13</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="7-M3 — BENEFICIOS CLOUD"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7dea03dfe2a44f719da9b76dd48de3ea" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/1-3.1 🟢 SLA y alta disponibilidad/index.html">3.1 🟢 SLA y alta disponibilidad</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8c4b8af057ea41719989a150d99a68a7" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/2-🌟 Geografía de Azure/index.html">🌟 Geografía de Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="60683f78ae94478aa7018bb33e3c36d8" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/3-🌟 Regiones y soberanía/index.html">🌟 Regiones y soberanía</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="810d31626abc4280993a48cc1ef208f0" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/4-🌟 Availability Zones/index.html">🌟 Availability Zones</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d325f095026f4792b32a31bb5b85bb8b" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/5-🌟 Region Pairs y continuidad regional/index.html">🌟 Region Pairs y continuidad regional</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f5e4f9b624114492bb407516920c367f" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/6-3.2 📈 Scalability/index.html">3.2 📈 Scalability</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ab70afe16bd64c7f8abd7a4c7297e9b5" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/7-3.3 🔄 Elasticity/index.html">3.3 🔄 Elasticity</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f71ca80cba4045a088b719108a0121ab" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/8-3.4 🛡️ Reliability y Disaster Recovery/index.html">3.4 🛡️ Reliability y Disaster Recovery</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cbc430274a7b44ae92915bc63fad8c23" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/9-3.5 📊 Predictability/index.html">3.5 📊 Predictability</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c627e9b9928d473abab07c06bd412f56" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/10-3.6 🔐 Cloud Security/index.html">3.6 🔐 Cloud Security</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e4f43754559a4e89bf06e999edb98dbf" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/11-3.7 🏛️ Governance y Azure Policy/index.html">3.7 🏛️ Governance y Azure Policy</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e05bd4b9bed74a2a9c45eadf5ca7f9a1" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/12-3.8 ⚙️ Manageability y Agility/index.html">3.8 ⚙️ Manageability y Agility</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6b946841137645ab9f899c0c011c6d25" data-module="7-M3 — BENEFICIOS CLOUD" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M3 — BENEFICIOS CLOUD/13-3.9 📋 SLA y Composite SLA/index.html">3.9 📋 SLA y Composite SLA</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">08</span>
+                    <h2 class="mtitle">M4 — MODELOS CLOUD Y DATOS</h2>
+                    <span class="mcount" data-module-count="8-M4 — MODELOS CLOUD Y DATOS">0/13</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="8-M4 — MODELOS CLOUD Y DATOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bdeed6aa1acb4047837ddf651e75212c" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/1-4.1 🖥️ IaaS/index.html">4.1 🖥️ IaaS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8e6a1d5acc3642efbbfcec7a48f5d469" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/2-4.2 ⚙️ PaaS/index.html">4.2 ⚙️ PaaS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0fabc43097b149c8b1e94cd287bb3ba8" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/3-4.3 ☁️ SaaS/index.html">4.3 ☁️ SaaS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a6fde25edcf842788ad10beab02ed515" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/4-4.4 🔄 IaaS vs PaaS vs SaaS/index.html">4.4 🔄 IaaS vs PaaS vs SaaS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e859a20c9ded4c2da15632de61446729" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/5-4.5 🛡️ Responsabilidad compartida/index.html">4.5 🛡️ Responsabilidad compartida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="243e012a00884cd2a709f6236b97ba32" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/6-4.6 🤖 Azure Machine Learning/index.html">4.6 🤖 Azure Machine Learning</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="35fbd67ad5a2420494b481ca76b1d45d" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/7-4.7 🔥 Azure Databricks/index.html">4.7 🔥 Azure Databricks</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="78287ff103cd4347ba0b13613f2e4dc1" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/8-4.8 🔄 Azure Data Factory/index.html">4.8 🔄 Azure Data Factory</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7664bfd553e642ecb28d11b4309a3406" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/9-4.9 🌊 Azure Data Lake Storage/index.html">4.9 🌊 Azure Data Lake Storage</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="75e85a19d4924195be14d1b87991538f" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/10-4.10 🗄️ Azure SQL y Cosmos DB/index.html">4.10 🗄️ Azure SQL y Cosmos DB</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9af403ddd6ba4afa87f563271e904701" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/11-4.11 🐘 Azure HDInsight/index.html">4.11 🐘 Azure HDInsight</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6d9fb2e91399436b90c839a10f4c7e4c" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/12-4.12 📊 Azure Synapse Analytics/index.html">4.12 📊 Azure Synapse Analytics</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e57a7cc733084936ac766ca99e4b7e9a" data-module="8-M4 — MODELOS CLOUD Y DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M4 — MODELOS CLOUD Y DATOS/13-4.13 📈 Microsoft Power BI/index.html">4.13 📈 Microsoft Power BI</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">09</span>
+                    <h2 class="mtitle">M5 — ARQUITECTURA DE AZURE</h2>
+                    <span class="mcount" data-module-count="9-M5 — ARQUITECTURA DE AZURE">0/7</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="9-M5 — ARQUITECTURA DE AZURE"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="33d462ea75f84b829c624f76ed8c5f1b" data-module="9-M5 — ARQUITECTURA DE AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — ARQUITECTURA DE AZURE/1-5.1 📍 Latencia y disponibilidad/index.html">5.1 📍 Latencia y disponibilidad</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0607bd49e0b04956ac0f186b53e08328" data-module="9-M5 — ARQUITECTURA DE AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — ARQUITECTURA DE AZURE/2-5.2 🧱 Recursos y ARM/index.html">5.2 🧱 Recursos y ARM</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="310c5cfc1c21494098f8e57bbcfd8fd2" data-module="9-M5 — ARQUITECTURA DE AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — ARQUITECTURA DE AZURE/3-5.3 📦 Resource Groups/index.html">5.3 📦 Resource Groups</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="efcb43d323f84477b853a405420f3426" data-module="9-M5 — ARQUITECTURA DE AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — ARQUITECTURA DE AZURE/4-5.4 💳 Subscriptions/index.html">5.4 💳 Subscriptions</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="54d5ddc8cc114dae9bcffa7709c98c3c" data-module="9-M5 — ARQUITECTURA DE AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — ARQUITECTURA DE AZURE/5-5.5 🗂️ Management Groups/index.html">5.5 🗂️ Management Groups</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="45bf40859ea14686885c41b899dd34f6" data-module="9-M5 — ARQUITECTURA DE AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — ARQUITECTURA DE AZURE/6-5.6 🌳 Jerarquía de Azure/index.html">5.6 🌳 Jerarquía de Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="09408300fbd44bb589667acc8e17fb86" data-module="9-M5 — ARQUITECTURA DE AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M5 — ARQUITECTURA DE AZURE/7-5.7 🛒 Azure Marketplace/index.html">5.7 🛒 Azure Marketplace</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">10</span>
+                    <h2 class="mtitle">M6 — COMPUTE Y NETWORKING</h2>
+                    <span class="mcount" data-module-count="10-M6 — COMPUTE Y NETWORKING">0/24</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="10-M6 — COMPUTE Y NETWORKING"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="271fe458f95747408b3f268a6423b934" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/1-6.1 ⚙️ Servicios de cómputo/index.html">6.1 ⚙️ Servicios de cómputo</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="efb27ffa461c429a9853c0cc61292b81" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/2-6.2 🖥️ Azure Virtual Machines/index.html">6.2 🖥️ Azure Virtual Machines</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6d28ec0cf8c64c29a190c2ae209b7c84" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/3-6.3 🧩 Recursos de una VM/index.html">6.3 🧩 Recursos de una VM</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f6ec8f450245428693a1191a012c0078" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/4-6.4 📈 Virtual Machine Scale Sets/index.html">6.4 📈 Virtual Machine Scale Sets</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b9812d55e1bd43228e79384aecfcdeda" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/5-6.5 🛡️ Availability Sets/index.html">6.5 🛡️ Availability Sets</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f590132b7019407f93e2efd8bcb69b76" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/6-6.6 🌐 Azure App Service/index.html">6.6 🌐 Azure App Service</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="acde0b08318a494c952445612f068d89" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/7-6.7 ⚡ Azure Functions/index.html">6.7 ⚡ Azure Functions</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="66a6f797e836492fa019f48a5abe58b5" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/8-6.8 📦 Azure Container Instances/index.html">6.8 📦 Azure Container Instances</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f0dfb79922f246968680720acf1ca6b3" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/9-6.9 🚀 Azure Container Apps/index.html">6.9 🚀 Azure Container Apps</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="33b8fd3623d84c1a93fa7dcfee7f2d7e" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/10-6.10 ☸️ Azure Kubernetes Service/index.html">6.10 ☸️ Azure Kubernetes Service</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="92c6d953667043a4af6ae83d92d8a2e4" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/11-6.11 🖥️ Azure Virtual Desktop/index.html">6.11 🖥️ Azure Virtual Desktop</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1360484d98754957a898f0d993497880" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/12-6.12 🌐 Azure Virtual Network/index.html">6.12 🌐 Azure Virtual Network</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9eb7a81da0db4adbb6aa90214a9eb522" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/13-6.13 🔗 VNet Peering/index.html">6.13 🔗 VNet Peering</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b60e23bcec444a2db12d2bff0473a581" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/14-6.14 🌍 Azure DNS/index.html">6.14 🌍 Azure DNS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8903a266f89645f697780f0bdc5f25d1" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/15-6.15 🔒 Network Security Groups/index.html">6.15 🔒 Network Security Groups</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bfa8ff279fa646c08682dfdbf8a5ac37" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/16-🌟 Aplication Security Groups/index.html">🌟 Aplication Security Groups</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="26a475705d0f4233bc21c45740a34496" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/17-6.16 🔐 Azure VPN Gateway/index.html">6.16 🔐 Azure VPN Gateway</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f3a066ac94cf4518aa6d9131365119d5" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/18-6.17 ⚡ Azure ExpressRoute/index.html">6.17 ⚡ Azure ExpressRoute</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="37b891dca69c466a92700a45b61c7019" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/19-6.18 🔏 Private Endpoints/index.html">6.18 🔏 Private Endpoints</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ce9e89902e4d45acbe2d6051bae65edf" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/20-6.19 🛡️ Application Gateway/index.html">6.19 🛡️ Application Gateway</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fd1af341381d4cd28623112a96e8a5c9" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/21-6.20 ⚖️ Azure Load Balancer/index.html">6.20 ⚖️ Azure Load Balancer</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cf574299832d43a1892a2911ddf09465" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/22-6.21 🔥 Web Application Firewall (WAF)/index.html">6.21 🔥 Web Application Firewall (WAF)</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cb911dcdd3d6445ea1d015e00ec8cb5f" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/23-6.22 🌎 CDN y Front Door/index.html">6.22 🌎 CDN y Front Door</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1cd0df8f7dbd4e068b77b913c327585a" data-module="10-M6 — COMPUTE Y NETWORKING" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M6 — COMPUTE Y NETWORKING/24-6.23 🚦 Traffic Manager/index.html">6.23 🚦 Traffic Manager</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">11</span>
+                    <h2 class="mtitle">M7 — AZURE STORAGE</h2>
+                    <span class="mcount" data-module-count="11-M7 — AZURE STORAGE">0/14</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="11-M7 — AZURE STORAGE"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="59240d45a44d47d5aaa9300a653ff437" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/1-7.1 🗄️ Storage Accounts/index.html">7.1 🗄️ Storage Accounts</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="42b1147d1518404fbdbea142bb9134b8" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/2-7.2 📦 Blob Storage/index.html">7.2 📦 Blob Storage</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c22f71f2e7004183950c23a28a97ff1c" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/3-7.3 🌡️ Access Tiers/index.html">7.3 🌡️ Access Tiers</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3018662ee4594990941becb389f98b9f" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/4-7.4 📁 Azure Files/index.html">7.4 📁 Azure Files</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c45f561e3a234cda97132fd72cde0459" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/5-7.5 📨 Queue Storage/index.html">7.5 📨 Queue Storage</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ed3a589cb7ce4504a52a3444472358d1" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/6-7.6 📋 Table Storage/index.html">7.6 📋 Table Storage</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9409fa1d87bb4233bb1ffef2a717d2e0" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/7-7.7 💾 Managed Disks/index.html">7.7 💾 Managed Disks</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="178e6e17de934a688e204b143148c686" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/8-7.8 🛡️ LRS y ZRS/index.html">7.8 🛡️ LRS y ZRS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a5bd52423af7449f90680147ebd0cd46" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/9-7.9 🌍 GRS y GZRS/index.html">7.9 🌍 GRS y GZRS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="85997b391f4a42099642389931344874" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/10-7.10 ⌨️ AzCopy/index.html">7.10 ⌨️ AzCopy</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f4e4aaeadb3841629654cb40afe5571a" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/11-7.11 🖥️ Storage Explorer/index.html">7.11 🖥️ Storage Explorer</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="61f2d4f438a84ff6920ce7f4f07c657f" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/12-7.12 🔄 Azure File Sync/index.html">7.12 🔄 Azure File Sync</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e7129519c5c141c8afb7cf737fc496c3" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/13-7.13 🚚 Azure Migrate/index.html">7.13 🚚 Azure Migrate</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cc678b61b06240ef9a50698cc31f34c7" data-module="11-M7 — AZURE STORAGE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M7 — AZURE STORAGE/14-7.14 📦 Azure Data Box/index.html">7.14 📦 Azure Data Box</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">12</span>
+                    <h2 class="mtitle">M8 — IDENTIDAD Y SEGURIDAD EN AZURE</h2>
+                    <span class="mcount" data-module-count="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE">0/12</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fc00e9c4b9fa4040a8579df27896b15b" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/1-8.1 🔐 Autenticación vs autorización/index.html">8.1 🔐 Autenticación vs autorización</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="123072bbb3e141a296cad7bedea90f60" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/2-8.2 👤 Microsoft Entra ID/index.html">8.2 👤 Microsoft Entra ID</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="75de6430297e4be7b5704e88a6933227" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/3-8.3 🏢 Entra Domain Services/index.html">8.3 🏢 Entra Domain Services</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0b8a1e1810d146ff9461fc62cac6cd0f" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/4-8.4 🔄 Identidad híbrida/index.html">8.4 🔄 Identidad híbrida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="894eb441e8b94e71b4f6fc4a607a2f6e" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/5-8.5 🛡️ Azure RBAC/index.html">8.5 🛡️ Azure RBAC</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="feb2caab8294427484e9350ab40089f6" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/6-8.6 🔑 SSO, MFA y Passwordless/index.html">8.6 🔑 SSO, MFA y Passwordless</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="534e9c5b6b28447f8f930c9b30ac6f3a" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/7-8.7 🌐 Identidades externas/index.html">8.7 🌐 Identidades externas</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="399d264a871b4f09bef1e2620945807b" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/8-8.8 🚦 Conditional Access/index.html">8.8 🚦 Conditional Access</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b129bfad7c8049c194ec1332f5b5e0b5" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/9-8.9 🏰 Zero Trust y Defense in Depth/index.html">8.9 🏰 Zero Trust y Defense in Depth</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="93e2f5c5e2314510aabc8fd5fc25e0d2" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/10-8.10 🔍 Defender for Cloud/index.html">8.10 🔍 Defender for Cloud</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6b2429c082d6484196aa0c9daf9926ed" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/11-8.11 🔒 Azure Key Vault/index.html">8.11 🔒 Azure Key Vault</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d06ab834c3e840c8983acd15cc897e1b" data-module="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M8 — IDENTIDAD Y SEGURIDAD EN AZURE/12-8.12 🚨 Microsoft Sentinel/index.html">8.12 🚨 Microsoft Sentinel</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">13</span>
+                    <h2 class="mtitle">M9 — FACTURACIÓN EN AZURE</h2>
+                    <span class="mcount" data-module-count="13-M9 — FACTURACIÓN EN AZURE">0/8</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="13-M9 — FACTURACIÓN EN AZURE"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="9ead88d34a2346de91e0c6583617b306" data-module="13-M9 — FACTURACIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — FACTURACIÓN EN AZURE/1-9.1 💰 Factores de costo/index.html">9.1 💰 Factores de costo</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="94af90575d02494caaa3e428ba9679d8" data-module="13-M9 — FACTURACIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — FACTURACIÓN EN AZURE/2-9.2 📉 Opciones de ahorro/index.html">9.2 📉 Opciones de ahorro</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="190c99d217724c498f30e4c0e49f12d0" data-module="13-M9 — FACTURACIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — FACTURACIÓN EN AZURE/3-9.3 🧮 Azure Pricing Calculator/index.html">9.3 🧮 Azure Pricing Calculator</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c50f7049b4a248e4955c8a489b238bad" data-module="13-M9 — FACTURACIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — FACTURACIÓN EN AZURE/4-9.4 📊 TCO Calculator/index.html">9.4 📊 TCO Calculator</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="4a043e013fae41f0b69c2b668085f1a6" data-module="13-M9 — FACTURACIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — FACTURACIÓN EN AZURE/5-9.5 💳 Microsoft Cost Management/index.html">9.5 💳 Microsoft Cost Management</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f7bc11d2f1d9499baa30c9335b94d6ea" data-module="13-M9 — FACTURACIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — FACTURACIÓN EN AZURE/6-9.6 🚨 Budgets y Cost Alerts/index.html">9.6 🚨 Budgets y Cost Alerts</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="835e0e6b13f3402a8354e6677fb1fda3" data-module="13-M9 — FACTURACIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — FACTURACIÓN EN AZURE/7-9.7 🏷️ Resource Tags/index.html">9.7 🏷️ Resource Tags</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3437b34947eb45f09dd92a5b03297b75" data-module="13-M9 — FACTURACIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="13-M9 — FACTURACIÓN EN AZURE/8-9.8 🎧 Azure Support Plans/index.html">9.8 🎧 Azure Support Plans</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">14</span>
+                    <h2 class="mtitle">M10 — GOBERNANZA Y CUMPLIMIENTO</h2>
+                    <span class="mcount" data-module-count="14-M10 — GOBERNANZA Y CUMPLIMIENTO">0/7</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="14-M10 — GOBERNANZA Y CUMPLIMIENTO"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ca46e69c37f54ee38b09fe617d274710" data-module="14-M10 — GOBERNANZA Y CUMPLIMIENTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — GOBERNANZA Y CUMPLIMIENTO/1-10.1 🏛️ Gobernanza en Azure/index.html">10.1 🏛️ Gobernanza en Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="72c7715b476e4bd68a39d5a92fe48921" data-module="14-M10 — GOBERNANZA Y CUMPLIMIENTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — GOBERNANZA Y CUMPLIMIENTO/2-10.2 📜 Azure Policy/index.html">10.2 📜 Azure Policy</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="7e28ddad57f240158eaeabe60174b3f5" data-module="14-M10 — GOBERNANZA Y CUMPLIMIENTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — GOBERNANZA Y CUMPLIMIENTO/3-10.3 🔒 Resource Locks/index.html">10.3 🔒 Resource Locks</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6cc041f45d194d90b4b0d69120578152" data-module="14-M10 — GOBERNANZA Y CUMPLIMIENTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — GOBERNANZA Y CUMPLIMIENTO/4-10.4 🧭 Microsoft Purview/index.html">10.4 🧭 Microsoft Purview</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0196a38c73f046f0a91e213659c366a2" data-module="14-M10 — GOBERNANZA Y CUMPLIMIENTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — GOBERNANZA Y CUMPLIMIENTO/5-10.5 ✅ Service Trust Portal/index.html">10.5 ✅ Service Trust Portal</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="96f33cd8322946de9bc3b425a866213a" data-module="14-M10 — GOBERNANZA Y CUMPLIMIENTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — GOBERNANZA Y CUMPLIMIENTO/6-10.6 🧩 Gobernanza en producción/index.html">10.6 🧩 Gobernanza en producción</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="daa251be9aa848e5bbaf7e0ff6d9acc8" data-module="14-M10 — GOBERNANZA Y CUMPLIMIENTO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="14-M10 — GOBERNANZA Y CUMPLIMIENTO/7-10.7 🎯 Distractores de gobernanza/index.html">10.7 🎯 Distractores de gobernanza</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">15</span>
+                    <h2 class="mtitle">M11 — DESPLIEGUE EN AZURE</h2>
+                    <span class="mcount" data-module-count="15-M11 — DESPLIEGUE EN AZURE">0/10</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="15-M11 — DESPLIEGUE EN AZURE"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f6fc990772e24f9c9183b03219862488" data-module="15-M11 — DESPLIEGUE EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — DESPLIEGUE EN AZURE/1-11.1 🖥️ Portal de Azure/index.html">11.1 🖥️ Portal de Azure</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fd83249067ab4184aba754f9991543bd" data-module="15-M11 — DESPLIEGUE EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — DESPLIEGUE EN AZURE/2-11.2 ⌨️ Azure CLI/index.html">11.2 ⌨️ Azure CLI</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="b29b42e3b25d4ce597f43af9081ad012" data-module="15-M11 — DESPLIEGUE EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — DESPLIEGUE EN AZURE/3-11.3 💻 Azure PowerShell/index.html">11.3 💻 Azure PowerShell</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="39cbd89914664ade86fe8693b0d1f37a" data-module="15-M11 — DESPLIEGUE EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — DESPLIEGUE EN AZURE/4-11.4 ☁️ Azure Cloud Shell/index.html">11.4 ☁️ Azure Cloud Shell</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="d6f6d33b4ec1453ea623f3cd9fce12eb" data-module="15-M11 — DESPLIEGUE EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — DESPLIEGUE EN AZURE/5-11.5 🧱 Infraestructura como código/index.html">11.5 🧱 Infraestructura como código</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="326130d771574dff92c040f362897d41" data-module="15-M11 — DESPLIEGUE EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — DESPLIEGUE EN AZURE/6-11.6 📄 Plantillas ARM/index.html">11.6 📄 Plantillas ARM</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3df1723760da406ba37c51a7d602343f" data-module="15-M11 — DESPLIEGUE EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — DESPLIEGUE EN AZURE/7-11.7 🛠️ Bicep/index.html">11.7 🛠️ Bicep</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="316d4d2689664b0cadc6c7dba6a20890" data-module="15-M11 — DESPLIEGUE EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — DESPLIEGUE EN AZURE/8-11.8 🌐 Azure Arc/index.html">11.8 🌐 Azure Arc</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="adfbcba2af85467580b12b8ec643d837" data-module="15-M11 — DESPLIEGUE EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — DESPLIEGUE EN AZURE/9-11.9 🚦 Preview, GA y ciclo de vida/index.html">11.9 🚦 Preview, GA y ciclo de vida</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a24fd6236d294482a322f17a6b1321c0" data-module="15-M11 — DESPLIEGUE EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="15-M11 — DESPLIEGUE EN AZURE/10-11.10 🔄 Azure DevOps Services/index.html">11.10 🔄 Azure DevOps Services</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">16</span>
+                    <h2 class="mtitle">M12 — SUPERVISIÓN EN AZURE</h2>
+                    <span class="mcount" data-module-count="16-M12 — SUPERVISIÓN EN AZURE">0/6</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="16-M12 — SUPERVISIÓN EN AZURE"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="dd8f0766d86541b49dcbd2ffc1fd98ed" data-module="16-M12 — SUPERVISIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — SUPERVISIÓN EN AZURE/1-12.1 💡 Azure Advisor/index.html">12.1 💡 Azure Advisor</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c362add8e3dc4c0580a1543bf3273868" data-module="16-M12 — SUPERVISIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — SUPERVISIÓN EN AZURE/2-12.2 ❤️ Azure Service Health/index.html">12.2 ❤️ Azure Service Health</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="234a1a9ecedf408e9c730c984dd5c3bc" data-module="16-M12 — SUPERVISIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — SUPERVISIÓN EN AZURE/3-12.3 📊 Azure Monitor/index.html">12.3 📊 Azure Monitor</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="e9b8fdeaea9542d38daeea3b9935849c" data-module="16-M12 — SUPERVISIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — SUPERVISIÓN EN AZURE/4-12.4 📈 Métricas y registros/index.html">12.4 📈 Métricas y registros</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="333a0c09baaf4126a3d82b148e3f4bd6" data-module="16-M12 — SUPERVISIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — SUPERVISIÓN EN AZURE/5-12.5 🚨 Alertas y Action Groups/index.html">12.5 🚨 Alertas y Action Groups</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a91b6dfccb8949138421a35d9cc2a7ee" data-module="16-M12 — SUPERVISIÓN EN AZURE" aria-label="Marcar como completada">
+                    <a class="ltitle" href="16-M12 — SUPERVISIÓN EN AZURE/6-12.6 🟣 Application Insights/index.html">12.6 🟣 Application Insights</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">17</span>
+                    <h2 class="mtitle">M13 — PREPARACIÓN FINAL AZ-900</h2>
+                    <span class="mcount" data-module-count="17-M13 — PREPARACIÓN FINAL AZ-900">0/4</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="17-M13 — PREPARACIÓN FINAL AZ-900"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="cad59867d4e844598c7c67387f945f25" data-module="17-M13 — PREPARACIÓN FINAL AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="17-M13 — PREPARACIÓN FINAL AZ-900/1-13.1 🎯 Tácticas de examen/index.html">13.1 🎯 Tácticas de examen</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="98b60d7ef88f47a8ab195792600c9d51" data-module="17-M13 — PREPARACIÓN FINAL AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="17-M13 — PREPARACIÓN FINAL AZ-900/2-13.2 ⚖️ Tablas de desempate/index.html">13.2 ⚖️ Tablas de desempate</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2c92ebf5934c42b9863ff563937c26fc" data-module="17-M13 — PREPARACIÓN FINAL AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="17-M13 — PREPARACIÓN FINAL AZ-900/3-13.3 📚 Glosario rápido/index.html">13.3 📚 Glosario rápido</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fb52093397904536983b22b442498898" data-module="17-M13 — PREPARACIÓN FINAL AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="17-M13 — PREPARACIÓN FINAL AZ-900/4-13.4 📝 Simulacro final/index.html">13.4 📝 Simulacro final</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">18</span>
+                    <h2 class="mtitle">M14 — PROGRAMAR EL EXAMEN AZ-900</h2>
+                    <span class="mcount" data-module-count="18-M14 — PROGRAMAR EL EXAMEN AZ-900">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="18-M14 — PROGRAMAR EL EXAMEN AZ-900"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ea68d64004c34e3f94f488da58c1c21c" data-module="18-M14 — PROGRAMAR EL EXAMEN AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="18-M14 — PROGRAMAR EL EXAMEN AZ-900/1-14.1 📅 Crear perfil y agendar/index.html">14.1 📅 Crear perfil y agendar</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="89da3e5f22f24eaf9d58a60c8997b580" data-module="18-M14 — PROGRAMAR EL EXAMEN AZ-900" aria-label="Marcar como completada">
+                    <a class="ltitle" href="18-M14 — PROGRAMAR EL EXAMEN AZ-900/2-14.2 💻 Examen online con OnVUE/index.html">14.2 💻 Examen online con OnVUE</a>
+                </li></ul>
+            </article>
+    </section>
+</main>
+<footer class="foot">Backup local de 🎖️ Azure Fundamentals — AZ-900. El progreso se guarda en este navegador (localStorage); no se envía a ningún lado.</footer>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+(function () {
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-lesson]'));
+
+    function refresh() {
+        var total = boxes.length, done = 0;
+        var byModule = {};
+        boxes.forEach(function (b) {
+            var id = b.getAttribute('data-lesson');
+            var key = b.getAttribute('data-module');
+            var isDone = Progress.isDone(id);
+            b.checked = isDone;
+            if (!byModule[key]) byModule[key] = { done: 0, total: 0 };
+            byModule[key].total++;
+            if (isDone) { byModule[key].done++; done++; }
+            var row = b.closest ? b.closest('.lesson') : null;
+            if (row) row.classList.toggle('is-done', isDone);
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-bar]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-bar')] || { done: 0, total: 0 };
+            el.style.width = (m.total ? Math.round((m.done / m.total) * 100) : 0) + '%';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-count]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-count')] || { done: 0, total: 0 };
+            el.textContent = m.done + '/' + m.total;
+        });
+
+        var pct = total ? Math.round((done / total) * 100) : 0;
+        var op = document.querySelector('[data-overall-bar]'); if (op) op.style.width = pct + '%';
+        var opct = document.querySelector('[data-overall-pct]'); if (opct) opct.textContent = pct + '%';
+        var oc = document.querySelector('[data-overall-count]');
+        if (oc) oc.textContent = done + ' de ' + total + ' lecciones completadas';
+    }
+
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            Progress.set(b.getAttribute('data-lesson'), b.checked);
+            refresh();
+        });
+    });
+
+    var reset = document.querySelector('[data-reset]');
+    if (reset) reset.addEventListener('click', function () {
+        if (window.confirm('¿Borrar todo el progreso de este curso?')) { Progress.reset(); refresh(); }
+    });
+
+    Progress.load(refresh);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

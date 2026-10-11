@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>👨‍💻 Dev Para DevOps — jemjaf</title>
+<style>
+    :root {
+        --bg: #f3f4f1;
+        --surface: #ffffff;
+        --ink: #15181c;
+        --muted: #5c636b;
+        --line: #dfe2df;
+        --track: #e7e9e6;
+        --accent: #1e7a4d;
+        --accent-ink: #14502f;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+    }
+    a { color: var(--ink); }
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(243,244,241,0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+    }
+    .topbar .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+    }
+    .crumb { font-size: 0.85rem; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .crumb a:hover { color: var(--accent); }
+    .crumb .here { color: var(--ink); }
+    .overall { display: flex; align-items: center; gap: 12px; }
+    .overall .track { width: 220px; }
+    .pct { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-weight: 700; font-size: 1rem; color: var(--accent-ink); min-width: 3.2rem; text-align: right; }
+    .ocount { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 40px 24px 80px; max-width: 900px; margin: 0 auto; }
+    .lead { margin-bottom: 34px; }
+    .lead h1 {
+        font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px 0;
+    }
+    .lead .sub { color: var(--muted); margin: 0 0 18px 0; }
+    .lead .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ghost {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+    }
+    .ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .module {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px 22px 14px;
+        margin-bottom: 18px;
+    }
+    .module-head { display: flex; align-items: baseline; gap: 12px; }
+    .mnum {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.85rem;
+        color: var(--accent-ink);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 2px 7px;
+        flex: none;
+    }
+    .mtitle { flex: 1; font-size: 1.12rem; margin: 0; letter-spacing: -0.005em; }
+    .mcount {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--muted);
+        flex: none;
+    }
+    .track {
+        height: 6px;
+        background: var(--track);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 14px 0 18px;
+    }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .lessons { list-style: none; margin: 0; padding: 0; }
+    .lesson { display: flex; align-items: flex-start; gap: 11px; padding: 7px 0; border-top: 1px solid var(--line); }
+    .lesson:first-child { border-top: none; }
+    .lesson input[type="checkbox"] {
+        width: 17px; height: 17px; margin: 3px 0 0 0; flex: none;
+        accent-color: var(--accent);
+        cursor: pointer;
+    }
+    .lesson .ltitle { text-decoration: none; }
+    .lesson .ltitle:hover { color: var(--accent-ink); text-decoration: underline; }
+    .lesson.is-done .ltitle { color: var(--muted); }
+    footer.foot { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; color: var(--muted); font-size: 0.8rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+    @media (max-width: 600px) {
+        .topbar .wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .overall .track { width: 150px; }
+    }
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="wrap">
+        <div class="crumb">
+            <a href="../index.html">jemjaf</a> <span>/</span> <span class="here">👨‍💻 Dev Para DevOps</span>
+        </div>
+        <div class="overall">
+            <div class="track" role="progressbar" aria-label="Progreso del curso"><div class="fill" data-overall-bar></div></div>
+            <span class="pct" data-overall-pct>0%</span>
+        </div>
+    </div>
+</div>
+<main>
+    <section class="lead">
+        <h1>👨‍💻 Dev Para DevOps</h1>
+        <p class="sub">Comunidad jemjaf · 12 módulos · 38 lecciones</p>
+        <div class="tools">
+            <button class="ghost" data-reset type="button">Reiniciar progreso de este curso</button>
+        </div>
+        <p class="ocount"><span data-overall-count>0 de 38 lecciones</span></p>
+    </section>
+    <section class="modules">
+        
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">02</span>
+                    <h2 class="mtitle">🎬🔴 SESIONES COMPLETAS</h2>
+                    <span class="mcount" data-module-count="2-🎬🔴 SESIONES COMPLETAS">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="2-🎬🔴 SESIONES COMPLETAS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="431bfcf06a4940ecaf837121d5fb72e5" data-module="2-🎬🔴 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔴 SESIONES COMPLETAS/1-💻 [P1] Fundamentos - Frontend - Backend/index.html">💻 [P1] Fundamentos - Frontend - Backend</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="a8e02b4b1e8e42bfb417668f10f7b4ad" data-module="2-🎬🔴 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔴 SESIONES COMPLETAS/2-💻 [P2] DataBases - APIs - Arquitectura/index.html">💻 [P2] DataBases - APIs - Arquitectura</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5e9fb6aaa4ea43ef98635646f257181d" data-module="2-🎬🔴 SESIONES COMPLETAS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎬🔴 SESIONES COMPLETAS/3-💻 [P3] HTTP - Status Codes - CORS/index.html">💻 [P3] HTTP - Status Codes - CORS</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">01</span>
+                    <h2 class="mtitle">Lessons</h2>
+                    <span class="mcount" data-module-count="__root__">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="__root__"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="539a1354958d4078ae6b39c806ab986d" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="1-📍 [INICIO]/index.html">📍 [INICIO]</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="60ec899cb900472e8f129ffc3107a6e0" data-module="__root__" aria-label="Marcar como completada">
+                    <a class="ltitle" href="2-🎉 Bienvenida/index.html">🎉 Bienvenida</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">03</span>
+                    <h2 class="mtitle">✅Q&amp;A en VIVO</h2>
+                    <span class="mcount" data-module-count="3-✅Q&amp;A en VIVO">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="3-✅Q&amp;A en VIVO"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="f6d3c3c77cfb4ca3b9b58357fb672c49" data-module="3-✅Q&amp;A en VIVO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="3-✅Q&amp;A en VIVO/1-Qué tanta programación debe saber un DevOps-Cloud-/index.html">Qué tanta programación debe saber un DevOps/Cloud?</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">04</span>
+                    <h2 class="mtitle">M1 — FUNDAMENTOS WEB</h2>
+                    <span class="mcount" data-module-count="4-M1 — FUNDAMENTOS WEB">0/7</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="4-M1 — FUNDAMENTOS WEB"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="5725f270cb8b44eaab0d912b1b3299ff" data-module="4-M1 — FUNDAMENTOS WEB" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M1 — FUNDAMENTOS WEB/1-1.1 🤔 ¿Por qué conocer Web Dev-/index.html">1.1 🤔 ¿Por qué conocer Web Dev?</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="18c1763315ea4fddaff45cb38997ebdf" data-module="4-M1 — FUNDAMENTOS WEB" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M1 — FUNDAMENTOS WEB/2-1.2 🌐 Web vs. Internet/index.html">1.2 🌐 Web vs. Internet</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ba8a2c4da6644cd483d7fd0ccd00456f" data-module="4-M1 — FUNDAMENTOS WEB" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M1 — FUNDAMENTOS WEB/3-1.3 📡 DNS- de dominio a IP/index.html">1.3 📡 DNS: de dominio a IP</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="19618585886f41149abc8d541b005e75" data-module="4-M1 — FUNDAMENTOS WEB" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M1 — FUNDAMENTOS WEB/4-1.4 🌍 Anatomía de URI y URL/index.html">1.4 🌍 Anatomía de URI y URL</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="77df8d6d5d9d499caa8c2c42240dbe2d" data-module="4-M1 — FUNDAMENTOS WEB" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M1 — FUNDAMENTOS WEB/5-1.5 📨 El viaje de una request/index.html">1.5 📨 El viaje de una request</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="3361e7c237504b8ba3860978e0a6b171" data-module="4-M1 — FUNDAMENTOS WEB" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M1 — FUNDAMENTOS WEB/6-1.6 🚪 Puertos- las puertas invisibles/index.html">1.6 🚪 Puertos: las puertas invisibles</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="8a82b6da96ce4a689df194d3f75ae97b" data-module="4-M1 — FUNDAMENTOS WEB" aria-label="Marcar como completada">
+                    <a class="ltitle" href="4-M1 — FUNDAMENTOS WEB/7-1.7 🧭 Browsers y Chromium/index.html">1.7 🧭 Browsers y Chromium</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">05</span>
+                    <h2 class="mtitle">M2 — HTTP Y HTTPS</h2>
+                    <span class="mcount" data-module-count="5-M2 — HTTP Y HTTPS">0/8</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="5-M2 — HTTP Y HTTPS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ee820140a9024427b381855977f4a178" data-module="5-M2 — HTTP Y HTTPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M2 — HTTP Y HTTPS/1-2.1 🧩 Anatomía de una request/index.html">2.1 🧩 Anatomía de una request</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="1e9a44244d76437e9682330fe67a4987" data-module="5-M2 — HTTP Y HTTPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M2 — HTTP Y HTTPS/2-2.2 🔬 Desglose técnico/index.html">2.2 🔬 Desglose técnico</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="0de59cafbf6f4bb6be699d755f54e3cb" data-module="5-M2 — HTTP Y HTTPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M2 — HTTP Y HTTPS/3-2.3 🛠️ Métodos HTTP e idempotencia/index.html">2.3 🛠️ Métodos HTTP e idempotencia</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="ff60985d6b82448eb0a81a5eb71db0d4" data-module="5-M2 — HTTP Y HTTPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M2 — HTTP Y HTTPS/4-2.4 🕵️ Headers- la información oculta/index.html">2.4 🕵️ Headers: la información oculta</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6e8adcd1ed724d38b4b86ec7912590e1" data-module="5-M2 — HTTP Y HTTPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M2 — HTTP Y HTTPS/5-2.6 🚥 Status Codes/index.html">2.6 🚥 Status Codes</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="71ea0e8c2ab641b8bdf0ae9a9a55e85b" data-module="5-M2 — HTTP Y HTTPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M2 — HTTP Y HTTPS/6-2.7 ♻️ Status Codes frecuentes/index.html">2.7 ♻️ Status Codes frecuentes</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="16cf7083563945d8aff6f109e73c8e04" data-module="5-M2 — HTTP Y HTTPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M2 — HTTP Y HTTPS/7-2.8 🔒 CORS/index.html">2.8 🔒 CORS</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="c9ffda5133b84563a3d4ee0c7b78b830" data-module="5-M2 — HTTP Y HTTPS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="5-M2 — HTTP Y HTTPS/8-2.9 🔐 HTTPS, TLS y certificados/index.html">2.9 🔐 HTTPS, TLS y certificados</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">06</span>
+                    <h2 class="mtitle">M3 — FRONTEND Y RENDERIZADO</h2>
+                    <span class="mcount" data-module-count="6-M3 — FRONTEND Y RENDERIZADO">0/4</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="6-M3 — FRONTEND Y RENDERIZADO"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fa5a717138904bc29716c2395341246b" data-module="6-M3 — FRONTEND Y RENDERIZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M3 — FRONTEND Y RENDERIZADO/1-3.1 🧱 HTML y DOM/index.html">3.1 🧱 HTML y DOM</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="fede38436b5f428ba36895464ad55194" data-module="6-M3 — FRONTEND Y RENDERIZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M3 — FRONTEND Y RENDERIZADO/2-3.2 🎨 CSS y presentación/index.html">3.2 🎨 CSS y presentación</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="2f3d65f0b9f14b0db95fd041741b4db9" data-module="6-M3 — FRONTEND Y RENDERIZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M3 — FRONTEND Y RENDERIZADO/3-3.3 ⚡ JavaScript e interactividad/index.html">3.3 ⚡ JavaScript e interactividad</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="75f7f475aa1b4dd1b945e810e5c1a279" data-module="6-M3 — FRONTEND Y RENDERIZADO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="6-M3 — FRONTEND Y RENDERIZADO/4-3.4 🧰 Frameworks frontend/index.html">3.4 🧰 Frameworks frontend</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">07</span>
+                    <h2 class="mtitle">M4 — BACKEND Y APIs</h2>
+                    <span class="mcount" data-module-count="7-M4 — BACKEND Y APIs">0/3</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="7-M4 — BACKEND Y APIs"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="6422490b69af49b59f396ada87b6540a" data-module="7-M4 — BACKEND Y APIs" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M4 — BACKEND Y APIs/1-4.1 🌓 Frontend vs. Backend/index.html">4.1 🌓 Frontend vs. Backend</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="64e3e4df8a0e41379e13d66fcd421add" data-module="7-M4 — BACKEND Y APIs" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M4 — BACKEND Y APIs/2-4.2 ⚙️ Frameworks backend/index.html">4.2 ⚙️ Frameworks backend</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="be1a889c199c47ca9ee9747877bea58e" data-module="7-M4 — BACKEND Y APIs" aria-label="Marcar como completada">
+                    <a class="ltitle" href="7-M4 — BACKEND Y APIs/3-4.3 🔌 APIs/index.html">4.3 🔌 APIs</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">08</span>
+                    <h2 class="mtitle">M5 — BASES DE DATOS</h2>
+                    <span class="mcount" data-module-count="8-M5 — BASES DE DATOS">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="8-M5 — BASES DE DATOS"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="636651672f8c4d6dbcf65f5f1c1605c1" data-module="8-M5 — BASES DE DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M5 — BASES DE DATOS/1-5.1 🗄️ Bases de datos- SQL vs. NoSQL/index.html">5.1 🗄️ Bases de datos: SQL vs. NoSQL</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="343457ab9402423eae8bce75d5b9a73b" data-module="8-M5 — BASES DE DATOS" aria-label="Marcar como completada">
+                    <a class="ltitle" href="8-M5 — BASES DE DATOS/2-5.2 🔗 ORM/index.html">5.2 🔗 ORM</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">09</span>
+                    <h2 class="mtitle">M6 — ARQUITECTURA DE APLICACIONES</h2>
+                    <span class="mcount" data-module-count="9-M6 — ARQUITECTURA DE APLICACIONES">0/2</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="9-M6 — ARQUITECTURA DE APLICACIONES"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="31a9f67bec4c439aac7b1a98e7ba1eb4" data-module="9-M6 — ARQUITECTURA DE APLICACIONES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M6 — ARQUITECTURA DE APLICACIONES/1-6.1 🏢 Monolito vs. Microservicios/index.html">6.1 🏢 Monolito vs. Microservicios</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="aef2714a970f4dbe8ababb92ef8bcb04" data-module="9-M6 — ARQUITECTURA DE APLICACIONES" aria-label="Marcar como completada">
+                    <a class="ltitle" href="9-M6 — ARQUITECTURA DE APLICACIONES/2-6.2 📨 Colas y eventos/index.html">6.2 📨 Colas y eventos</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">10</span>
+                    <h2 class="mtitle">M7 — INFRAESTRUCTURA WEB</h2>
+                    <span class="mcount" data-module-count="10-M7 — INFRAESTRUCTURA WEB">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="10-M7 — INFRAESTRUCTURA WEB"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="eedb9b80ee74463baaf409bac7002377" data-module="10-M7 — INFRAESTRUCTURA WEB" aria-label="Marcar como completada">
+                    <a class="ltitle" href="10-M7 — INFRAESTRUCTURA WEB/1-7.3 🔁 Port Mapping con Docker y Nginx/index.html">7.3 🔁 Port Mapping con Docker y Nginx</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">11</span>
+                    <h2 class="mtitle">M8 — SEGURIDAD WEB</h2>
+                    <span class="mcount" data-module-count="11-M8 — SEGURIDAD WEB">0/1</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="11-M8 — SEGURIDAD WEB"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="bcdd0108287d4a9b8c3094dc6efb88ba" data-module="11-M8 — SEGURIDAD WEB" aria-label="Marcar como completada">
+                    <a class="ltitle" href="11-M8 — SEGURIDAD WEB/1-8.2 🛡️ OWASP Top 10 para Web/index.html">8.2 🛡️ OWASP Top 10 para Web</a>
+                </li></ul>
+            </article>
+            <article class="module">
+                <header class="module-head">
+                    <span class="mnum">12</span>
+                    <h2 class="mtitle">M9 — DEVOPS WEB PRÁCTICO</h2>
+                    <span class="mcount" data-module-count="12-M9 — DEVOPS WEB PRÁCTICO">0/4</span>
+                </header>
+                <div class="track" role="progressbar" aria-label="Progreso del módulo"><div class="fill" data-module-bar="12-M9 — DEVOPS WEB PRÁCTICO"></div></div>
+                <ul class="lessons">
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="68fa252631f04aa5ab9e4ac3a64b2a7c" data-module="12-M9 — DEVOPS WEB PRÁCTICO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M9 — DEVOPS WEB PRÁCTICO/1-9.1 🌱 Environment Variables (.env)/index.html">9.1 🌱 Environment Variables (.env)</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="efac73aef87f464eb4e1a80fc7ec3c28" data-module="12-M9 — DEVOPS WEB PRÁCTICO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M9 — DEVOPS WEB PRÁCTICO/2-9.2 ⚖️ Healthchecks y Load Balancers/index.html">9.2 ⚖️ Healthchecks y Load Balancers</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="40b17e08f5ea4640a0b5e01fea63d967" data-module="12-M9 — DEVOPS WEB PRÁCTICO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M9 — DEVOPS WEB PRÁCTICO/3-9.3 🩺 Tipos de Healthchecks/index.html">9.3 🩺 Tipos de Healthchecks</a>
+                </li>
+                <li class="lesson">
+                    <input type="checkbox" data-lesson="77e794c3c6b14c29a71ef81ae823321d" data-module="12-M9 — DEVOPS WEB PRÁCTICO" aria-label="Marcar como completada">
+                    <a class="ltitle" href="12-M9 — DEVOPS WEB PRÁCTICO/4-9.4 ❗ El engaño del 404/index.html">9.4 ❗ El engaño del 404</a>
+                </li></ul>
+            </article>
+    </section>
+</main>
+<footer class="foot">Backup local de 👨‍💻 Dev Para DevOps. El progreso se guarda en este navegador (localStorage); no se envía a ningún lado.</footer>
+<script>
+(function () {
+    var KEY = 'skool-progress:v1';
+    var API = '/api/progress';
+    var P = {
+        data: {},
+        backend: 'local',
+        load: function (cb) {
+            var local = {};
+            try { local = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { local = {}; }
+            P.data = local;
+            var done = function () { if (cb) { try { cb(); } catch (e) {} } };
+            if (location.protocol === 'file:') { P.backend = 'local'; done(); return; }
+            fetch(API, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }).then(function (server) {
+                P.backend = 'server';
+                var merged = {}, k;
+                for (k in server) if (Object.prototype.hasOwnProperty.call(server, k)) merged[k] = 1;
+                for (k in local) if (Object.prototype.hasOwnProperty.call(local, k) && !merged[k]) merged[k] = 1;
+                P.data = merged;
+                P.persistLocal();
+                done();
+            }).catch(function () { P.backend = 'local'; done(); });
+        },
+        persistLocal: function () { try { localStorage.setItem(KEY, JSON.stringify(P.data)); } catch (e) {} },
+        isDone: function (id) { return !!P.data[id]; },
+        set: function (id, isDone) {
+            if (isDone) { P.data[id] = 1; } else { delete P.data[id]; }
+            P.persistLocal();
+            P.push();
+        },
+        toggle: function (id) { P.set(id, !P.data[id]); },
+        reset: function () { P.data = {}; P.persistLocal(); P.push(); },
+        push: function () {
+            if (P.backend !== 'server') return;
+            clearTimeout(P._t);
+            P._t = setTimeout(function () {
+                try {
+                    fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(P.data)
+                    });
+                } catch (e) {}
+            }, 200);
+        }
+    };
+    window.Progress = P;
+})();
+</script>
+<script>
+(function () {
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-lesson]'));
+
+    function refresh() {
+        var total = boxes.length, done = 0;
+        var byModule = {};
+        boxes.forEach(function (b) {
+            var id = b.getAttribute('data-lesson');
+            var key = b.getAttribute('data-module');
+            var isDone = Progress.isDone(id);
+            b.checked = isDone;
+            if (!byModule[key]) byModule[key] = { done: 0, total: 0 };
+            byModule[key].total++;
+            if (isDone) { byModule[key].done++; done++; }
+            var row = b.closest ? b.closest('.lesson') : null;
+            if (row) row.classList.toggle('is-done', isDone);
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-bar]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-bar')] || { done: 0, total: 0 };
+            el.style.width = (m.total ? Math.round((m.done / m.total) * 100) : 0) + '%';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-module-count]'), function (el) {
+            var m = byModule[el.getAttribute('data-module-count')] || { done: 0, total: 0 };
+            el.textContent = m.done + '/' + m.total;
+        });
+
+        var pct = total ? Math.round((done / total) * 100) : 0;
+        var op = document.querySelector('[data-overall-bar]'); if (op) op.style.width = pct + '%';
+        var opct = document.querySelector('[data-overall-pct]'); if (opct) opct.textContent = pct + '%';
+        var oc = document.querySelector('[data-overall-count]');
+        if (oc) oc.textContent = done + ' de ' + total + ' lecciones completadas';
+    }
+
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            Progress.set(b.getAttribute('data-lesson'), b.checked);
+            refresh();
+        });
+    });
+
+    var reset = document.querySelector('[data-reset]');
+    if (reset) reset.addEventListener('click', function () {
+        if (window.confirm('¿Borrar todo el progreso de este curso?')) { Progress.reset(); refresh(); }
+    });
+
+    Progress.load(refresh);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>
