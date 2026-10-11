@@ -24,6 +24,7 @@
       + '#hftoken-overlay button{background:#1e7a4d;color:#fff;border:0;border-radius:8px;padding:10px 18px;font:inherit;cursor:pointer}'
       + '#hftoken-overlay button:hover{background:#185f3c}'
       + '#hftoken-overlay a{color:#14502f;font-size:.85rem}'
+      + '#hftoken-overlay .hfhint{color:#8a919b;font-size:.8rem;margin-top:12px}'
       + '#hftoken-overlay .hfm{color:#b91c1c;font-size:.85rem;margin-top:10px;min-height:1.1em}';
     document.head.appendChild(st);
 
@@ -31,11 +32,11 @@
     ov.id = 'hftoken-overlay';
     ov.innerHTML =
       '<div class="hfc">'
-      + '<h2>Acceso al curso</h2>'
-      + '<p>Pegá tu <b>token de Hugging Face</b> para ver los videos y PDFs. Se guarda solo en esta computadora.</p>'
-      + '<input id="hftoken-input" type="password" placeholder="hf_..." autocomplete="off" spellcheck="false">'
-      + '<div class="hfb"><button id="hftoken-ok" type="button">Entrar</button>'
-      + '<a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">¿Cómo consigo mi token?</a></div>'
+      + '<h2>🔒 Acceso al curso</h2>'
+      + '<p>Para ver los cursos necesitás un <b>token de acceso</b>. Pegá acá el token que te compartieron y entrá.</p>'
+      + '<input id="hftoken-input" type="password" placeholder="Pegá tu token (hf_...)" autocomplete="off" spellcheck="false">'
+      + '<div class="hfb"><button id="hftoken-ok" type="button">Entrar</button></div>'
+      + '<p class="hfhint">Se guarda solo en tu computadora y no se envía a ningún lado. Si no tenés token, pedíselo a quien te compartió el curso.</p>'
       + '<div class="hfm" id="hftoken-msg"></div>'
       + '</div>';
     document.body.appendChild(ov);
